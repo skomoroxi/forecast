@@ -1,15 +1,26 @@
-# One entry per asset. Adding an asset = adding an entry here (docs/TECHNICAL-TASK.md §5.1).
+# One entry per asset. Adding an asset = adding an entry here (docs/TECHNICAL-TASK.md §5.1)
+# plus its SEO headings and editorial text in src/lib/assetContent.ts.
 # enabled: false → shown on the hub as "Coming soon", skipped by the pipeline.
+#
+# calendar: fx = Mon–Fri · crypto = 7 days · nyse = Mon–Fri (exchange holidays not excluded yet)
+# max_daily_change: a bigger close-to-close move stops the daily run for a manual check
+# unit: what one price refers to (shown as "per troy ounce", "per coin", "per share")
 
 - id: silver
   name: Silver
+  code: XAG
+  group: Metals
   symbol: XAG/USD
   slug: silver-price-prediction
+  keywords:  # top 3 by US search volume (docs/seo/silver.md); must appear in title, H1, H2s
+    - silver price forecast 2026
+    - silver price prediction
+    - silver price predictions for next 5 years
   unit: troy ounce
   currency: USD
-  calendar: fx            # fx = Mon–Fri; crypto = 7 days; nyse = NYSE trading days
+  calendar: fx
   has_volume: false
-  max_daily_change: 0.35  # a bigger close-to-close move stops the daily run for a manual check
+  max_daily_change: 0.35
   source:
     # Twelve Data's free plan does not include XAG/USD (it needs the Grow plan), so silver spot
     # comes from Alpha Vantage (close only) and the daily range is estimated from the SLV ETF.
@@ -18,30 +29,42 @@
     ohlc_proxy:
       source: twelvedata
       symbol: SLV
-    fallback: null        # to be chosen and verified (TECHNICAL-TASK §5.2)
+    fallback: null
   chart_color: "#8A96A8"
   enabled: true
 
 - id: gold
   name: Gold
+  code: XAU
+  group: Metals
   symbol: XAU/USD
   slug: gold-price-prediction
+  keywords:  # top 3 by US search volume (docs/seo/gold.md); must appear in title, H1, H2s
+    - gold price prediction
+    - gold price forecast 2026
+    - gold price forecast
   unit: troy ounce
   currency: USD
   calendar: fx
   has_volume: false
-  max_daily_change: 0.25
+  max_daily_change: 0.2
   source:
     primary: twelvedata
     symbol: XAU/USD
     fallback: null
   chart_color: "#C07A4F"
-  enabled: false
+  enabled: true
 
 - id: bitcoin
   name: Bitcoin
+  code: BTC
+  group: Crypto
   symbol: BTC/USD
   slug: bitcoin-price-prediction
+  keywords:  # top 3 by US search volume (docs/seo/bitcoin.md); must appear in title, H1, H2s
+    - bitcoin price prediction 2026
+    - bitcoin price prediction
+    - bitcoin price prediction 2030
   unit: coin
   currency: USD
   calendar: crypto
@@ -52,4 +75,114 @@
     symbol: BTC/USD
     fallback: null
   chart_color: "#E8A33D"
-  enabled: false
+  enabled: true
+
+- id: xrp
+  name: XRP
+  code: XRP
+  group: Crypto
+  symbol: XRP/USD
+  slug: xrp-price-prediction
+  keywords:  # top 3 by US search volume (docs/seo/xrp.md); must appear in title, H1, H2s
+    - xrp price prediction
+    - xrp price prediction 2026
+    - xrp price prediction 2030
+  unit: coin
+  currency: USD
+  calendar: crypto
+  has_volume: true
+  max_daily_change: 0.6
+  source:
+    primary: twelvedata
+    symbol: XRP/USD
+    fallback: null
+  chart_color: "#23292F"
+  enabled: true
+
+- id: solana
+  name: Solana
+  code: SOL
+  group: Crypto
+  symbol: SOL/USD
+  slug: solana-price-prediction
+  keywords:  # top 3 by US search volume (docs/seo/solana.md); must appear in title, H1, H2s
+    - solana price prediction
+    - solana price prediction 2026
+    - solana price prediction 2030
+  unit: coin
+  currency: USD
+  calendar: crypto
+  has_volume: true
+  max_daily_change: 0.6
+  source:
+    primary: twelvedata
+    symbol: SOL/USD
+    fallback: null
+  chart_color: "#7B4FE0"
+  enabled: true
+
+- id: dogecoin
+  name: Dogecoin
+  code: DOGE
+  group: Crypto
+  symbol: DOGE/USD
+  slug: dogecoin-price-prediction
+  keywords:  # top 3 by US search volume (docs/seo/dogecoin.md); must appear in title, H1, H2s
+    - dogecoin price prediction
+    - dogecoin prediction
+    - dogecoin price prediction 2030
+  unit: coin
+  currency: USD
+  calendar: crypto
+  has_volume: true
+  max_daily_change: 0.8
+  source:
+    primary: twelvedata
+    symbol: DOGE/USD
+    fallback: null
+  chart_color: "#BA9F33"
+  enabled: true
+
+- id: nvidia
+  name: Nvidia
+  code: NVDA
+  group: Stocks
+  symbol: NVDA
+  slug: nvidia-stock-forecast
+  keywords:  # top 3 by US search volume (docs/seo/nvidia.md); must appear in title, H1, H2s
+    - nvidia stock forecast 2026
+    - nvidia stock price prediction 2026
+    - nvidia stock price prediction 2030
+  unit: share
+  currency: USD
+  calendar: nyse
+  has_volume: true
+  max_daily_change: 0.4
+  source:
+    primary: twelvedata
+    symbol: NVDA
+    fallback: null
+  chart_color: "#76B900"
+  enabled: true
+
+- id: amazon
+  name: Amazon
+  code: AMZN
+  group: Stocks
+  symbol: AMZN
+  slug: amazon-stock-price-prediction
+  keywords:  # top 3 by US search volume (docs/seo/amazon.md); must appear in title, H1, H2s
+    - amazon stock price prediction
+    - amazon stock forecast
+    - amzn stock forecast
+  unit: share
+  currency: USD
+  calendar: nyse
+  has_volume: true
+  max_daily_change: 0.35
+  source:
+    primary: twelvedata
+    symbol: AMZN
+    fallback: null
+  chart_color: "#E8890C"
+  enabled: true

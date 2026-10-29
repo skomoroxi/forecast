@@ -1,5 +1,5 @@
 ---
-// Asset forecast page, e.g. /silver-price-prediction/ (TECHNICAL-TASK §6.2, docs/SEO-silver.md).
+// Asset forecast page, e.g. /silver-price-prediction/ (TECHNICAL-TASK §6.2, docs/seo/silver.md).
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import ForecastCard from '../components/ForecastCard.astro';
@@ -11,11 +11,11 @@ import Factors from '../components/Factors.astro';
 import CtaSection from '../components/CtaSection.astro';
 import Faq from '../components/Faq.astro';
 import AssetCards from '../components/AssetCards.astro';
-import { assets, type AssetConfig } from '../lib/assets';
-import { assetData, consensusAt, visibleAnalysts, type AssetId } from '../lib/data';
-import { date, dateTimeUtc, money, number, VERDICT_LABEL } from '../lib/format';
+import { assets, calendarNote, hero, unitLabel, type AssetConfig } from '../lib/assets';
+import { assetData, consensusAt, extremes, visibleAnalysts, type AssetId } from '../lib/data';
+import { date, dateTimeUtc, money, number, percent, VERDICT_LABEL } from '../lib/format';
 import { Writer, yearlyHistory } from '../lib/text';
-import { CONTENT } from '../lib/assetContent';
+import { CONTENT, headings } from '../lib/assetContent';
 import { article, breadcrumbs, dataset } from '../lib/seo';
 import {
   accuracyTable, analystsTable, dailyTable, historyTable, longTermTable, monthlyTable, yearSummaryTable,
@@ -32,15 +32,17 @@ interface Props {
 const { asset } = Astro.props;
 const id = asset.id as AssetId;
 const N = asset.name;
-const n = N.toLowerCase();
+const unit = unitLabel(asset);
 const { forecast: fc, ta, prices, analysts } = assetData(id);
-const w = new Writer(fc, ta, N);
+const w = new Writer(fc, ta, asset);
 const content = CONTENT[asset.id];
 const today = fc.last_close.price;
 const runYear = new Date(fc.run_date).getUTCFullYear();
 const lastMonthlyYear = Number(fc.monthly.at(-1)!.month.slice(0, 4));
 const laterYears = Array.from({ length: lastMonthlyYear - runYear }, (_, i) => runYear + 1 + i);
 const lastYearly = fc.yearly.at(-1)?.year;
+const H = headings(asset, { run: runYear, last: lastMonthlyYear, lastYearly });
+const ext = extremes(prices.bars);
 
 const in30 = consensusAt(fc, 'daily-end');
 const endThisYear = consensusAt(fc, runYear);
@@ -59,7 +61,7 @@ const history = historyTable(yearlyHistory(prices.bars, 10));
 const analystEntries = visibleAnalysts(analysts, fc.run_date);
 const analystRows = analystEntries.length ? analystsTable(analystEntries, fc) : null;
 const sigma = Number(fc.methods.montecarlo?.params?.sigma_daily ?? 0);
-const annualVol = sigma ? sigma * Math.sqrt(261) * 100 : null;
+const annualVol = sigma ? sigma * Math.sqrt(asset.calendar === 'crypto' ? 365 : 261) * 100 : null;
 const todayClose = fc.daily.find((r) => r.date === fc.run_date);
 const tomorrow = w.nextDay();
 const weekAhead = fc.daily.find((r) => r.date >= new Date(Date.parse(tomorrow.date) + 6 * 864e5).toISOString().slice(0, 10)) ?? fc.daily.at(-1)!;
@@ -67,19 +69,21 @@ const muDaily = Number(fc.methods.montecarlo?.params?.mu_daily ?? 0);
 const deviation = Number(fc.methods.reversion?.params?.deviation_from_trend_pct ?? 0);
 const faq = w.faq();
 
-const title = `${N} Price Prediction ${runYear}–${lastMonthlyYear}: Daily & 5-Year Forecast`;
-const description = `${N} price forecast for tomorrow, next 30 days, end of ${runYear} and ${runYear + 1}–${lastMonthlyYear}. Three models, analyst consensus and live technical analysis. Updated daily.`;
+const title = H.title;
+const description = `${H.og} for tomorrow, the next 30 days, end of ${runYear} and ${runYear + 1}–${lastMonthlyYear}: three statistical models, consensus and live technical analysis. Updated daily.`;
 const site = Astro.site!;
 const path = `/${asset.slug}/`;
 const ogImage = `/og/${asset.slug}.png`;
 const jsonLd = [
-  breadcrumbs(site, [{ name: 'Home', path: '/' }, { name: `${N} price prediction`, path }]),
-  ...article(site, { path, headline: `${N} Price Prediction & Forecast ${runYear}–${lastMonthlyYear}`, description, modified: fc.generated_at, image: ogImage }),
+  breadcrumbs(site, [{ name: 'Home', path: '/' }, { name: H.og, path }]),
+  ...article(site, { path, headline: H.h1, description, modified: fc.generated_at, image: ogImage }),
   dataset(site, {
     path,
     asset: N,
+    id: asset.id,
+    unit,
     name: `${N} price forecast ${runYear}–${lastYearly ?? lastMonthlyYear}`,
-    description: `Daily, monthly and yearly ${n} price forecasts from ARIMA, trend + mean reversion and Monte Carlo models, with 80% ranges. Recalculated daily.`,
+    description: `Daily, monthly and yearly ${N} price forecasts from ARIMA, trend + mean reversion and Monte Carlo models, with 80% ranges. Recalculated daily.`,
     from: fc.daily[0].date,
     to: `${lastYearly ?? lastMonthlyYear}-12-31`,
     modified: fc.generated_at,
@@ -89,12 +93,13 @@ const jsonLd = [
 
 <BaseLayout title={title} description={description} jsonLd={jsonLd} ogImage={ogImage} ogType="article">
   <Hero
-    title={`${N} Price Prediction & Forecast ${runYear}–${lastMonthlyYear}`}
+    title={H.h1}
+    image={hero(asset)}
     updated={`Updated ${dateTimeUtc(fc.generated_at)} · Reviewed by Margerie Holtz`}
     cta={{ href: '#summary', label: "See today's forecast" }}
   >
     <nav slot="before" class="crumbs" aria-label="Breadcrumb">
-      <a href="/">Home</a> <span aria-hidden="true">›</span> <span aria-current="page">{N} price prediction</span>
+      <a href="/">Home</a> <span aria-hidden="true">›</span> <span aria-current="page">{H.og}</span>
     </nav>
     {w.intro().map((p) => <p>{p}</p>)}
   </Hero>
@@ -102,15 +107,15 @@ const jsonLd = [
   <!-- 3. Key forecast summary -->
   <section id="summary" class="section section--white">
     <div class="container">
-      <h2>{N} forecast at a glance</h2>
+      <h2>{H.summary}</h2>
       <p class="stale" role="status" data-generated={fc.generated_at} hidden>
         The daily update is delayed: these forecasts use data as of {date(fc.last_close.date)}.
       </p>
       <p class="lead">{w.summary()}</p>
       <div class="glance">
-        <ForecastCard label="In 30 days" value={money(in30)} meta={updatedLine} change={pct(in30)} />
-        <ForecastCard label={`End of ${runYear}`} value={money(endThisYear)} meta={`December ${runYear} average`} change={pct(endThisYear)} />
-        <ForecastCard label={String(lastMonthlyYear)} value={money(endLast)} meta={`December ${lastMonthlyYear} average`} change={pct(endLast)} />
+        <ForecastCard label="In 30 days" value={money(in30)} unit={unit} meta={updatedLine} change={pct(in30)} />
+        <ForecastCard label={`End of ${runYear}`} value={money(endThisYear)} unit={unit} meta={`December ${runYear} average`} change={pct(endThisYear)} />
+        <ForecastCard label={String(lastMonthlyYear)} value={money(endLast)} unit={unit} meta={`December ${lastMonthlyYear} average`} change={pct(endLast)} />
       </div>
       <p class="pill-row">
         Technical signal today:
@@ -123,19 +128,19 @@ const jsonLd = [
   <!-- 4. Chart -->
   <section id="chart" class="section section--soft">
     <div class="container">
-      <h2>{N} price chart and forecast</h2>
-      <PriceChart asset={id} name={N} color={asset.chart_color} />
+      <h2>{H.chart}</h2>
+      <PriceChart asset={asset} />
     </div>
   </section>
 
   <!-- 5. Next 30 days -->
   <section id="next-30-days" class="section section--white">
     <div class="container">
-      <h2>{N} price forecast for the next 30 days</h2>
+      <h2>{H.next30}</h2>
       <div class="cols">
         <div>{w.next30().map((p) => <p>{p}</p>)}</div>
         <div>
-          <h3>{N} price prediction for tomorrow and next week</h3>
+          <h3>{H.tomorrow}</h3>
           <p>
             {todayClose && (
               <>
@@ -153,31 +158,32 @@ const jsonLd = [
         </div>
       </div>
       <DataTable
-        caption={`${N} daily price forecast for the next 30 days (USD per troy ounce)`}
+        caption={`${N} daily price forecast for the next 30 days (USD ${unit})`}
         columns={daily.columns}
         rows={daily.rows}
         initialRows={10}
-        note="Consensus = average of the three models. Range = 80% of model outcomes (P10–P90). Weekends are skipped: the spot market is closed."
+        note={`Consensus = average of the three models. Range = 80% of model outcomes (P10–P90). ${calendarNote(asset)}`}
       />
     </div>
   </section>
 
   <!-- 6. This year -->
-  <YearSection id={`forecast-${runYear}`} heading={`${N} price forecast ${runYear}`}>
+  <YearSection id={`forecast-${runYear}`} heading={H.thisYear}>
     {w.year(runYear).map((p) => <p set:html={p} />)}
-    <ForecastCard slot="card" label={`Forecast end of ${runYear}`} value={money(endThisYear)} meta={updatedLine} change={pct(endThisYear)} />
+    <ForecastCard slot="card" label={`Forecast end of ${runYear}`} value={money(endThisYear)} unit={unit} meta={updatedLine} change={pct(endThisYear)} />
     <DataTable slot="aside" caption={`${N} monthly forecast ${runYear}`} columns={thisYear.columns} rows={thisYear.rows} />
   </YearSection>
 
   <!-- 7. Next 5 years -->
   <section id="next-5-years" class="section section--white">
     <div class="container">
-      <h2>{N} price prediction {laterYears[0]}–{lastMonthlyYear} (next 5 years)</h2>
+      <h2>{H.fiveYears}</h2>
       <p>
         The table compares the yearly average of each model. ARIMA follows recent price behaviour, trend + reversion pulls the
-        price back toward its long-run trend, and Monte Carlo continues the 10-year growth rate. The consensus is their average.
+        price back toward its long-run trend, and Monte Carlo continues the long-run growth rate (capped at 25% a year). The
+        consensus is their average.
       </p>
-      <DataTable caption={`Average ${n} forecast per year and model (USD per troy ounce)`} columns={summary.columns} rows={summary.rows} />
+      <DataTable caption={`Average ${N} forecast per year and model (USD ${unit})`} columns={summary.columns} rows={summary.rows} />
     </div>
   </section>
   {
@@ -189,12 +195,12 @@ const jsonLd = [
         <YearSection
           id={`forecast-${y}`}
           level="h3"
-          heading={`${N} price prediction ${y}`}
+          heading={H.year(y)}
           variant={last ? 'dark' : i % 2 ? 'white' : 'light'}
           reverse={i % 2 === 1 || last}
         >
           {w.year(y).map((p) => <p set:html={p} />)}
-          <ForecastCard slot="card" label={`Forecast ${y}`} value={money(dec)} meta={`December ${y} average`} change={pct(dec)} />
+          <ForecastCard slot="card" label={`Forecast ${y}`} value={money(dec)} unit={unit} meta={`December ${y} average`} change={pct(dec)} />
           <DataTable slot="aside" dark={last} caption={`${N} monthly forecast ${y}`} columns={t.columns} rows={t.rows} initialRows={6} />
         </YearSection>
       );
@@ -207,7 +213,7 @@ const jsonLd = [
       <section id="outlook" class="section section--dark on-dark">
         <div class="container grid-2">
           <div>
-            <h2>{N} price outlook to {lastYearly} (next 10 years)</h2>
+            <h2>{H.outlook}</h2>
             {w.longTerm().map((p) => <p>{p}</p>)}
           </div>
           <DataTable dark caption={`${N} yearly forecast ${fc.yearly[0].year}–${lastYearly}`} columns={longTerm.columns} rows={longTerm.rows}
@@ -220,7 +226,7 @@ const jsonLd = [
   <!-- 9. Technical analysis -->
   <section id="technical-analysis" class="section section--soft">
     <div class="container">
-      <h2>{N} technical analysis</h2>
+      <h2>{H.ta}</h2>
       <p class="lead">{w.technical()}</p>
       <TaSummary ta={ta} name={N} />
     </div>
@@ -231,8 +237,8 @@ const jsonLd = [
     analystRows && (
       <section id="analysts" class="section section--white">
         <div class="container">
-          <h2>What analysts and banks predict for {n}</h2>
-          <DataTable caption={`Published ${n} price targets`} columns={analystRows.columns} rows={analystRows.rows}
+          <h2>{H.analysts}</h2>
+          <DataTable caption={`Published ${N} price targets`} columns={analystRows.columns} rows={analystRows.rows}
             note={`Targets as published by each institution; reviewed by ${analysts.reviewed_by}${analysts.reviewed_at ? ` on ${date(analysts.reviewed_at)}` : ''}.`} />
           <ul class="sources">
             {analystEntries.map((e) => <li><a href={e.source_url} rel="nofollow noopener">{e.institution}: {e.source_title}</a></li>)}
@@ -243,7 +249,7 @@ const jsonLd = [
   }
 
   <!-- 11. Drivers -->
-  {content && <Factors id="drivers" heading={`What will drive ${n} prices`} ranked items={content.drivers} />}
+  {content && <Factors id="drivers" heading={H.drivers} ranked items={content.drivers} />}
 
   <!-- 12. Comparison (e.g. gold vs silver) -->
   {
@@ -262,26 +268,26 @@ const jsonLd = [
   <!-- 13. History -->
   <section id="history" class="section section--soft">
     <div class="container">
-      <h2>{N} price history (last 5 and 10 years)</h2>
+      <h2>{H.history}</h2>
       <p>Yearly average, highest and lowest daily close, and the change over each year, from the same daily data the forecasts use.</p>
-      <DataTable caption={`${N} price history by year (USD per troy ounce)`} columns={history.columns} rows={history.rows} initialRows={5} />
+      <DataTable caption={`${N} price history by year (USD ${unit})`} columns={history.columns} rows={history.rows} initialRows={5} />
     </div>
   </section>
 
   <!-- 14. Good investment? -->
   <section id="investment" class="section section--white">
     <div class="container">
-      <h2>Is {n} a good investment in {runYear}?</h2>
+      <h2>{H.investment}</h2>
       <p class="lead">
         There is no single answer: it depends on your goals, time horizon and risk tolerance. Here is what the data shows today:
-        the consensus expects {n} to {w.move(endLast)} by December {lastMonthlyYear}, and the daily technical signal reads {VERDICT_LABEL[verdict]}.
+        the consensus expects {N} to {w.move(endLast)} by December {lastMonthlyYear}, and the daily technical signal reads {VERDICT_LABEL[verdict]}.
       </p>
       <div class="bullbear">
         <div>
           <h3>Bull case</h3>
           <ul>
             {content?.bull.map((b) => <li>{b}</li>)}
-            {muDaily > 0 && <li>The Monte Carlo model, which continues the 10-year trend, points higher over time.</li>}
+            {muDaily > 0 && <li>The Monte Carlo model, which continues the long-run trend, points higher over time.</li>}
             {deviation < -10 && <li>The price is below its long-run trend line, which the trend + reversion model expects it to return to.</li>}
           </ul>
         </div>
@@ -290,16 +296,19 @@ const jsonLd = [
           <ul>
             <li>{N} is volatile: its recent annualised volatility is about {annualVol ? `${number(annualVol)}%` : 'high'}.</li>
             {deviation > 10 && <li>The price is {number(deviation)}% above its long-run trend line, which the trend + reversion model expects to pull it back.</li>}
-            {muDaily < 0 && <li>The 10-year price trend used by the Monte Carlo model is negative.</li>}
+            {muDaily < 0 && <li>The long-run price trend used by the Monte Carlo model is negative.</li>}
             {content?.bear.map((b) => <li>{b}</li>)}
           </ul>
         </div>
       </div>
       <h3>Risks to keep in mind</h3>
       <ul class="checklist">
-        <li>Prices can fall sharply: one-day moves of 10% or more have happened.</li>
-        <li>Physical coins and bars carry dealer premiums and storage costs; ETFs carry fees.</li>
-        <li>{N} produces no income, so returns depend entirely on the price.</li>
+        <li>
+          Prices can fall sharply: in our data since {date(ext.since, { year: 'numeric', month: 'short' })} the largest one-day move
+          was {percent(ext.move.pct)} ({date(ext.move.date)}), and the deepest fall from a peak was {percent(ext.drawdown.pct)}{' '}
+          ({date(ext.drawdown.from)} to {date(ext.drawdown.to)}).
+        </li>
+        {content?.risks.map((r) => <li>{r}</li>)}
         <li>Statistical forecasts can be wrong; see the accuracy figures below.</li>
       </ul>
       <p class="meta">This section is general information, not personal investment advice.</p>
@@ -307,7 +316,7 @@ const jsonLd = [
   </section>
 
   <!-- 15. Methodology and accuracy -->
-  <CtaSection id="accuracy" heading={`How we forecast ${n} and how accurate we are`}>
+  <CtaSection id="accuracy" heading={H.accuracy}>
     <p>
       Three statistical models run every day on the full daily price history: <strong>ARIMA</strong> (short-term price behaviour),{' '}
       <strong>trend + mean reversion</strong> (the long-run trend and how far the price is from it) and <strong>Monte Carlo</strong>{' '}

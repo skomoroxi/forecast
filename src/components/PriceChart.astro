@@ -1,17 +1,21 @@
 ---
 // DESIGN §4.5: price chart widget. Header and quick-period strip are static HTML;
 // the chart itself loads lazily (Lightweight Charts + /data/<asset>/chart.json).
-import { assetData, changeOver, yearToDate, type AssetId } from '../lib/data';
+import { unitShort, type AssetConfig } from '../lib/assets';
+import { assetData, changeOver, yearToDate } from '../lib/data';
 import { arrow, date, direction, money, percent } from '../lib/format';
 
 interface Props {
-  asset: AssetId;
-  name: string;
-  color?: string;
+  asset: AssetConfig;
 }
 
-const { asset, name, color = '#8a96a8' } = Astro.props;
+const { asset: a } = Astro.props;
+const asset = a.id;
+const name = a.name;
+const color = a.chart_color;
 const { prices } = assetData(asset);
+// trading days per week/month/half-year differ for crypto (7 days a week)
+const d = a.calendar === 'crypto' ? { w: 7, m: 30, h: 182 } : { w: 5, m: 21, h: 126 };
 const bars = prices.bars;
 const last = bars.at(-1)!;
 const prev = bars.at(-2)!;
@@ -19,9 +23,9 @@ const abs = last.close - prev.close;
 const rel = last.close / prev.close - 1;
 const periods = [
   { label: '1 day', v: changeOver(bars, 1) },
-  { label: '1 week', v: changeOver(bars, 5) },
-  { label: '1 month', v: changeOver(bars, 21) },
-  { label: '6 months', v: changeOver(bars, 126) },
+  { label: '1 week', v: changeOver(bars, d.w) },
+  { label: '1 month', v: changeOver(bars, d.m) },
+  { label: '6 months', v: changeOver(bars, d.h) },
   { label: 'Year to date', v: yearToDate(bars) },
 ];
 const estimated = last.ohlc === 'proxy';
@@ -31,7 +35,7 @@ const estimated = last.ohlc === 'proxy';
   <div class="pc__head">
     <div class="pc__price">
       <span class={`pc__arrow ${direction(rel)}`} aria-hidden="true">{arrow(rel)}</span>
-      {money(last.close)}<small>/oz</small>
+      {money(last.close)}<small>{unitShort(a)}</small>
     </div>
     <dl class="pc__stats">
       <div>
@@ -48,7 +52,7 @@ const estimated = last.ohlc === 'proxy';
       </div>
     </dl>
     <p class="meta pc__asof">
-      Close of {date(last.date)} (UTC){estimated && ' · *high/low estimated from the SLV ETF'}
+      Close of {date(last.date)} (UTC){estimated && ' · *high/low estimated from a tracking ETF (see methodology)'}
     </p>
   </div>
 

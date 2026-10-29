@@ -5,22 +5,22 @@ import Hero from '../components/Hero.astro';
 import AssetCards from '../components/AssetCards.astro';
 import Factors from '../components/Factors.astro';
 import Faq from '../components/Faq.astro';
-import { assets, assetUrl, GROUPS } from '../lib/assets';
+import { assets, assetUrl, GROUP_HEADING, GROUP_ORDER } from '../lib/assets';
 import { assetData, type AssetId } from '../lib/data';
 import { dateTimeUtc } from '../lib/format';
 import { website } from '../lib/seo';
 
-const groups = [...new Set(assets.map((a) => GROUPS[a.id] ?? 'Other'))];
+const groups = GROUP_ORDER.filter((g) => assets.some((a) => a.group === g));
 const first = assets.find((a) => a.enabled)!;
 const fc = assetData(first.id as AssetId).forecast;
 ---
 
 <BaseLayout
-  title="Price Predictions: Silver, Gold & Bitcoin Forecasts | FinForecast"
-  description="Daily price predictions for silver, gold and bitcoin: 30-day, monthly and long-term forecasts from three statistical models, plus technical analysis. Updated every day."
+  title="Price Predictions for Gold, Silver, Crypto & Stocks | FinForecast"
+  description="Daily price predictions for gold, silver, Bitcoin, XRP, Solana, Dogecoin, Nvidia and Amazon: 30-day, monthly and long-term forecasts from three statistical models, plus technical analysis."
   jsonLd={[website(Astro.site!)]}
 >
-  <Hero title="Price predictions for silver, gold and bitcoin" updated={`Updated ${dateTimeUtc(fc.generated_at)}`} cta={{ href: assetUrl(first), label: `${first.name} price prediction` }}>
+  <Hero title="Price predictions for metals, crypto and stocks" updated={`Updated ${dateTimeUtc(fc.generated_at)}`} cta={{ href: assetUrl(first), label: `${first.name} price prediction` }}>
     <p>
       FinForecast publishes daily price forecasts for the next 30 days, every month to 2030 and every year to 2035, calculated
       by three independent statistical models, together with a full technical analysis.
@@ -32,8 +32,8 @@ const fc = assetData(first.id as AssetId).forecast;
     groups.map((g, i) => (
       <section class:list={['section', i % 2 ? 'section--white' : 'section--soft']}>
         <div class="container">
-          <h2>{g === 'Metals' ? 'Precious metals price predictions' : g === 'Crypto' ? 'Cryptocurrency price predictions' : g}</h2>
-          <AssetCards ids={assets.filter((a) => (GROUPS[a.id] ?? 'Other') === g).map((a) => a.id)} />
+          <h2>{GROUP_HEADING[g]}</h2>
+          <AssetCards ids={assets.filter((a) => a.group === g).map((a) => a.id)} />
         </div>
       </section>
     ))
@@ -57,7 +57,7 @@ const fc = assetData(first.id as AssetId).forecast;
       { q: 'How often are the predictions updated?', a: 'Once a day, shortly after the daily market close. Each page shows when it was last updated.' },
       { q: 'How are the forecasts calculated?', a: 'Three statistical models (ARIMA, trend + mean reversion and Monte Carlo simulation) run on each asset’s daily price history. The consensus is their average. The methodology page explains each model.' },
       { q: 'Are these forecasts financial advice?', a: 'No. They are statistical estimates for information only and can be wrong. Do your own research before making any investment decision.' },
-      { q: 'Which assets are covered?', a: 'Silver today. Gold and bitcoin forecasts are coming soon.' },
+      { q: 'Which assets are covered?', a: `${assets.filter((a) => a.enabled).map((a) => a.name).join(', ')}. More assets will follow.` },
     ]}
   />
 </BaseLayout>

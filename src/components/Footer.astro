@@ -2,12 +2,13 @@
 // DESIGN §4.11: white footer with link columns, dark bottom band with disclaimer and attribution.
 // Newsletter and social tiles are left out until they exist (TECHNICAL-TASK §2).
 import { assets, assetUrl } from '../lib/assets';
+import { headings } from '../lib/assetContent';
 
 const year = new Date().getUTCFullYear();
 const columns = [
   {
     title: 'Forecasts',
-    links: assets.map((a) => ({ label: `${a.name} price prediction`, href: a.enabled ? assetUrl(a) : null })),
+    links: assets.map((a) => ({ label: headings(a, { run: 0, last: 0 }).og, href: a.enabled ? assetUrl(a) : null })),
   },
   {
     title: 'FinForecast',

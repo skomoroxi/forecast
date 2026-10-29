@@ -11,7 +11,7 @@ interface Props {
   change?: number | null;
 }
 
-const { label, value, unit = 'per troy ounce', meta, change } = Astro.props;
+const { label, value, unit, meta, change } = Astro.props;
 const dir = direction(change);
 ---
 

@@ -3,7 +3,8 @@
 // changes from day to day but is stable within a day. Tone: neutral and conditional, never advice.
 import type { Forecast, MonthlyRow, TechnicalAnalysis, Bar } from './data';
 import { consensusAt } from './data';
-import { date, money, month, number, VERDICT_LABEL } from './format';
+import { subject, unitLabel, type AssetConfig } from './assets';
+import { date, money, moneyRound, month, number, VERDICT_LABEL } from './format';
 
 function hash(s: string): number {
   let h = 2166136261;
@@ -11,8 +12,24 @@ function hash(s: string): number {
   return h >>> 0;
 }
 
+/** Next 'round' price at least 50% above today (1, 2 or 5 × a power of ten), e.g. $54 → $100. */
+export function milestone(price: number): number {
+  const target = price * 1.5;
+  const p = 10 ** Math.floor(Math.log10(target));
+  return [1, 2, 5, 10].map((m) => m * p).find((v) => v >= target)!;
+}
+
 export class Writer {
-  constructor(private fc: Forecast, private ta: TechnicalAnalysis, private name: string) {}
+  /** in-sentence name: "silver", "Bitcoin", "Nvidia stock" */
+  private s: string;
+  private name: string;
+  private unit: string;
+
+  constructor(private fc: Forecast, private ta: TechnicalAnalysis, asset: AssetConfig) {
+    this.s = subject(asset);
+    this.name = asset.name;
+    this.unit = unitLabel(asset);
+  }
 
   private pick<T>(block: string, options: T[]): T {
     return options[hash(`${this.fc.asset}|${this.fc.run_date}|${block}`) % options.length];
@@ -57,11 +74,11 @@ export class Writer {
 
   /** Hero intro: two short paragraphs. */
   intro(): string[] {
-    const n = this.name;
+    const n = this.s;
     return [
       this.pick('intro1', [
-        `Daily ${n.toLowerCase()} price forecasts for the next 30 days, monthly averages for every month to December 2030 and a yearly outlook to 2035, from three independent statistical models.`,
-        `This page forecasts the ${n.toLowerCase()} price for the next 30 days, for every month through 2030 and for each year to 2035, using three different statistical models and their consensus.`,
+        `Daily ${n} price forecasts for the next 30 days, monthly averages for every month to December 2030 and a yearly outlook to 2035, from three independent statistical models.`,
+        `This page forecasts the ${n} price for the next 30 days, for every month through 2030 and for each year to 2035, using three different statistical models and their consensus.`,
       ]),
       this.pick('intro2', [
         `The forecasts, the technical analysis and this text are recalculated automatically every day from the latest closing price.`,
@@ -73,13 +90,14 @@ export class Writer {
   /** BLUF summary above the fold. */
   summary(): string {
     const in30 = consensusAt(this.fc, 'daily-end');
-    const end = consensusAt(this.fc, 2026);
+    const end = consensusAt(this.fc, this.runYear);
     const y2030 = consensusAt(this.fc, 2030);
     const verdict = VERDICT_LABEL[this.ta.timeframes.daily.summary.overall.verdict];
-    const n = this.name;
+    const n = this.s.charAt(0).toUpperCase() + this.s.slice(1);
+    const Y = this.runYear;
     return this.pick('summary', [
-      `${n} closed at ${money(this.today)} per ounce. The model consensus expects ${money(in30)} in 30 days, ${money(end)} at the end of 2026 and ${money(y2030)} by December 2030. Today's daily technical signal is ${verdict}.`,
-      `From today's close of ${money(this.today)}, the three models together point to ${money(in30)} in a month, ${money(end)} by the end of 2026 and ${money(y2030)} in December 2030. The daily technical summary reads ${verdict}.`,
+      `${n} closed at ${money(this.today)} ${this.unit}. The model consensus expects ${money(in30)} in 30 days, ${money(end)} at the end of ${Y} and ${money(y2030)} by December 2030. Today's daily technical signal is ${verdict}.`,
+      `From today's close of ${money(this.today)}, the three models together point to ${money(in30)} in a month, ${money(end)} by the end of ${Y} and ${money(y2030)} in December 2030. The daily technical summary reads ${verdict}.`,
     ]);
   }
 
@@ -88,7 +106,7 @@ export class Writer {
     const d = this.fc.daily;
     const last = d.at(-1)!;
     const peak = d.reduce((a, r) => ((r.consensus ?? 0) > (a.consensus ?? 0) ? r : a), d[0]);
-    const n = this.name.toLowerCase();
+    const n = this.s;
     return [
       this.pick('d30a', [
         `Over the next 30 days the consensus expects ${n} to ${this.move(last.consensus)}, to about ${money(last.consensus)} on ${month(last.date.slice(0, 7)).split(' ')[0]} ${Number(last.date.slice(8))}.`,
@@ -116,12 +134,12 @@ export class Writer {
       const v = rows.filter((m) => m[k]).map((m) => m[k]!.avg);
       return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
     };
-    const n = this.name.toLowerCase();
+    const n = this.s;
     const partial = rows.length < 12;
     const period = partial ? `the rest of ${year}` : String(year);
     return [
       this.pick(`y${year}a`, [
-        `For ${period}, the consensus averages <strong>${money(avg)}</strong> per ounce, ${this.change(avg)} versus today. The strongest month is ${month(hi.month)} at ${money(hi.consensus!.avg)}; the weakest is ${month(lo.month)} at ${money(lo.consensus!.avg)}.`,
+        `For ${period}, the consensus averages <strong>${money(avg)}</strong> ${this.unit}, ${this.change(avg)} versus today. The strongest month is ${month(hi.month)} at ${money(hi.consensus!.avg)}; the weakest is ${month(lo.month)} at ${money(lo.consensus!.avg)}.`,
         `The models expect ${n} to average <strong>${money(avg)}</strong> over ${period} (${this.change(avg)} from today), with monthly averages between ${money(lo.consensus!.avg)} in ${month(lo.month)} and ${money(hi.consensus!.avg)} in ${month(hi.month)}.`,
       ]),
       this.pick(`y${year}b`, [
@@ -143,7 +161,7 @@ export class Writer {
         `Beyond 2030 the forecast uses only the two long-run models. Their consensus moves from ${money(first.consensus)} in ${first.year} to ${money(last.consensus)} in ${last.year}.`,
         `For ${first.year}–${last.year} only trend + reversion and Monte Carlo are used; together they average ${money(first.consensus)} in ${first.year} and ${money(last.consensus)} in ${last.year}.`,
       ]),
-      `The models pull in opposite directions: trend + reversion expects ${money(last.reversion)} by ${last.year}, Monte Carlo ${money(last.montecarlo)}. The 80% band for ${last.year} is extremely wide, ${money(last.p10)} to ${money(last.p90)}, which is the honest answer to "where will ${this.name.toLowerCase()} be in 10 years": nobody knows precisely.`,
+      `The models pull in opposite directions: trend + reversion expects ${money(last.reversion)} by ${last.year}, Monte Carlo ${money(last.montecarlo)}. The 80% band for ${last.year} is extremely wide, ${money(last.p10)} to ${money(last.p90)}, which is the honest answer to "where will ${this.s} be in 10 years": nobody knows precisely.`,
     ];
   }
 
@@ -177,8 +195,9 @@ export class Writer {
   }
 
   faq(): { q: string; a: string }[] {
-    const n = this.name.toLowerCase();
+    const n = this.s;
     const N = this.name;
+    const goal = milestone(this.today);
     const in30 = consensusAt(this.fc, 'daily-end');
     const end = consensusAt(this.fc, this.runYear);
     const y2030 = consensusAt(this.fc, 2030);
@@ -188,11 +207,11 @@ export class Writer {
     const tomorrow = this.nextDay();
     const verdict = VERDICT_LABEL[this.ta.timeframes.daily.summary.overall.verdict];
     return [
-      { q: `What is the ${n} price forecast for ${this.runYear}?`, a: `The model consensus expects ${n} to average ${money(end)} per troy ounce in December ${this.runYear}, ${this.change(end)} versus the latest close of ${money(this.today)}.` },
+      { q: `What is the ${n} price forecast for ${this.runYear}?`, a: `The model consensus expects ${n} to average ${money(end)} ${this.unit} in December ${this.runYear}, ${this.change(end)} versus the latest close of ${money(this.today)}.` },
       { q: `What will the ${n} price be tomorrow?`, a: `For ${date(tomorrow.date, { weekday: 'long', month: 'long', day: 'numeric' })}, the consensus is ${money(tomorrow.consensus)}, with an 80% range of ${money(tomorrow.low)} to ${money(tomorrow.high)}. Day-to-day moves are mostly noise, so the range matters more than the point value.` },
       { q: `What will ${n} be worth next month?`, a: `In 30 days the consensus is ${money(in30)}, a ${this.change(in30)} change from the latest close.` },
-      { q: `How much will ${n} be worth in 2030?`, a: `The consensus for December 2030 is ${money(y2030)}. The three models range from flat (ARIMA) to falling back toward the long-run trend (trend + reversion) to continuing the 10-year growth rate (Monte Carlo).` },
-      { q: `Will ${n} reach $100 by 2030?`, a: p90in2030 >= 100 ? `It is possible but not the central case: the 2030 consensus is ${money(y2030)}, while the upper end of the 80% range reaches ${money(p90in2030)}. Only the most optimistic model paths get to $100.` : `Not in the central scenario: the 2030 consensus is ${money(y2030)} and even the upper end of the 80% range stays at ${money(p90in2030)}.` },
+      { q: `How much will ${n} be worth in 2030?`, a: `The consensus for December 2030 is ${money(y2030)}. ARIMA follows recent price behaviour, trend + reversion pulls the price toward its long-run trend, and Monte Carlo continues the long-run growth rate (capped at 25% a year).` },
+      { q: `Will ${n} reach ${moneyRound(goal)} by 2030?`, a: (y2030 ?? 0) >= goal ? `Yes in the central scenario: the December 2030 consensus is ${money(y2030)}, above ${moneyRound(goal)}. The 80% range is wide, so this is far from certain.` : p90in2030 >= goal ? `It is possible but not the central case: the 2030 consensus is ${money(y2030)}, while the upper end of the 80% range reaches ${money(p90in2030)}. Only the more optimistic model paths get to ${moneyRound(goal)}.` : `Not in the central scenario: the 2030 consensus is ${money(y2030)} and even the upper end of the 80% range stays at ${money(p90in2030)}.` },
       { q: `How much will ${n} be worth in 10 years?`, a: y2035 ? `For ${y2035.year} the long-run models average ${money(y2035.consensus)}, but 80% of outcomes fall anywhere between ${money(y2035.p10)} and ${money(y2035.p90)}. Ten-year forecasts carry very large uncertainty.` : `The outlook beyond 2030 is not available today.` },
       { q: `Is ${n} a buy or sell right now?`, a: `The daily technical summary currently reads ${verdict}. That describes the recent trend only. FinForecast does not give investment advice; consider your own goals and risk before buying or selling.` },
       { q: `How accurate are these ${n} predictions?`, a: `${this.accuracy()} ${N} is volatile, so errors grow quickly with the horizon.` },

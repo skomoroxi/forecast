@@ -2,6 +2,7 @@
 // /methodology/ (TECHNICAL-TASK §6.3). Parameters are read from today's forecast.json.
 import TextPage from '../layouts/TextPage.astro';
 import DataTable from '../components/DataTable.astro';
+import { assets, assetUrl } from '../lib/assets';
 import { assetData } from '../lib/data';
 import { date, number } from '../lib/format';
 import { accuracyTable } from '../lib/tables';
@@ -12,6 +13,24 @@ const arima = p('arima');
 const rev = p('reversion');
 const mc = p('montecarlo');
 const accuracy = accuracyTable(fc);
+const live = assets.filter((a) => a.enabled);
+const SOURCE: Record<string, string> = {
+  silver: 'Alpha Vantage (daily spot price); high/low estimated from the SLV ETF on Twelve Data',
+};
+const sources = live.map((a) => {
+  const { prices, forecast } = assetData(a.id);
+  const m = forecast.methods;
+  const capped = ['reversion', 'montecarlo'].some((k) => m[k]?.params?.trend_capped || m[k]?.params?.drift_capped) || m.arima?.params?.drift_dropped_by_cap;
+  return {
+    asset: { text: a.name, strong: true },
+    symbol: a.symbol,
+    source: SOURCE[a.id] ?? 'Twelve Data (daily open, high, low, close)',
+    since: date(prices.bars[0].date, { year: 'numeric', month: 'short' }),
+    calendar: a.calendar === 'crypto' ? '7 days a week' : 'Mon–Fri',
+    cap: capped ? 'yes' : 'no',
+    mape: `${number(forecast.accuracy.consensus?.mape_30d)}%`,
+  };
+});
 const rules = [
   ['RSI (14)', '> 50', '< 50', 'overbought > 70, oversold < 30'],
   ['STOCH (9,6), slow %K', '> 50', '< 50', 'overbought > 80, oversold < 20'],
@@ -34,34 +53,47 @@ const rules = [
   heading="Methodology"
   description="How FinForecast calculates its price predictions: data sources, the three forecasting models, technical-analysis rules and measured accuracy."
   lead="How the forecasts on this site are calculated, where the data comes from, and how accurate the models have been."
-  updated={`Model parameters below are from the ${date(fc.run_date)} run.`}
+  updated={`Figures below are from the ${date(fc.run_date)} run. Worked examples use silver.`}
 >
   <h2>Data</h2>
   <p>
-    Silver spot prices (XAG/USD) come from Alpha Vantage, one price per day, with history from June 2011. Alpha Vantage does not
-    provide a daily high and low for spot silver, so we estimate them from the iShares Silver Trust (SLV) ETF on Twelve Data: each
-    day, SLV's open, high and low are scaled by the ratio of the spot close to the SLV close. Indicators that use the daily range
-    (STOCH, ADX, Williams %R, CCI, ATR, Highs/Lows, Ultimate Oscillator, Bull/Bear Power and pivot points) therefore use estimated
-    highs and lows. Weekends are excluded.
+    Every asset uses one daily price bar (open, high, low, close) per trading day, updated once a day after the close. Crypto trades
+    every day; metals and stocks Monday to Friday. Stock prices are adjusted for splits.
   </p>
-  <p>The data is updated once a day after the close. Each page shows the date of the last price used.</p>
+  <DataTable
+    caption="Data sources by asset"
+    columns={[
+      { key: 'asset', label: 'Asset', rowHeader: true },
+      { key: 'symbol', label: 'Symbol', align: 'left' },
+      { key: 'source', label: 'Source', align: 'left' },
+      { key: 'since', label: 'History since', align: 'left' },
+      { key: 'calendar', label: 'Trading days', align: 'left' },
+    ]}
+    rows={sources}
+  />
+  <p>
+    <strong>Silver:</strong> the free data plans do not include a daily high and low for spot silver, so we estimate them from the
+    iShares Silver Trust (SLV) ETF: each day, SLV's open, high and low are scaled by the ratio of the spot close to the SLV close.
+    Silver indicators that use the daily range (STOCH, ADX, Williams %R, CCI, ATR, Highs/Lows, Ultimate Oscillator, Bull/Bear Power
+    and pivot points) therefore use estimated highs and lows.
+  </p>
 
   <h2>The three forecasting models</h2>
   <p>All models work on the logarithm of the price, so percentage moves are treated the same at any price level.</p>
   <ol>
     <li>
       <strong>ARIMA.</strong> A time-series model that captures short-term momentum and noise in the last five years of prices.
-      The order and whether to include a drift are chosen automatically by the lowest AIC. Today's model is ARIMA({String((arima.order as number[] | undefined)?.join(',') ?? '')}){arima.drift ? ' with drift' : ' without drift'}{!arima.drift && ', so its forecast is flat: statistically, the recent data gives no reliable direction'}.
+      The order and whether to include a drift are chosen automatically by the lowest AIC. For silver today the model is ARIMA({String((arima.order as number[] | undefined)?.join(',') ?? '')}){arima.drift ? ' with drift' : ' without drift'}{!arima.drift && ', so its forecast is flat: statistically, the recent data gives no reliable direction'}.
     </li>
     <li>
       <strong>Trend + mean reversion.</strong> We fit the long-run trend of the price over all available history and model how
-      the price moves around it. When the price is far from the trend, the forecast gradually pulls it back. Today the trend is{' '}
+      the price moves around it. When the price is far from the trend, the forecast gradually pulls it back. For silver today the trend is{' '}
       {number(Number(rev.trend_annual_pct))}% per year, the price is {number(Number(rev.deviation_from_trend_pct))}% above it, and half of
       that gap is expected to close in about {number(Number(rev.half_life_bars) / 261)} years.
     </li>
     <li>
       <strong>Monte Carlo simulation.</strong> We simulate {Number(mc.paths).toLocaleString('en-US')} possible price paths using the
-      average daily return of the last 10 years ({number(Number(mc.mu_daily) * 261 * 100)}% per year) and the volatility of the last
+      average daily return of the last 10 years (silver today: {number(Number(mc.mu_daily) * 261 * 100)}% per year) and the volatility of the last
       3 years ({number(Number(mc.sigma_daily) * Math.sqrt(261) * 100)}% per year). The forecast is the median path; the range is the
       10th–90th percentile.
     </li>
@@ -72,6 +104,22 @@ const rules = [
     models are used. Any model whose path becomes unrealistic (non-finite, or beyond 0.1× to 10× today's price within 5 years) is
     excluded automatically for that day.
   </p>
+  <h2>Long-run growth cap</h2>
+  <p>
+    Young, fast-growing assets such as Solana, Dogecoin, Bitcoin or Nvidia have historical growth rates of 40% a year or more.
+    Projecting those rates forward for ten years would produce numbers no one should take seriously. Every model therefore limits the
+    long-run growth it may use to <strong>±25% a year</strong>: the Monte Carlo drift and the trend + reversion slope are capped, and
+    ARIMA drops its drift term if the drift would exceed the cap. The table shows which assets are capped today.
+  </p>
+  <DataTable
+    caption="Growth cap and 30-day accuracy by asset"
+    columns={[
+      { key: 'asset', label: 'Asset', rowHeader: true },
+      { key: 'cap', label: 'Growth cap applied', align: 'left' },
+      { key: 'mape', label: '30-day error (MAPE)' },
+    ]}
+    rows={sources}
+  />
   <p>
     We tested Prophet, a popular forecasting library, and dropped it: on silver it projected the latest spike or crash forward
     for years, producing 2035 values anywhere between $0.30 and $221 depending on settings.
@@ -84,6 +132,7 @@ const rules = [
     and compared with what happened next.
   </p>
   <DataTable caption="Average forecast error (MAPE), silver" columns={accuracy.columns} rows={accuracy.rows} />
+  <p>Each asset page shows its own accuracy table: {live.map((a, i) => <>{i ? ', ' : ''}<a href={assetUrl(a)}>{a.name}</a></>)}.</p>
 
   <h2>Technical analysis rules</h2>
   <p>

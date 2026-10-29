@@ -41,11 +41,16 @@ def predict_log(y: np.ndarray, order: tuple[int, int, int], trend: str, steps: i
     return np.asarray(fc.predicted_mean), ci[:, 0], ci[:, 1]
 
 
-def forecast(close: pd.Series, dates: pd.DatetimeIndex, window_bars: int) -> MethodForecast:
+def forecast(close: pd.Series, dates: pd.DatetimeIndex, window_bars: int, max_drift: float | None = None) -> MethodForecast:
     y = np.log(close.to_numpy()[-window_bars:])
     order, trend = select_model(y)
     mid, low, high = predict_log(y, order, trend, len(dates))
+    drift_dropped = False
+    if trend == "t" and max_drift is not None and abs(mid[-1] - y[-1]) / len(dates) > max_drift:
+        # The fitted drift is steeper than the growth cap: use the same order without drift.
+        trend, drift_dropped = "n", True
+        mid, low, high = predict_log(y, order, trend, len(dates))
     return MethodForecast(
         "arima", dates, np.exp(mid), np.exp(low), np.exp(high),
-        params={"order": list(order), "drift": trend == "t", "window_bars": len(y)},
+        params={"order": list(order), "drift": trend == "t", "drift_dropped_by_cap": drift_dropped, "window_bars": len(y)},
     )

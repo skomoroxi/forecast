@@ -14,9 +14,13 @@ from pipeline.forecast.common import INTERVAL, MethodForecast
 PATHS = 10_000
 
 
-def estimate(close: pd.Series, drift_bars: int, vol_bars: int) -> tuple[float, float]:
+def estimate(close: pd.Series, drift_bars: int, vol_bars: int, max_drift: float | None = None) -> tuple[float, float]:
+    """(mu, sigma) of daily log returns; mu is clipped to ±max_drift when a cap is given."""
     r = np.diff(np.log(close.to_numpy()))
-    return float(r[-drift_bars:].mean()), float(r[-vol_bars:].std(ddof=1))
+    mu = float(r[-drift_bars:].mean())
+    if max_drift is not None:
+        mu = float(np.clip(mu, -max_drift, max_drift))
+    return mu, float(r[-vol_bars:].std(ddof=1))
 
 
 def median_path(last_close: float, mu: float, steps: int) -> np.ndarray:
@@ -25,8 +29,9 @@ def median_path(last_close: float, mu: float, steps: int) -> np.ndarray:
 
 
 def forecast(close: pd.Series, dates: pd.DatetimeIndex, drift_bars: int, vol_bars: int, seed: int,
-             paths: int = PATHS) -> MethodForecast:
-    mu, sigma = estimate(close, drift_bars, vol_bars)
+             paths: int = PATHS, max_drift: float | None = None) -> MethodForecast:
+    raw_mu, _ = estimate(close, drift_bars, vol_bars)
+    mu, sigma = estimate(close, drift_bars, vol_bars, max_drift)
     rng = np.random.default_rng(seed)
     tail = (1 - INTERVAL) / 2
     x = np.zeros(paths)
@@ -37,6 +42,7 @@ def forecast(close: pd.Series, dates: pd.DatetimeIndex, drift_bars: int, vol_bar
     s0 = float(close.iloc[-1])
     return MethodForecast(
         "montecarlo", dates, s0 * np.exp(q[:, 1]), s0 * np.exp(q[:, 0]), s0 * np.exp(q[:, 2]),
-        params={"mu_daily": round(mu, 6), "sigma_daily": round(sigma, 6), "paths": paths,
+        params={"mu_daily": round(mu, 6), "mu_daily_raw": round(raw_mu, 6), "drift_capped": mu != raw_mu,
+                "sigma_daily": round(sigma, 6), "paths": paths,
                 "drift_bars": drift_bars, "vol_bars": vol_bars},
     )

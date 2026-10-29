@@ -5,9 +5,9 @@
 | **Repository** | https://github.com/skomoroxi/forecast (public, currently empty) |
 | **Hosting** | Cloudflare Pages (static), connected to the repo's `main` branch |
 | **Language** | English only |
-| **Scope of this task** | Main (hub) page + **Silver price prediction** page + service pages |
+| **Scope of this task** | Main (hub) page + asset forecast pages (silver at launch; gold, Bitcoin, XRP, Solana, Dogecoin, Nvidia, Amazon added 2026-10-29) + service pages |
 | **Update frequency** | Automatically once a day (GitHub Actions) |
-| **Companion documents** | `docs/DESIGN.md` (visual design), `docs/SEO-silver.md` (fan-out analysis and page structure), `docs/keywords-silver-us.csv` |
+| **Companion documents** | `docs/DESIGN.md` (visual design), `docs/seo/silver.md` (fan-out analysis and page structure), `docs/seo/keywords-silver-us.csv` |
 | **Brand** | **FinForecast** (serif wordmark; no separate logo for the MVP) |
 | **Author** | Margerie Holtz, Senior Analyst; M.A. International Economics, Hochschule für Wirtschaft und Recht Berlin (HWR Berlin, 2015) |
 | **Usage** | Non-commercial (no ads, no affiliate links); Twelve Data free plan |
@@ -78,7 +78,7 @@ forecast/
 │     ├─ ta.json               # latest technical analysis (D/W/M)
 │     ├─ analysts.json         # MANUAL: bank / analyst targets (edited by hand)
 │     └─ history/forecast-YYYY-MM-DD.json   # archive for the accuracy tracking
-├─ docs/                       # DESIGN.md, SEO-silver.md, keywords CSV, this file
+├─ docs/                       # DESIGN.md, DEPLOY.md, seo/<asset>.md (keywords + fan-out), this file
 ├─ public/                     # favicon, robots.txt, og images, fonts (self-hosted optional)
 ├─ src/
 │  ├─ styles/ tokens.css, global.css
@@ -160,6 +160,13 @@ All models work on **log prices**, and all output is converted back to USD. Fore
 - **Trend + reversion** = pull back toward the long-run trend.
 - **Monte Carlo** = continuation of the 10-year drift.
 
+**Long-run growth cap (added 2026-10-29, with the crypto and stock pages).** Young, fast-growing assets have historical growth of 40–75% a year (Solana, Dogecoin, Nvidia, Bitcoin). Extrapolated for ten years, that produced paths outside the sanity guard. Every model now caps long-run growth at **±25% a year** (`max_annual_drift`, configurable per asset):
+- Monte Carlo drift is clipped.
+- The trend + reversion slope is clipped and its intercept refit.
+- ARIMA drops its drift term if the drift implies more than the cap.
+
+Capped parameters are recorded in `forecast.json` (`drift_capped`, `trend_capped`, `drift_dropped_by_cap`) and shown on /methodology/.
+
 **Horizons:**
 - **Daily:** business days within the next 30 calendar days of the run date.
 - **Monthly:** every month from the current month to **Dec 2030**, per method:
@@ -229,7 +236,7 @@ Implemented in pandas (`pipeline/ta/`), with no TA-Lib dependency. Computed on d
 Unlike everything else on the page, these numbers are **not computed by the pipeline** and are not available from a free API. Someone reads them in press releases, research notes or reputable news coverage and records them in this file.
 
 **Why it exists.**
-- **Demand:** searches naming banks or analysts add up to about 4,000 a month in the US, e.g. "silver price forecast 2026 analysts" 2,100, "bank of america silver forecast" 700, "jpmorgan silver price forecast 2026" 600 (sub-intent 5, P1, in `SEO-silver.md`).
+- **Demand:** searches naming banks or analysts add up to about 4,000 a month in the US, e.g. "silver price forecast 2026 analysts" 2,100, "bank of america silver forecast" 700, "jpmorgan silver price forecast 2026" 600 (sub-intent 5, P1, in `seo/silver.md`).
 - **Trust:** it puts our model forecasts next to real institutional views. Readers and Google treat that as a credibility signal on a finance page.
 
 **Structure.**
@@ -312,7 +319,7 @@ Pydantic models in `pipeline/schemas.py` are the single source of truth. Export 
 **SEO:** title "Price Predictions: Silver, Gold & Bitcoin Forecasts | {Brand}"; `WebSite` + `Organization` JSON-LD.
 
 ### 6.2 Silver page `/silver-price-prediction/`
-Block order and content follow `docs/SEO-silver.md` (structure) and `docs/DESIGN.md §5` (components):
+Block order and content follow `docs/seo/silver.md` (structure) and `docs/DESIGN.md §5` (components):
 
 | # | Block | Data source | Notes |
 |---|---|---|---|
@@ -331,7 +338,7 @@ Block order and content follow `docs/SEO-silver.md` (structure) and `docs/DESIGN
 | 13 | H2 "Silver price history (5 and 10 years)": yearly avg/high/low/% table | prices.json | |
 | 14 | H2 "Is silver a good investment in 2026?": bull vs bear table, risk checklist | text.ts + forecast.json | |
 | 15 | H2 "How we forecast silver and how accurate we are": methods summary + MAPE table → /methodology/ | forecast.accuracy | |
-| 16 | FAQ (8 questions from SEO-silver.md micro-intents; answers filled with live numbers) | text.ts + data | `<details>` |
+| 16 | FAQ (8 questions from docs/seo/<asset>.md micro-intents; answers filled with live numbers) | text.ts + data | `<details>` |
 | 17 | Related assets, disclaimer band, footer | config | |
 
 ### 6.3 Service pages

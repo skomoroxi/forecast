@@ -33,10 +33,11 @@ def walk_forward(close: pd.Series, calendar: str, settings: dict, arima_model: t
     for i in origin_idx:
         train = values[: i + 1]
         log_train = np.log(train)
-        mu, _ = montecarlo.estimate(pd.Series(train), settings["mc_drift_bars"], settings["mc_vol_bars"])
+        cap = settings.get("max_drift")
+        mu, _ = montecarlo.estimate(pd.Series(train), settings["mc_drift_bars"], settings["mc_vol_bars"], cap)
         paths = {
             "arima": np.exp(arima.predict_log(log_train[-settings["arima_bars"]:], tuple(order), trend, longest)[0]),
-            "reversion": np.exp(reversion.predict_log(reversion.fit(log_train[-settings["reversion_bars"]:]), longest)[0]),
+            "reversion": np.exp(reversion.predict_log(reversion.fit(log_train[-settings["reversion_bars"]:], cap), longest)[0]),
             "montecarlo": montecarlo.median_path(train[-1], mu, longest),
         }
         paths["consensus"] = np.mean([paths["arima"], paths["reversion"], paths["montecarlo"]], axis=0)

@@ -1,6 +1,7 @@
 // Open Graph images, 1200×630: /og/default.png and /og/<asset-slug>.png (with today's numbers).
 import type { APIRoute, GetStaticPaths } from 'astro';
-import { assets } from '../../lib/assets';
+import { assets, unitLabel } from '../../lib/assets';
+import { headings } from '../../lib/assetContent';
 import { assetData, consensusAt, type AssetId } from '../../lib/data';
 import { date, money, percent } from '../../lib/format';
 import { COLORS as C, h, png, pngResponse } from '../../lib/og';
@@ -43,6 +44,7 @@ export const GET: APIRoute = async ({ props }) => {
   const today = fc.last_close.price;
   const runYear = new Date(fc.run_date).getUTCFullYear();
   const lastYear = Number(fc.monthly.at(-1)!.month.slice(0, 4));
+  const H = headings(asset, { run: runYear, last: lastYear });
   const in30 = consensusAt(fc, 'daily-end');
   const far = consensusAt(fc, lastYear);
   const sub = (v: number | null) => {
@@ -52,8 +54,8 @@ export const GET: APIRoute = async ({ props }) => {
   };
   return pngResponse(await png(frame(
     h('div', { flexDirection: 'column', gap: 12 },
-      h('div', { fontFamily: 'Serif', fontSize: 76, lineHeight: 1.05, letterSpacing: -2 }, `${asset.name} Price Prediction`),
-      h('div', { fontSize: 30, color: C.gray }, `Daily forecast · ${runYear}–${lastYear} · technical analysis`),
+      h('div', { fontFamily: 'Serif', fontSize: 76, lineHeight: 1.05, letterSpacing: -2 }, H.og),
+      h('div', { fontSize: 30, color: C.gray }, `${asset.code} · daily forecast · ${runYear}–${lastYear} · technical analysis`),
     ),
     h('div', { alignItems: 'flex-start' },
       stat('Latest close', money(today)),
@@ -64,6 +66,6 @@ export const GET: APIRoute = async ({ props }) => {
         h('div', { fontSize: 22, fontWeight: 500, color: sub(far).color }, sub(far).text),
       ),
     ),
-    h('div', { fontSize: 22, color: C.muted }, `Updated ${date(fc.run_date)} · USD per troy ounce · Not financial advice`),
+    h('div', { fontSize: 22, color: C.muted }, `Updated ${date(fc.run_date)} · USD ${unitLabel(asset)} · Not financial advice`),
   ), 1200, 630));
 };

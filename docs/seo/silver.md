@@ -5,7 +5,7 @@
 - **Audience:** English-speaking retail investors and savers (US primary), from beginners to active traders
 - **Current Depth:** none / greenfield (new asset page on the forecast site)
 - **Primary Intent:** see concrete expected silver prices (days ahead, months ahead, 2026–2030 and beyond) and judge whether to buy, hold or sell
-- **Demand data:** Ahrefs-grounded (Keywords Explorer, matching terms, US, 150 keywords; seeds: silver prediction, silver forecast, silver 5 years, silver 10 years). Full list: `docs/keywords-silver-us.csv`
+- **Demand data:** Ahrefs-grounded (Keywords Explorer, matching terms, US, 150 keywords; seeds: silver prediction, silver forecast, silver 5 years, silver 10 years). Full list: `docs/seo/keywords-silver-us.csv`
 
 ## Sub-Intents (14 total — 6 P1, 5 P2, 3 P3)
 

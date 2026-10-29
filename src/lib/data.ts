@@ -1,9 +1,4 @@
 // Typed access to the pipeline's JSON files (contract: pipeline/schemas.py).
-import silverPrices from '../../data/silver/prices.json';
-import silverForecast from '../../data/silver/forecast.json';
-import silverTa from '../../data/silver/ta.json';
-import silverAnalysts from '../../data/silver/analysts.json';
-
 export interface AnalystEntry {
   id: string; institution: string; type: string;
   target_usd?: number | null; target_low_usd?: number | null; target_high_usd?: number | null;
@@ -46,14 +41,35 @@ export const METHOD_LABEL: Record<string, string> = {
   consensus: 'Consensus',
 };
 
-const ASSETS = {
-  silver: {
-    prices: silverPrices as PriceHistory,
-    forecast: silverForecast as unknown as Forecast,
-    ta: silverTa as unknown as TechnicalAnalysis,
-    analysts: silverAnalysts as Analysts,
-  },
-};
+// Every data/<id>/*.json is picked up automatically (Vite glob import), so a new asset needs no code here.
+const files = import.meta.glob<{ default: unknown }>('../../data/*/{prices,forecast,ta,analysts}.json', { eager: true });
+const file = (id: string, name: string) => files[`../../data/${id}/${name}.json`]?.default;
+
+export type AssetId = string;
+
+export function assetData(id: AssetId) {
+  const prices = file(id, 'prices') as PriceHistory | undefined;
+  const forecast = file(id, 'forecast') as Forecast | undefined;
+  const ta = file(id, 'ta') as TechnicalAnalysis | undefined;
+  if (!prices || !forecast || !ta) throw new Error(`data/${id}/: prices.json, forecast.json and ta.json are required`);
+  const analysts = (file(id, 'analysts') as Analysts | undefined) ?? { asset: id, reviewed_at: null, reviewed_by: '', entries: [] };
+  return { prices, forecast, ta, analysts };
+}
+
+/** Largest single-day move and largest peak-to-trough fall in the price history. */
+export function extremes(bars: Bar[]) {
+  let move = { pct: 0, date: bars[0].date };
+  let peak = bars[0];
+  let dd = { pct: 0, from: bars[0].date, to: bars[0].date };
+  for (let i = 1; i < bars.length; i++) {
+    const ch = bars[i].close / bars[i - 1].close - 1;
+    if (Math.abs(ch) > Math.abs(move.pct)) move = { pct: ch, date: bars[i].date };
+    if (bars[i].close > peak.close) peak = bars[i];
+    const fall = bars[i].close / peak.close - 1;
+    if (fall < dd.pct) dd = { pct: fall, from: peak.date, to: bars[i].date };
+  }
+  return { move, drawdown: dd, since: bars[0].date };
+}
 
 /** Freshness rules (TECHNICAL-TASK §5.6): hide entries older than 9 months, past horizons,
  *  individuals (they belong on a separate page) and hidden ones. The block needs at least 2. */
@@ -69,12 +85,6 @@ export function visibleAnalysts(a: Analysts, runDate: string): AnalystEntry[] {
     (e) => e.show !== false && e.type !== 'individual' && new Date(e.published_on) >= cutoff && horizonEnd(e.horizon) >= run,
   );
   return list.length >= 2 ? list.sort((x, y) => x.horizon.localeCompare(y.horizon) || x.institution.localeCompare(y.institution)) : [];
-}
-
-export type AssetId = keyof typeof ASSETS;
-
-export function assetData(id: AssetId) {
-  return ASSETS[id];
 }
 
 /** Change of the last close vs the close `bars` trading days earlier, as a fraction. */

@@ -5,7 +5,6 @@ import { assets, assetUrl, unitShort } from '../lib/assets';
 import { assetData, changeOver, type AssetId } from '../lib/data';
 import { arrow, date, direction, money, percent } from '../lib/format';
 
-const DOT: Record<string, string> = { silver: '#c9cdd3', gold: '#e5b53c', bitcoin: '#f2a33a' };
 
 const items = assets.map((a) => {
   if (!a.enabled) return { a, live: false as const };
@@ -29,7 +28,7 @@ const asOf = items.find((i) => i.live)?.asOf;
       {
         items.map((i) => (
           <li class="ticker__item">
-            <span class="dot" style={`background:${DOT[i.a.id] ?? 'var(--gray-300)'}`} aria-hidden="true" />
+            <span class="dot" style={`background:${i.a.chart_color}`} aria-hidden="true" />
             {i.live ? (
               <a class="ticker__link" href={assetUrl(i.a)}>
                 <span class="name">{i.a.name}</span>

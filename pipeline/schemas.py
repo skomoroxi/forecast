@@ -28,13 +28,19 @@ class SourceConfig(BaseModel):
 class AssetConfig(BaseModel):
     id: str
     name: str
+    code: str
+    group: Literal["Metals", "Crypto", "Stocks"]
     symbol: str
     slug: str
+    keywords: list[str] = Field(min_length=1)
     unit: str
     currency: str
     calendar: Literal["fx", "crypto", "nyse"]
     has_volume: bool
     max_daily_change: float = Field(gt=0, lt=1)
+    # Long-run growth cap for every model (TECHNICAL-TASK §5.3): young assets' historical growth
+    # (e.g. +50%/year) must not be extrapolated for a decade.
+    max_annual_drift: float = Field(default=0.25, gt=0, lt=2)
     source: SourceConfig
     chart_color: str
     enabled: bool

@@ -67,7 +67,7 @@ export function article(site: URL, o: { path: string; headline: string; descript
   ];
 }
 
-export function dataset(site: URL, o: { path: string; name: string; description: string; from: string; to: string; modified: string; asset: string }) {
+export function dataset(site: URL, o: { path: string; name: string; description: string; from: string; to: string; modified: string; asset: string; id: string; unit: string }) {
   return {
     '@type': 'Dataset',
     '@id': abs(site, `${o.path}#dataset`),
@@ -79,8 +79,8 @@ export function dataset(site: URL, o: { path: string; name: string; description:
     creator: { '@id': abs(site, '/#organization') },
     isAccessibleForFree: true,
     keywords: [`${o.asset} price forecast`, `${o.asset} price prediction`, 'ARIMA', 'Monte Carlo', 'mean reversion'],
-    variableMeasured: [`${o.asset} price forecast (USD per troy ounce)`, 'P10 and P90 range'],
-    distribution: [{ '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: abs(site, `/data/${o.asset.toLowerCase()}/chart.json`) }],
+    variableMeasured: [`${o.asset} price forecast (USD ${o.unit})`, 'P10 and P90 range'],
+    distribution: [{ '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: abs(site, `/data/${o.id}/chart.json`) }],
   };
 }
 

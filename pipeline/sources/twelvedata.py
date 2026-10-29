@@ -15,6 +15,9 @@ from pipeline.sources.base import SourceError
 
 API_URL = "https://api.twelvedata.com/time_series"
 MAX_OUTPUTSIZE = 5000
+# Free plan: 8 requests per minute. Space requests so a run over many assets never hits the limit.
+MIN_INTERVAL = 8.0
+_last_request = 0.0
 
 
 class TwelveDataSource:
@@ -26,6 +29,7 @@ class TwelveDataSource:
         self._api_key = api_key
         self._session = session or requests.Session()
         self._retries = retries
+        self._no_wait = session is not None  # tests use a fake session: no spacing needed
 
     @classmethod
     def from_env(cls) -> TwelveDataSource:
@@ -47,8 +51,13 @@ class TwelveDataSource:
         return [_to_bar(v) for v in values]
 
     def _get(self, params: dict) -> dict:
+        global _last_request
         last_error = ""
         for attempt in range(self._retries):
+            wait = _last_request + MIN_INTERVAL - time.monotonic()
+            if wait > 0 and not self._no_wait:
+                time.sleep(wait)
+            _last_request = time.monotonic()
             try:
                 resp = self._session.get(API_URL, params=params, timeout=30)
             except requests.RequestException as exc:

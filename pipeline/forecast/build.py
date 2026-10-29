@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from pipeline.forecast import arima, backtest, montecarlo, reversion
-from pipeline.forecast.common import MethodForecast, bars_per_year, close_series, failed, future_dates, sanity_check
+from pipeline.forecast.common import MethodForecast, bars_per_year, close_series, daily_drift_cap, failed, future_dates, sanity_check
 from pipeline.schemas import AssetConfig, Forecast, PriceHistory
 
 METHODS = ("arima", "reversion", "montecarlo")
@@ -31,10 +31,11 @@ def settings(calendar: str) -> dict:
 
 def run_methods(asset: AssetConfig, close: pd.Series, dates: pd.DatetimeIndex, seed: int) -> dict[str, MethodForecast]:
     s = settings(asset.calendar)
+    cap = daily_drift_cap(asset.max_annual_drift, asset.calendar)
     runners = {
-        "arima": lambda: arima.forecast(close, dates, s["arima_bars"]),
-        "reversion": lambda: reversion.forecast(close, dates, s["reversion_bars"], bars_per_year(asset.calendar)),
-        "montecarlo": lambda: montecarlo.forecast(close, dates, s["mc_drift_bars"], s["mc_vol_bars"], seed),
+        "arima": lambda: arima.forecast(close, dates, s["arima_bars"], cap),
+        "reversion": lambda: reversion.forecast(close, dates, s["reversion_bars"], bars_per_year(asset.calendar), cap),
+        "montecarlo": lambda: montecarlo.forecast(close, dates, s["mc_drift_bars"], s["mc_vol_bars"], seed, max_drift=cap),
     }
     out = {}
     last_date = close.index[-1].date()
@@ -133,7 +134,8 @@ def compute_accuracy(asset: AssetConfig, close: pd.Series, history_dir: Path, ar
         model = (arima_fc.params["order"], "t" if arima_fc.params["drift"] else "n")
     else:
         model = ((0, 1, 1), "n")
-    return backtest.walk_forward(close, asset.calendar, settings(asset.calendar), model)
+    cap = daily_drift_cap(asset.max_annual_drift, asset.calendar)
+    return backtest.walk_forward(close, asset.calendar, settings(asset.calendar) | {"max_drift": cap}, model)
 
 
 def archive_entry(fc: Forecast) -> dict:

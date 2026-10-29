@@ -1,6 +1,6 @@
 {
  "asset": "silver",
- "generated_at": "2026-10-29T13:06:00Z",
+ "generated_at": "2026-10-29T18:37:31Z",
  "run_date": "2026-10-29",
  "last_close": {
   "date": "2026-10-28",
@@ -17,6 +17,7 @@
      1
     ],
     "drift": false,
+    "drift_dropped_by_cap": false,
     "window_bars": 1305
    }
   },
@@ -25,6 +26,8 @@
    "error": null,
    "params": {
     "trend_annual_pct": 3.61,
+    "trend_annual_pct_raw": 3.61,
+    "trend_capped": false,
     "deviation_from_trend_pct": 76.98,
     "phi": 0.99833,
     "half_life_bars": 415.1,
@@ -36,6 +39,8 @@
    "error": null,
    "params": {
     "mu_daily": 0.000431,
+    "mu_daily_raw": 0.000431,
+    "drift_capped": false,
     "sigma_daily": 0.028847,
     "paths": 10000,
     "drift_bars": 2610,

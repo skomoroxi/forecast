@@ -1,6 +1,6 @@
 # FinForecast
 
-Daily price predictions for silver (and later gold and bitcoin): three statistical forecasts, monthly outlooks to 2030 and technical analysis. A static site built with Astro, data computed in Python, updated daily by GitHub Actions and hosted on Cloudflare Pages.
+Daily price predictions for gold, silver, Bitcoin, XRP, Solana, Dogecoin, Nvidia and Amazon: three statistical forecasts, monthly outlooks to 2030 and technical analysis. A static site built with Astro, data computed in Python, updated daily by GitHub Actions and hosted on Cloudflare Pages.
 
 See [`docs/TECHNICAL-TASK.md`](docs/TECHNICAL-TASK.md) for the full specification.
 
@@ -10,13 +10,14 @@ See [`docs/TECHNICAL-TASK.md`](docs/TECHNICAL-TASK.md) for the full specificatio
 - [x] **M3: design system and `/styleguide`.** Tokens, 14 components, lazy chart and SVG gauges. Awaiting owner approval; placeholder image until the renders are ready (docs/DESIGN.md §8).
 - [x] **M4: pages.** Hub, silver prediction page (17 blocks, generated text), methodology, about, author, disclaimer, privacy, 404.
 - [x] **M5: SEO and automation.** JSON-LD, sitemap, robots/noindex switch, OG images, self-hosted fonts, daily-update and CI workflows, Dependabot. Setup steps: [docs/DEPLOY.md](docs/DEPLOY.md).
+- [x] **More assets (2026-10-29).** Gold, Bitcoin, XRP, Solana, Dogecoin, Nvidia, Amazon: keyword research + query fan-out per asset (`docs/seo/`), keyword-checked headings, ±25%/year long-run growth cap.
 - [ ] M6: QA and launch (blocked until the domain is decided)
 
 ## Data sources
 | Asset | Price | Daily high/low |
 |---|---|---|
 | Silver (XAG/USD) | Alpha Vantage `GOLD_SILVER_HISTORY` (free; daily price) | Estimated from the SLV ETF on Twelve Data (scaled to the spot close) |
-| Gold (XAU/USD), Bitcoin (BTC/USD), later | Twelve Data (free plan) | Twelve Data |
+| Gold (XAU/USD), Bitcoin, XRP, Solana, Dogecoin (…/USD), Nvidia (NVDA), Amazon (AMZN) | Twelve Data (free plan, split-adjusted for stocks) | Twelve Data |
 
 Market data: Twelve Data, Alpha Vantage. Non-commercial use.
 
@@ -34,4 +35,8 @@ npm install && npm run build
 ```
 
 ## Adding an asset
-Add or enable an entry in `config/assets.yml`, then run `python -m pipeline.run --asset <id> --backfill`.
+1. Keyword research: Ahrefs matching terms for "<name> prediction", "<name> forecast", "<code> prediction", "<code> forecast"; write `docs/seo/<id>.md` (keywords + query fan-out).
+2. Add an entry to `config/assets.yml` (id, name, code, group, symbol, slug, the top-3 `keywords`, unit, calendar, limits).
+3. Add its editorial text and keyword headings to `src/lib/assetContent.ts` (title, h1, heading overrides, drivers, bull/bear, risks, comparison).
+4. `python -m pipeline.run --asset <id> --backfill`, then add an empty `data/<id>/analysts.json`.
+5. `npm run build && node scripts/smoke.mjs`: the smoke test fails if a top-3 keyword is missing from the title, H1 or H2s.

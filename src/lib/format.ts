@@ -2,15 +2,26 @@
 
 export const LOCALE = 'en-US';
 
-const usd2 = new Intl.NumberFormat(LOCALE, { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const usd0 = new Intl.NumberFormat(LOCALE, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+const usd = (digits: number) =>
+  new Intl.NumberFormat(LOCALE, { style: 'currency', currency: 'USD', minimumFractionDigits: digits, maximumFractionDigits: digits });
+const usd0 = usd(0);
+const usd2 = usd(2);
+const usd3 = usd(3);
+const usd4 = usd(4);
 const num2 = new Intl.NumberFormat(LOCALE, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const pct = new Intl.NumberFormat(LOCALE, { style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'exceptZero' });
 
-/** $54.25, or $1,234 for values ≥ 1000 */
+/** Precision follows the price level: $81,344 · $254.60 · $1.326 · $0.0798 */
 export function money(v: number | null | undefined): string {
   if (v == null || Number.isNaN(v)) return '—';
-  return Math.abs(v) >= 1000 ? usd0.format(v) : usd2.format(v);
+  const a = Math.abs(v);
+  return (a >= 1000 ? usd0 : a >= 10 ? usd2 : a >= 1 ? usd3 : usd4).format(v);
+}
+
+/** Round figures without trailing zeros: $500 · $0.20 · $0.005 */
+export function moneyRound(v: number): string {
+  // keep at least two decimals below $1 ($0.20), drop extra trailing zeros ($0.0050 → $0.005)
+  return (v >= 1 ? usd0 : v >= 0.01 ? usd2 : usd4).format(v).replace(/(\.\d\d\d*?)0+$/, '$1');
 }
 
 export function number(v: number | null | undefined): string {

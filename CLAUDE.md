@@ -4,7 +4,7 @@ Static price-forecast site: an Astro front end plus a Python data pipeline, upda
 
 - **Spec:** `docs/TECHNICAL-TASK.md` (scope, data, models, pages, acceptance criteria). Check the milestone table (§12) for what is in scope now.
 - **Design:** follow `docs/DESIGN.md` for all UI work. Use tokens only, no hard-coded colors.
-- **SEO structure** of asset pages: `docs/SEO-silver.md`.
+- **SEO structure** of asset pages: `docs/seo/silver.md`.
 
 ## Rules
 - Never commit API keys. They live in `.env` locally (git-ignored) and in GitHub Secrets (`TWELVEDATA_API_KEY`, `ALPHAVANTAGE_API_KEY`). The repo is public.
@@ -13,6 +13,8 @@ Static price-forecast site: an Astro front end plus a Python data pipeline, upda
 - `pipeline/schemas.py` is the JSON contract with the site. Change it there first.
 - The site URL is set in one place only: `SITE_URL` in `astro.config.mjs` (the domain is not decided yet). Pages stay `noindex` until launch.
 - Forecast methods: ARIMA, trend + mean reversion, Monte Carlo (Prophet was tested and dropped; see TECHNICAL-TASK §5.3). TA signal rules live only in `pipeline/ta/rules.py`.
+- Assets: config/assets.yml (8 today). Each has top-3 keywords that must appear in title, H1 and H2s (checked by `scripts/smoke.mjs`); headings and editorial text per asset live in `src/lib/assetContent.ts`; SEO research in `docs/seo/<id>.md`.
+- Every model caps long-run growth at ±25%/year (`max_annual_drift` in assets.yml); see TECHNICAL-TASK §5.3.
 - Silver: Twelve Data's free plan has no XAG/USD. Silver spot comes from Alpha Vantage (close only), and the daily high/low is estimated from the SLV ETF (`ohlc: "proxy"` bars).
 
 ## Commands

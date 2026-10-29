@@ -38,6 +38,11 @@ def bars_per_year(calendar: str) -> int:
     return 365 if calendar == "crypto" else 261
 
 
+def daily_drift_cap(max_annual: float, calendar: str) -> float:
+    """Largest allowed drift per bar in log terms, from an annual cap such as 0.25 (= ±25%/year)."""
+    return float(np.log1p(max_annual) / bars_per_year(calendar))
+
+
 def close_series(bars) -> pd.Series:
     return pd.Series([b.close for b in bars], index=pd.DatetimeIndex([pd.Timestamp(b.date) for b in bars]), name="close")
 

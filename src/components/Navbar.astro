@@ -1,10 +1,11 @@
 ---
 // DESIGN §4.2: sticky white navbar with asset dropdowns.
-import { assets, assetUrl, GROUPS } from '../lib/assets';
+import { assets, assetUrl } from '../lib/assets';
+import { headings } from '../lib/assetContent';
 
 const groups = Object.entries(
   assets.reduce<Record<string, typeof assets>>((acc, a) => {
-    (acc[GROUPS[a.id] ?? 'Other'] ??= []).push(a);
+    (acc[a.group] ??= []).push(a);
     return acc;
   }, {}),
 );
@@ -37,7 +38,7 @@ const path = Astro.url.pathname;
                   <li>
                     {a.enabled ? (
                       <a href={assetUrl(a)} aria-current={path === assetUrl(a) ? 'page' : undefined}>
-                        {a.name} price prediction
+                        {headings(a, { run: 0, last: 0 }).og}
                       </a>
                     ) : (
                       <span class="disabled">
