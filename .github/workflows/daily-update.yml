@@ -1,6 +1,6 @@
-# Daily data update (TECHNICAL-TASK §9): fetch prices → forecasts + TA → commit data/**.
-# The commit triggers the Cloudflare Pages build. On any failure nothing is committed,
-# the site keeps the last good data, and GitHub e-mails the repo owner.
+# Daily data update (TECHNICAL-TASK §9): fetch prices → forecasts + TA → commit data/** → deploy.
+# On any failure nothing is committed or deployed, the site keeps the last good data,
+# and GitHub e-mails the repo owner.
 name: Daily data update
 
 on:
@@ -73,3 +73,12 @@ jobs:
           fi
           git commit -m "data: daily update $(date -u +%F)"
           git push
+
+  # A push made with GITHUB_TOKEN does not start other workflows, so deploy is called here.
+  deploy:
+    needs: update
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      deployments: write

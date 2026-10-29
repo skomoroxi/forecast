@@ -1,0 +1,72 @@
+# Build the site and upload it to Cloudflare Pages with Wrangler (direct upload, docs/DEPLOY.md).
+# Runs on every push to main, by hand, and from daily-update.yml after the data commit
+# (pushes made with GITHUB_TOKEN do not trigger other workflows, so it is called explicitly).
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Repository variables (Settings → Secrets and variables → Actions → Variables), all optional.
+      PROJECT: ${{ vars.CF_PAGES_PROJECT || 'finforecast' }}
+      SITE_URL: ${{ vars.SITE_URL || format('https://{0}.pages.dev', vars.CF_PAGES_PROJECT || 'finforecast') }}
+      INDEXING: ${{ vars.INDEXING }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Check Cloudflare secrets
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::Add the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repository secrets (docs/DEPLOY.md, step 2)."
+            exit 1
+          fi
+
+      # Always the latest main, so a run called right after the data commit deploys the new data.
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Smoke test
+        run: node scripts/smoke.mjs
+
+      - name: Create the Pages project if it does not exist
+        run: |
+          if npx wrangler pages project list 2>/dev/null | grep -qw "$PROJECT"; then
+            echo "Pages project $PROJECT exists."
+          else
+            npx wrangler pages project create "$PROJECT" --production-branch main
+          fi
+
+      - name: Deploy to Cloudflare Pages
+        run: |
+          npx wrangler pages deploy dist \
+            --project-name "$PROJECT" \
+            --branch main \
+            --commit-hash "$(git rev-parse HEAD)" \
+            --commit-message "$(git log -1 --pretty=%s | cut -c1-100)"
+          echo "### Deployed to $SITE_URL" >> "$GITHUB_STEP_SUMMARY"

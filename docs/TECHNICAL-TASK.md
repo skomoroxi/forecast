@@ -400,7 +400,9 @@ Owner design decisions:
 - **On failure:** the workflow fails, which triggers GitHub's e-mail notification. No commit is made, so the site keeps the last good data. A failed or stale run also shows a small "data as of {date}" note on the page (the site checks whether `generated_at` is older than 48h).
 - **Runtime budget:** under 10 minutes per run (one asset takes about 15 s).
 
-**Cloudflare Pages:**
+**Cloudflare Pages (changed after M5: direct upload).** GitHub Actions `deploy.yml` builds the site and uploads `dist/` with Wrangler. It runs on every push to `main`, after each daily update and by hand. Cloudflare does not build. The notes below on Git-connected builds no longer apply.
+
+**Original plan, superseded:**
 - Connect the repo; production branch `main`; build `npm ci && npm run build`; output `dist`; Node 20.
 - Each data commit triggers a deploy, about 30 builds a month against the free limit of 500.
 - Preview deployments for PRs.
