@@ -1,0 +1,397 @@
+---
+// Asset forecast page, e.g. /silver-price-prediction/ (TECHNICAL-TASK §6.2, docs/SEO-silver.md).
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import ForecastCard from '../components/ForecastCard.astro';
+import YearSection from '../components/YearSection.astro';
+import DataTable from '../components/DataTable.astro';
+import PriceChart from '../components/PriceChart.astro';
+import TaSummary from '../components/TaSummary.astro';
+import Factors from '../components/Factors.astro';
+import CtaSection from '../components/CtaSection.astro';
+import Faq from '../components/Faq.astro';
+import AssetCards from '../components/AssetCards.astro';
+import { assets, type AssetConfig } from '../lib/assets';
+import { assetData, consensusAt, visibleAnalysts, type AssetId } from '../lib/data';
+import { date, dateTimeUtc, money, number, VERDICT_LABEL } from '../lib/format';
+import { Writer, yearlyHistory } from '../lib/text';
+import { CONTENT } from '../lib/assetContent';
+import {
+  accuracyTable, analystsTable, dailyTable, historyTable, longTermTable, monthlyTable, yearSummaryTable,
+} from '../lib/tables';
+
+export function getStaticPaths() {
+  return assets.filter((a) => a.enabled).map((a) => ({ params: { slug: a.slug }, props: { asset: a } }));
+}
+
+interface Props {
+  asset: AssetConfig;
+}
+
+const { asset } = Astro.props;
+const id = asset.id as AssetId;
+const N = asset.name;
+const n = N.toLowerCase();
+const { forecast: fc, ta, prices, analysts } = assetData(id);
+const w = new Writer(fc, ta, N);
+const content = CONTENT[asset.id];
+const today = fc.last_close.price;
+const runYear = new Date(fc.run_date).getUTCFullYear();
+const lastMonthlyYear = Number(fc.monthly.at(-1)!.month.slice(0, 4));
+const laterYears = Array.from({ length: lastMonthlyYear - runYear }, (_, i) => runYear + 1 + i);
+const lastYearly = fc.yearly.at(-1)?.year;
+
+const in30 = consensusAt(fc, 'daily-end');
+const endThisYear = consensusAt(fc, runYear);
+const endLast = consensusAt(fc, lastMonthlyYear);
+const pct = (v: number | null) => (v == null ? null : v / today - 1);
+const updatedLine = `Last updated: ${date(fc.run_date)}`;
+const verdict = ta.timeframes.daily.summary.overall.verdict;
+const verdictTone = verdict.includes('buy') ? 'buy' : verdict.includes('sell') ? 'sell' : 'neutral';
+
+const daily = dailyTable(fc);
+const thisYear = monthlyTable(fc, runYear);
+const summary = yearSummaryTable(fc, [runYear, ...laterYears]);
+const longTerm = longTermTable(fc);
+const accuracy = accuracyTable(fc);
+const history = historyTable(yearlyHistory(prices.bars, 10));
+const analystEntries = visibleAnalysts(analysts, fc.run_date);
+const analystRows = analystEntries.length ? analystsTable(analystEntries, fc) : null;
+const sigma = Number(fc.methods.montecarlo?.params?.sigma_daily ?? 0);
+const annualVol = sigma ? sigma * Math.sqrt(261) * 100 : null;
+const todayClose = fc.daily.find((r) => r.date === fc.run_date);
+const tomorrow = w.nextDay();
+const weekAhead = fc.daily.find((r) => r.date >= new Date(Date.parse(tomorrow.date) + 6 * 864e5).toISOString().slice(0, 10)) ?? fc.daily.at(-1)!;
+const muDaily = Number(fc.methods.montecarlo?.params?.mu_daily ?? 0);
+const deviation = Number(fc.methods.reversion?.params?.deviation_from_trend_pct ?? 0);
+const faq = w.faq();
+
+const title = `${N} Price Prediction ${runYear}–${lastMonthlyYear}: Daily & 5-Year Forecast`;
+const description = `${N} price forecast for tomorrow, next 30 days, end of ${runYear} and ${runYear + 1}–${lastMonthlyYear}. Three models, analyst consensus and live technical analysis. Updated daily.`;
+---
+
+<BaseLayout title={title} description={description}>
+  <Hero
+    title={`${N} Price Prediction & Forecast ${runYear}–${lastMonthlyYear}`}
+    updated={`Updated ${dateTimeUtc(fc.generated_at)} · Reviewed by Margerie Holtz`}
+    cta={{ href: '#summary', label: "See today's forecast" }}
+  >
+    <nav slot="before" class="crumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a> <span aria-hidden="true">›</span> <span aria-current="page">{N} price prediction</span>
+    </nav>
+    {w.intro().map((p) => <p>{p}</p>)}
+  </Hero>
+
+  <!-- 3. Key forecast summary -->
+  <section id="summary" class="section section--white">
+    <div class="container">
+      <h2>{N} forecast at a glance</h2>
+      <p class="lead">{w.summary()}</p>
+      <div class="glance">
+        <ForecastCard label="In 30 days" value={money(in30)} meta={updatedLine} change={pct(in30)} />
+        <ForecastCard label={`End of ${runYear}`} value={money(endThisYear)} meta={`December ${runYear} average`} change={pct(endThisYear)} />
+        <ForecastCard label={String(lastMonthlyYear)} value={money(endLast)} meta={`December ${lastMonthlyYear} average`} change={pct(endLast)} />
+      </div>
+      <p class="pill-row">
+        Technical signal today:
+        <a class={`pill ${verdictTone}`} href="#technical-analysis">{VERDICT_LABEL[verdict]}</a>
+        <span class="meta">daily timeframe</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- 4. Chart -->
+  <section id="chart" class="section section--soft">
+    <div class="container">
+      <h2>{N} price chart and forecast</h2>
+      <PriceChart asset={id} name={N} color={asset.chart_color} />
+    </div>
+  </section>
+
+  <!-- 5. Next 30 days -->
+  <section id="next-30-days" class="section section--white">
+    <div class="container">
+      <h2>{N} price forecast for the next 30 days</h2>
+      <div class="cols">
+        <div>{w.next30().map((p) => <p>{p}</p>)}</div>
+        <div>
+          <h3>{N} price prediction for tomorrow and next week</h3>
+          <p>
+            {todayClose && (
+              <>
+                Today's close ({date(todayClose.date, { weekday: 'long', month: 'short', day: 'numeric' })}): <strong>{money(todayClose.consensus)}</strong>{' '}
+                <span class="meta">(range {money(todayClose.low)}–{money(todayClose.high)})</span>
+                <br />
+              </>
+            )}
+            Tomorrow ({date(tomorrow.date, { weekday: 'long', month: 'short', day: 'numeric' })}): <strong>{money(tomorrow.consensus)}</strong>{' '}
+            <span class="meta">(range {money(tomorrow.low)}–{money(tomorrow.high)})</span>
+            <br />
+            In one week ({date(weekAhead.date, { weekday: 'long', month: 'short', day: 'numeric' })}): <strong>{money(weekAhead.consensus)}</strong>{' '}
+            <span class="meta">(range {money(weekAhead.low)}–{money(weekAhead.high)})</span>
+          </p>
+        </div>
+      </div>
+      <DataTable
+        caption={`${N} daily price forecast for the next 30 days (USD per troy ounce)`}
+        columns={daily.columns}
+        rows={daily.rows}
+        initialRows={10}
+        note="Consensus = average of the three models. Range = 80% of model outcomes (P10–P90). Weekends are skipped: the spot market is closed."
+      />
+    </div>
+  </section>
+
+  <!-- 6. This year -->
+  <YearSection id={`forecast-${runYear}`} heading={`${N} price forecast ${runYear}`}>
+    {w.year(runYear).map((p) => <p set:html={p} />)}
+    <ForecastCard slot="card" label={`Forecast end of ${runYear}`} value={money(endThisYear)} meta={updatedLine} change={pct(endThisYear)} />
+    <DataTable slot="aside" caption={`${N} monthly forecast ${runYear}`} columns={thisYear.columns} rows={thisYear.rows} />
+  </YearSection>
+
+  <!-- 7. Next 5 years -->
+  <section id="next-5-years" class="section section--white">
+    <div class="container">
+      <h2>{N} price prediction {laterYears[0]}–{lastMonthlyYear} (next 5 years)</h2>
+      <p>
+        The table compares the yearly average of each model. ARIMA follows recent price behaviour, trend + reversion pulls the
+        price back toward its long-run trend, and Monte Carlo continues the 10-year growth rate. The consensus is their average.
+      </p>
+      <DataTable caption={`Average ${n} forecast per year and model (USD per troy ounce)`} columns={summary.columns} rows={summary.rows} />
+    </div>
+  </section>
+  {
+    laterYears.map((y, i) => {
+      const t = monthlyTable(fc, y);
+      const last = y === lastMonthlyYear;
+      const dec = consensusAt(fc, y);
+      return (
+        <YearSection
+          id={`forecast-${y}`}
+          level="h3"
+          heading={`${N} price prediction ${y}`}
+          variant={last ? 'dark' : i % 2 ? 'white' : 'light'}
+          reverse={i % 2 === 1 || last}
+        >
+          {w.year(y).map((p) => <p set:html={p} />)}
+          <ForecastCard slot="card" label={`Forecast ${y}`} value={money(dec)} meta={`December ${y} average`} change={pct(dec)} />
+          <DataTable slot="aside" dark={last} caption={`${N} monthly forecast ${y}`} columns={t.columns} rows={t.rows} initialRows={6} />
+        </YearSection>
+      );
+    })
+  }
+
+  <!-- 8. Long term -->
+  {
+    lastYearly && (
+      <section id="outlook" class="section section--dark on-dark">
+        <div class="container grid-2">
+          <div>
+            <h2>{N} price outlook to {lastYearly} (next 10 years)</h2>
+            {w.longTerm().map((p) => <p>{p}</p>)}
+          </div>
+          <DataTable dark caption={`${N} yearly forecast ${fc.yearly[0].year}–${lastYearly}`} columns={longTerm.columns} rows={longTerm.rows}
+            note="Long-run models only: trend + reversion and Monte Carlo. ARIMA adds no information at this range." />
+        </div>
+      </section>
+    )
+  }
+
+  <!-- 9. Technical analysis -->
+  <section id="technical-analysis" class="section section--soft">
+    <div class="container">
+      <h2>{N} technical analysis</h2>
+      <p class="lead">{w.technical()}</p>
+      <TaSummary ta={ta} name={N} />
+    </div>
+  </section>
+
+  <!-- 10. Analysts (hidden until at least two current, sourced entries exist) -->
+  {
+    analystRows && (
+      <section id="analysts" class="section section--white">
+        <div class="container">
+          <h2>What analysts and banks predict for {n}</h2>
+          <DataTable caption={`Published ${n} price targets`} columns={analystRows.columns} rows={analystRows.rows}
+            note={`Targets as published by each institution; reviewed by ${analysts.reviewed_by}${analysts.reviewed_at ? ` on ${date(analysts.reviewed_at)}` : ''}.`} />
+          <ul class="sources">
+            {analystEntries.map((e) => <li><a href={e.source_url} rel="nofollow noopener">{e.institution}: {e.source_title}</a></li>)}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- 11. Drivers -->
+  {content && <Factors id="drivers" heading={`What will drive ${n} prices`} ranked items={content.drivers} />}
+
+  <!-- 12. Comparison (e.g. gold vs silver) -->
+  {
+    content?.compare && (
+      <CtaSection id="compare" heading={content.compare.heading} variant="white">
+        {content.compare.paragraphs.map((p) => <p>{p}</p>)}
+        {content.compare.link.href ? (
+          <a class="btn btn--secondary" href={content.compare.link.href}>{content.compare.link.label}</a>
+        ) : (
+          <span class="btn btn--secondary" aria-disabled="true">{content.compare.link.label}</span>
+        )}
+      </CtaSection>
+    )
+  }
+
+  <!-- 13. History -->
+  <section id="history" class="section section--soft">
+    <div class="container">
+      <h2>{N} price history (last 5 and 10 years)</h2>
+      <p>Yearly average, highest and lowest daily close, and the change over each year, from the same daily data the forecasts use.</p>
+      <DataTable caption={`${N} price history by year (USD per troy ounce)`} columns={history.columns} rows={history.rows} initialRows={5} />
+    </div>
+  </section>
+
+  <!-- 14. Good investment? -->
+  <section id="investment" class="section section--white">
+    <div class="container">
+      <h2>Is {n} a good investment in {runYear}?</h2>
+      <p class="lead">
+        There is no single answer: it depends on your goals, time horizon and risk tolerance. Here is what the data shows today:
+        the consensus expects {n} to {w.move(endLast)} by December {lastMonthlyYear}, and the daily technical signal reads {VERDICT_LABEL[verdict]}.
+      </p>
+      <div class="bullbear">
+        <div>
+          <h3>Bull case</h3>
+          <ul>
+            {content?.bull.map((b) => <li>{b}</li>)}
+            {muDaily > 0 && <li>The Monte Carlo model, which continues the 10-year trend, points higher over time.</li>}
+            {deviation < -10 && <li>The price is below its long-run trend line, which the trend + reversion model expects it to return to.</li>}
+          </ul>
+        </div>
+        <div>
+          <h3>Bear case</h3>
+          <ul>
+            <li>{N} is volatile: its recent annualised volatility is about {annualVol ? `${number(annualVol)}%` : 'high'}.</li>
+            {deviation > 10 && <li>The price is {number(deviation)}% above its long-run trend line, which the trend + reversion model expects to pull it back.</li>}
+            {muDaily < 0 && <li>The 10-year price trend used by the Monte Carlo model is negative.</li>}
+            {content?.bear.map((b) => <li>{b}</li>)}
+          </ul>
+        </div>
+      </div>
+      <h3>Risks to keep in mind</h3>
+      <ul class="checklist">
+        <li>Prices can fall sharply: one-day moves of 10% or more have happened.</li>
+        <li>Physical coins and bars carry dealer premiums and storage costs; ETFs carry fees.</li>
+        <li>{N} produces no income, so returns depend entirely on the price.</li>
+        <li>Statistical forecasts can be wrong; see the accuracy figures below.</li>
+      </ul>
+      <p class="meta">This section is general information, not personal investment advice.</p>
+    </div>
+  </section>
+
+  <!-- 15. Methodology and accuracy -->
+  <CtaSection id="accuracy" heading={`How we forecast ${n} and how accurate we are`}>
+    <p>
+      Three statistical models run every day on the full daily price history: <strong>ARIMA</strong> (short-term price behaviour),{' '}
+      <strong>trend + mean reversion</strong> (the long-run trend and how far the price is from it) and <strong>Monte Carlo</strong>{' '}
+      (10,000 simulated price paths). The consensus is their average.
+    </p>
+    <p>{w.accuracy()}</p>
+    <DataTable caption="Average forecast error (MAPE)" columns={accuracy.columns} rows={accuracy.rows}
+      note={fc.accuracy.consensus?.basis === 'live' ? 'Based on published forecasts.' : 'Walk-forward test: models refit on past data only. A live track record replaces it after 30 days of published forecasts.'} />
+    <a class="btn btn--secondary" href="/methodology/">Read the full methodology</a>
+  </CtaSection>
+
+  <!-- 16. FAQ -->
+  <Faq items={faq} />
+
+  <!-- 17. Related -->
+  <section class="section section--white">
+    <div class="container">
+      <h2>Related forecasts</h2>
+      <AssetCards exclude={asset.id} />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .crumbs {
+    font-size: 13px;
+    letter-spacing: normal;
+    margin-bottom: 24px;
+    color: var(--muted-on-dark);
+  }
+  .crumbs a,
+  .crumbs a:visited {
+    color: var(--gray-300);
+  }
+  .lead {
+    font-size: 18px;
+    max-width: 900px;
+  }
+  .glance {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    margin: 24px 0 0;
+  }
+  .pill,
+  .pill:visited {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-weight: 500;
+    font-size: 15px;
+    text-decoration: none;
+    border: var(--hairline) solid currentColor;
+  }
+  .pill.buy {
+    color: var(--up-text);
+  }
+  .pill.sell {
+    color: var(--down-text);
+  }
+  .pill.neutral {
+    color: var(--navy-900);
+  }
+  .cols {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: var(--grid-gap);
+    margin-bottom: 16px;
+  }
+  .cols h3 {
+    margin-top: 0;
+  }
+  .bullbear {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--grid-gap);
+  }
+  .bullbear ul,
+  .checklist {
+    padding-left: 20px;
+  }
+  .bullbear li,
+  .checklist li {
+    margin-bottom: 8px;
+  }
+  .sources {
+    margin-top: 16px;
+    font-size: 14px;
+  }
+  @media (max-width: 991px) {
+    .glance {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 767px) {
+    .cols,
+    .bullbear {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

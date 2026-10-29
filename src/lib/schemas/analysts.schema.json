@@ -1,0 +1,164 @@
+{
+  "$defs": {
+    "AnalystEntry": {
+      "description": "One published institutional target (TECHNICAL-TASK \u00a75.6). Never estimated: source required.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "institution": {
+          "title": "Institution",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "bank",
+            "research",
+            "public_institution",
+            "survey",
+            "individual"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "target_usd": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Usd"
+        },
+        "target_low_usd": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Low Usd"
+        },
+        "target_high_usd": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target High Usd"
+        },
+        "basis": {
+          "enum": [
+            "average",
+            "end",
+            "peak"
+          ],
+          "title": "Basis",
+          "type": "string"
+        },
+        "horizon": {
+          "pattern": "^\\d{4}(-Q[1-4])?$",
+          "title": "Horizon",
+          "type": "string"
+        },
+        "published_on": {
+          "format": "date",
+          "title": "Published On",
+          "type": "string"
+        },
+        "source_title": {
+          "minLength": 3,
+          "title": "Source Title",
+          "type": "string"
+        },
+        "source_url": {
+          "pattern": "^https://",
+          "title": "Source Url",
+          "type": "string"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        },
+        "show": {
+          "default": true,
+          "title": "Show",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "institution",
+        "type",
+        "basis",
+        "horizon",
+        "published_on",
+        "source_title",
+        "source_url"
+      ],
+      "title": "AnalystEntry",
+      "type": "object"
+    }
+  },
+  "description": "data/<asset>/analysts.json (edited by hand, validated in CI)",
+  "properties": {
+    "asset": {
+      "title": "Asset",
+      "type": "string"
+    },
+    "reviewed_at": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Reviewed At"
+    },
+    "reviewed_by": {
+      "title": "Reviewed By",
+      "type": "string"
+    },
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/AnalystEntry"
+      },
+      "title": "Entries",
+      "type": "array"
+    }
+  },
+  "required": [
+    "asset",
+    "reviewed_at",
+    "reviewed_by",
+    "entries"
+  ],
+  "title": "Analysts",
+  "type": "object"
+}

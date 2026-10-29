@@ -1,26 +1,68 @@
 ---
-// M1 placeholder. The real hub page is built in M4 (docs/TECHNICAL-TASK.md §6.1).
-import prices from '../../data/silver/prices.json';
+// Hub page (TECHNICAL-TASK §6.1).
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import AssetCards from '../components/AssetCards.astro';
+import Factors from '../components/Factors.astro';
+import Faq from '../components/Faq.astro';
+import { assets, assetUrl, GROUPS } from '../lib/assets';
+import { assetData, type AssetId } from '../lib/data';
+import { dateTimeUtc } from '../lib/format';
 
-const last = prices.bars.at(-1);
+const groups = [...new Set(assets.map((a) => GROUPS[a.id] ?? 'Other'))];
+const first = assets.find((a) => a.enabled)!;
+const fc = assetData(first.id as AssetId).forecast;
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex, nofollow" />
-    <title>FinForecast (in development)</title>
-  </head>
-  <body>
-    <h1>FinForecast</h1>
-    <p>Price predictions for silver, gold and bitcoin. Under construction.</p>
-    {last && (
-      <p>
-        Silver (XAG/USD) last close: <strong>${last.close.toFixed(2)}</strong> on {last.date} ·{' '}
-        {prices.bars.length} daily bars since {prices.bars[0]?.date}.
-      </p>
-    )}
-  </body>
-</html>
+<BaseLayout
+  title="Price Predictions: Silver, Gold & Bitcoin Forecasts | FinForecast"
+  description="Daily price predictions for silver, gold and bitcoin: 30-day, monthly and long-term forecasts from three statistical models, plus technical analysis. Updated every day."
+>
+  <Hero title="Price predictions for silver, gold and bitcoin" updated={`Updated ${dateTimeUtc(fc.generated_at)}`} cta={{ href: assetUrl(first), label: `${first.name} price prediction` }}>
+    <p>
+      FinForecast publishes daily price forecasts for the next 30 days, every month to 2030 and every year to 2035, calculated
+      by three independent statistical models, together with a full technical analysis.
+    </p>
+    <p>Everything updates automatically after each daily close. No opinions, no hype: the numbers and how they are made.</p>
+  </Hero>
+
+  {
+    groups.map((g, i) => (
+      <section class:list={['section', i % 2 ? 'section--white' : 'section--soft']}>
+        <div class="container">
+          <h2>{g === 'Metals' ? 'Precious metals price predictions' : g === 'Crypto' ? 'Cryptocurrency price predictions' : g}</h2>
+          <AssetCards ids={assets.filter((a) => (GROUPS[a.id] ?? 'Other') === g).map((a) => a.id)} />
+        </div>
+      </section>
+    ))
+  }
+
+  <Factors
+    heading="How our forecasts work"
+    items={[
+      { title: '1. Daily market data', text: 'Each asset’s full daily price history is updated after the close from public market-data providers.' },
+      { title: '2. Three models', text: 'ARIMA, trend + mean reversion and a 10,000-path Monte Carlo simulation each forecast the price; the consensus is their average.' },
+      { title: '3. Technical analysis', text: '12 indicators, 12 moving averages and 5 sets of pivot points give a daily, weekly and monthly buy/sell summary.' },
+      { title: '4. Measured accuracy', text: 'Every forecast is archived and compared with what actually happened, so you can see how reliable the models are.' },
+    ]}
+  >
+    <p class="center"><a href="/methodology/">Read the full methodology</a></p>
+  </Factors>
+
+  <Faq
+    items={[
+      { q: 'What is FinForecast?', a: 'FinForecast is an independent site that publishes statistical price forecasts and technical analysis for selected financial assets, updated every day.' },
+      { q: 'How often are the predictions updated?', a: 'Once a day, shortly after the daily market close. Each page shows when it was last updated.' },
+      { q: 'How are the forecasts calculated?', a: 'Three statistical models (ARIMA, trend + mean reversion and Monte Carlo simulation) run on each asset’s daily price history. The consensus is their average. The methodology page explains each model.' },
+      { q: 'Are these forecasts financial advice?', a: 'No. They are statistical estimates for information only and can be wrong. Do your own research before making any investment decision.' },
+      { q: 'Which assets are covered?', a: 'Silver today. Gold and bitcoin forecasts are coming soon.' },
+    ]}
+  />
+</BaseLayout>
+
+<style>
+  .center {
+    text-align: center;
+    margin-top: 16px;
+  }
+</style>

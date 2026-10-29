@@ -23,7 +23,8 @@ export function percent(v: number | null | undefined): string {
 }
 
 export function direction(v: number | null | undefined): 'up' | 'down' | 'flat' {
-  if (v == null || v === 0 || Number.isNaN(v)) return 'flat';
+  // below 0.005% the value prints as 0.00%, so it gets no arrow or color
+  if (v == null || Number.isNaN(v) || Math.abs(v) < 0.00005) return 'flat';
   return v > 0 ? 'up' : 'down';
 }
 

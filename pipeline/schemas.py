@@ -177,6 +177,50 @@ class TechnicalAnalysis(BaseModel):
     timeframes: dict[Literal["daily", "weekly", "monthly"], Timeframe]
 
 
+class AnalystEntry(BaseModel):
+    """One published institutional target (TECHNICAL-TASK §5.6). Never estimated: source required."""
+
+    id: str
+    institution: str
+    type: Literal["bank", "research", "public_institution", "survey", "individual"]
+    target_usd: float | None = Field(default=None, gt=0)
+    target_low_usd: float | None = Field(default=None, gt=0)
+    target_high_usd: float | None = Field(default=None, gt=0)
+    basis: Literal["average", "end", "peak"]
+    horizon: str = Field(pattern=r"^\d{4}(-Q[1-4])?$")
+    published_on: date
+    source_title: str = Field(min_length=3)
+    source_url: str = Field(pattern=r"^https://")
+    note: str | None = Field(default=None, max_length=120)
+    show: bool = True
+
+    @model_validator(mode="after")
+    def _target(self) -> AnalystEntry:
+        has_point = self.target_usd is not None
+        has_range = self.target_low_usd is not None and self.target_high_usd is not None
+        if has_point == has_range:
+            raise ValueError(f"{self.id}: give either target_usd or both target_low_usd and target_high_usd")
+        if has_range and self.target_low_usd > self.target_high_usd:
+            raise ValueError(f"{self.id}: target_low_usd > target_high_usd")
+        return self
+
+
+class Analysts(BaseModel):
+    """data/<asset>/analysts.json (edited by hand, validated in CI)"""
+
+    asset: str
+    reviewed_at: date | None
+    reviewed_by: str
+    entries: list[AnalystEntry]
+
+    @model_validator(mode="after")
+    def _unique(self) -> Analysts:
+        ids = [e.id for e in self.entries]
+        if len(ids) != len(set(ids)):
+            raise ValueError("duplicate entry id")
+        return self
+
+
 class PriceHistory(BaseModel):
     asset: str
     symbol: str

@@ -1,0 +1,86 @@
+---
+// Author page (TECHNICAL-TASK §6.3). Facts only as provided by the owner; bio awaiting author approval.
+import TextPage from '../../layouts/TextPage.astro';
+
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Margerie Holtz',
+  jobTitle: 'Senior Analyst',
+  alumniOf: { '@type': 'CollegeOrUniversity', name: 'Hochschule für Wirtschaft und Recht Berlin' },
+  worksFor: { '@type': 'Organization', name: 'FinForecast' },
+  url: new URL('/authors/margerie-holtz/', Astro.site).href,
+};
+---
+
+<TextPage
+  title="Margerie Holtz, Senior Analyst | FinForecast"
+  heading="Margerie Holtz"
+  description="Margerie Holtz, Senior Analyst and editor of FinForecast. M.A. International Economics, HWR Berlin."
+  lead="Senior Analyst · Editor of FinForecast"
+>
+  <div class="author">
+    <div class="avatar" aria-hidden="true">MH</div>
+    <div>
+      <p>
+        Margerie Holtz is a Senior Analyst with more than eight years of experience in financial markets. She has worked at Brown
+        Brothers Harriman since 2017 and has been a Senior Analyst there since 2020. She holds a Master of Arts in International
+        Economics from the Hochschule für Wirtschaft und Recht Berlin (2015).
+      </p>
+      <p>At FinForecast she reviews the forecasting methodology and the analyst-forecast data.</p>
+    </div>
+  </div>
+
+  <h2>Education</h2>
+  <ul>
+    <li>M.A. International Economics, Hochschule für Wirtschaft und Recht Berlin, 2015</li>
+  </ul>
+
+  <h2>Experience</h2>
+  <ul>
+    <li>Senior Analyst, Brown Brothers Harriman, since 2020</li>
+    <li>Analyst, Brown Brothers Harriman, 2017–2020</li>
+  </ul>
+
+  <h2>At FinForecast</h2>
+  <ul>
+    <li>Reviews the <a href="/methodology/">forecasting methodology</a></li>
+    <li>Maintains the analyst and bank forecast data on each asset page</li>
+  </ul>
+
+  <p class="meta independence">
+    Views and forecasts on FinForecast are her own and do not represent Brown Brothers Harriman.
+  </p>
+
+  <script type="application/ld+json" set:html={JSON.stringify(person)} />
+</TextPage>
+
+<style>
+  .author {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+  .avatar {
+    flex: none;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--navy-900);
+    color: var(--cream);
+    font-family: var(--font-serif);
+    font-size: 36px;
+  }
+  .independence {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: var(--hairline) solid var(--gray-200);
+  }
+  @media (max-width: 480px) {
+    .author {
+      flex-direction: column;
+    }
+  }
+</style>

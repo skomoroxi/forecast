@@ -76,9 +76,7 @@ forecast/
 │     ├─ prices.json           # full daily OHLC history
 │     ├─ forecast.json         # latest run (all methods, all horizons)
 │     ├─ ta.json               # latest technical analysis (D/W/M)
-│     ├─ text.json             # generated paragraphs
 │     ├─ analysts.json         # MANUAL: bank / analyst targets (edited by hand)
-│     ├─ faq.json              # MANUAL: FAQ questions and answer templates
 │     └─ history/forecast-YYYY-MM-DD.json   # archive for the accuracy tracking
 ├─ docs/                       # DESIGN.md, SEO-silver.md, keywords CSV, this file
 ├─ public/                     # favicon, robots.txt, og images, fonts (self-hosted optional)
@@ -208,17 +206,21 @@ Implemented in pandas (`pipeline/ta/`), with no TA-Lib dependency. Computed on d
 - **Pivot points:** Classic, Fibonacci, Camarilla, Woodie (S3–R3) and DeMark (S1/R1). Daily pivots come from the last finished day; weekly and monthly pivots from the previous finished week or month.
 - **Summary:** score = (buys − sells) / counted, computed separately for oscillators, for MAs and overall. Mapping: ≤ −0.5 Strong Sell, < −0.1 Sell, ≤ 0.1 Neutral, < 0.5 Buy, ≥ 0.5 Strong Buy.
 
-### 5.5 Generated text (`text.json`)
-- **Jinja2 templates** fed by the numbers. At least **3 variants per sentence**, picked deterministically by a hash of `(asset, date, block)`, so the text changes day to day but stays stable within a day.
+### 5.5 Generated text
+**Changed in M4:** text is generated at build time in the site (`src/lib/text.ts`), not in the pipeline, and there is no `text.json` or `faq.json`. The text reads the same `forecast.json` / `ta.json` as the tables, so the numbers in a sentence can never drift from the numbers in a table, and no Jinja2 dependency is needed. The future 10-language version will translate these templates.
+
+- **Variants:** 2 per sentence, picked by a hash of `(asset, run date, block)`. The text changes from day to day but stays stable within a day.
 - **Blocks:**
   - hero intro
-  - key summary (BLUF: 30-day, end-of-2026 and 2030 consensus, TA verdict)
+  - key summary (BLUF)
   - 30-day trend
-  - one paragraph per year 2026–2030
-  - 2035 outlook
-  - TA interpretation
-  - neutral "good investment?" bull/bear text
-- **Tone:** neutral and conditional ("models suggest…", "is expected to…"). Never "you should buy". Every number in the text must come from the JSON.
+  - one paragraph set per year (current year to 2030)
+  - outlook to 2035
+  - technical-analysis interpretation
+  - accuracy statement
+  - 8 FAQ answers with live numbers
+- **Conditional content:** statements that depend on the data are shown only while true. For example, "the price is X% above its trend" appears only when the deviation is above 10%, and the Monte Carlo upside line only when the drift is positive.
+- **Tone:** neutral and conditional; never "you should buy". Every number comes from the JSON.
 
 ### 5.6 Analyst and bank forecasts (`analysts.json`)
 
@@ -315,7 +317,7 @@ Block order and content follow `docs/SEO-silver.md` (structure) and `docs/DESIGN
 | # | Block | Data source | Notes |
 |---|---|---|---|
 | 1 | Ticker, navbar, breadcrumbs | prices.json | |
-| 2 | Hero: H1 "Silver Price Prediction & Forecast 2026–2030", intro, disclaimer, "Updated {date}" | text.json | |
+| 2 | Hero: H1 "Silver Price Prediction & Forecast 2026–2030", intro, disclaimer, "Updated {date}" | text.ts | |
 | 3 | Key forecast summary: 3 forecast cards (30 days / end of 2026 / 2030) + TA verdict pill | forecast.json, ta.json | Above the fold on desktop |
 | 4 | Price chart: history with 1M/6M/1Y/5Y/10Y/All, plus 3 dashed forecast lines and the MC P10–P90 band, plus a quick-period strip (1D/1W/1M/6M/YTD) | prices.json, forecast.json | Lazy-loaded JS; static `<noscript>` summary |
 | 5 | H2 "Silver price forecast for the next 30 days": text + daily table (Date, ARIMA, Trend + reversion, Monte Carlo, Consensus, Low–High) | forecast.daily | First 10 rows visible, "Show all" |
@@ -327,9 +329,9 @@ Block order and content follow `docs/SEO-silver.md` (structure) and `docs/DESIGN
 | 11 | H2 "What will drive silver prices": ranked list of 5 factors | static content | |
 | 12 | H2 "Gold vs silver forecast": gold/silver ratio + text; link to the gold page when enabled | static + data later | MVP: text only |
 | 13 | H2 "Silver price history (5 and 10 years)": yearly avg/high/low/% table | prices.json | |
-| 14 | H2 "Is silver a good investment in 2026?": bull vs bear table, risk checklist | text.json | |
+| 14 | H2 "Is silver a good investment in 2026?": bull vs bear table, risk checklist | text.ts + forecast.json | |
 | 15 | H2 "How we forecast silver and how accurate we are": methods summary + MAPE table → /methodology/ | forecast.accuracy | |
-| 16 | FAQ (8 questions from SEO-silver.md micro-intents; answers filled with live numbers) | faq.json + data | `<details>` |
+| 16 | FAQ (8 questions from SEO-silver.md micro-intents; answers filled with live numbers) | text.ts + data | `<details>` |
 | 17 | Related assets, disclaimer band, footer | config | |
 
 ### 6.3 Service pages
@@ -423,7 +425,7 @@ Owner design decisions:
 5. The page source (with JS disabled) contains all H1–H3, all tables and the JSON-LD, which pass the Rich Results Test without errors.
 6. Lighthouse thresholds from §10 are met on the silver page.
 7. Simulating an API failure (wrong key) fails the workflow without changing the live site.
-8. Adding gold requires only `enabled: true` in `assets.yml` + `analysts.json`/`faq.json` content, with no code changes (checked by enabling gold on a preview branch).
+8. Adding gold requires only `enabled: true` in `assets.yml` + `analysts.json` content (plus asset-specific drivers text), with no code changes (checked by enabling gold on a preview branch).
 
 ## 12. Milestones
 
@@ -432,7 +434,7 @@ Owner design decisions:
 | M1 | Repo setup + data | Astro skeleton, CLAUDE.md, docs/, the source adapter, history backfill, `prices.json` | 1–2 days |
 | M2 | Models and TA | ARIMA / trend + reversion / MC / consensus, backtest, TA + summary, pytest, JSON schemas. Done 2026-10-29 | 3–4 days |
 | M3 | Design system | tokens, components, `/styleguide` → owner approval. Built 2026-10-29, awaiting approval | 2–3 days |
-| M4 | Pages | Hub, silver page, service pages, text templates, FAQ | 3 days |
+| M4 | Pages | Hub, silver page, service pages, text templates, FAQ. Done 2026-10-29 | 3 days |
 | M5 | SEO + automation | JSON-LD, sitemap, OG images, daily workflow, Cloudflare, CI, Lighthouse | 1–2 days |
 | M6 | QA and launch | acceptance checks §11, Search Console, 7 days of unattended runs | 1 week elapsed |
 

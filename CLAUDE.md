@@ -8,7 +8,8 @@ Static price-forecast site: an Astro front end plus a Python data pipeline, upda
 
 ## Rules
 - Never commit API keys. They live in `.env` locally (git-ignored) and in GitHub Secrets (`TWELVEDATA_API_KEY`, `ALPHAVANTAGE_API_KEY`). The repo is public.
-- `data/**` is written only by the pipeline, except `analysts.json` and `faq.json`, which are edited by hand.
+- `data/**` is written only by the pipeline, except `analysts.json`, which is edited by hand (validated by `pipeline/tests/test_analysts.py`; never estimate a value).
+- Page text is generated in `src/lib/text.ts` from the JSON. Never hard-code a number or a data-dependent claim in a page. Asset-specific qualitative text (drivers, bull/bear, comparison) lives in `src/lib/assetContent.ts`.
 - `pipeline/schemas.py` is the JSON contract with the site. Change it there first.
 - The site URL is set in one place only: `SITE_URL` in `astro.config.mjs` (the domain is not decided yet). Pages stay `noindex` until launch.
 - Forecast methods: ARIMA, trend + mean reversion, Monte Carlo (Prophet was tested and dropped; see TECHNICAL-TASK §5.3). TA signal rules live only in `pipeline/ta/rules.py`.

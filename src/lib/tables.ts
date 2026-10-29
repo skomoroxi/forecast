@@ -1,8 +1,8 @@
 // Turn forecast.json / ta.json into DataTable columns and rows.
 import type { Column, Cell } from '../components/DataTable.astro';
-import type { Forecast, Timeframe } from './data';
+import type { AnalystEntry, Forecast, Timeframe } from './data';
 import { METHOD_LABEL } from './data';
-import { ACTION_LABEL, arrow, direction, money, month, number, percent, shortDay } from './format';
+import { ACTION_LABEL, arrow, date, direction, money, month, number, percent, shortDay } from './format';
 
 type Row = Record<string, string | Cell>;
 
@@ -108,6 +108,64 @@ export function accuracyTable(fc: Forecast): { columns: Column[]; rows: Row[] } 
     return { method: METHOD_LABEL[m], d1: `${number(a.mape_1d)}%`, d7: `${number(a.mape_7d)}%`, d30: `${number(a.mape_30d)}%` };
   });
   return { columns, rows };
+}
+
+const BASIS_LABEL: Record<string, string> = { average: 'average', end: 'end of period', peak: 'peak' };
+
+function horizonLabel(h: string): string {
+  const [y, q] = h.split('-Q');
+  return q ? `Q${q} ${y}` : y;
+}
+
+/** Published analyst targets plus a FinForecast row for comparison (TECHNICAL-TASK §5.6). */
+export function analystsTable(entries: AnalystEntry[], fc: Forecast): { columns: Column[]; rows: Row[] } {
+  const columns: Column[] = [
+    { key: 'institution', label: 'Institution', rowHeader: true },
+    { key: 'target', label: 'Target (USD/oz)' },
+    { key: 'for', label: 'For', align: 'left' },
+    { key: 'published', label: 'Published' },
+    { key: 'source', label: 'Source', align: 'left' },
+  ];
+  const rows: Row[] = entries.map((e) => ({
+    institution: e.institution,
+    target: { text: e.target_usd != null ? money(e.target_usd) : `${money(e.target_low_usd)}–${money(e.target_high_usd)}`, strong: true },
+    for: `${horizonLabel(e.horizon)} ${BASIS_LABEL[e.basis]}`,
+    published: date(e.published_on),
+    source: e.source_title,
+  }));
+  const end = fc.monthly.find((m) => m.month === `${new Date(fc.run_date).getUTCFullYear()}-12`)?.consensus?.avg;
+  rows.push({
+    institution: { text: 'FinForecast consensus', strong: true },
+    target: { text: money(end), strong: true },
+    for: `December ${new Date(fc.run_date).getUTCFullYear()} average`,
+    published: date(fc.run_date),
+    source: 'This page',
+  });
+  return { columns, rows };
+}
+
+/** Yearly price history table from yearlyHistory(). */
+export function historyTable(rows: { year: string; avg: number; high: number; low: number; change: number; partial: boolean }[]) {
+  const columns: Column[] = [
+    { key: 'year', label: 'Year', rowHeader: true },
+    { key: 'avg', label: 'Average' },
+    { key: 'high', label: 'High (close)' },
+    { key: 'low', label: 'Low (close)' },
+    { key: 'change', label: 'Change' },
+  ];
+  return {
+    columns,
+    rows: rows.map((r) => {
+      const d = direction(r.change);
+      return {
+        year: r.partial ? `${r.year} (to date)` : r.year,
+        avg: { text: money(r.avg), strong: true },
+        high: money(r.high),
+        low: money(r.low),
+        change: { text: `${arrow(r.change)} ${percent(r.change)}`, tone: d === 'flat' ? 'muted' as const : d },
+      };
+    }),
+  };
 }
 
 const OSC_LABEL: Record<string, string> = {

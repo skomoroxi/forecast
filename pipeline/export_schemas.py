@@ -5,10 +5,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from pipeline.schemas import Forecast, PriceHistory, TechnicalAnalysis
+from pipeline.schemas import Analysts, Forecast, PriceHistory, TechnicalAnalysis
 
 OUT = Path(__file__).resolve().parent.parent / "src" / "lib" / "schemas"
-MODELS = {"prices": PriceHistory, "forecast": Forecast, "ta": TechnicalAnalysis}
+MODELS = {"prices": PriceHistory, "forecast": Forecast, "ta": TechnicalAnalysis, "analysts": Analysts}
 
 
 def main() -> None:

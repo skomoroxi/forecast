@@ -1,0 +1,111 @@
+---
+// /methodology/ (TECHNICAL-TASK §6.3). Parameters are read from today's forecast.json.
+import TextPage from '../layouts/TextPage.astro';
+import DataTable from '../components/DataTable.astro';
+import { assetData } from '../lib/data';
+import { date, number } from '../lib/format';
+import { accuracyTable } from '../lib/tables';
+
+const { forecast: fc, ta } = assetData('silver');
+const p = (m: string) => fc.methods[m]?.params ?? {};
+const arima = p('arima');
+const rev = p('reversion');
+const mc = p('montecarlo');
+const accuracy = accuracyTable(fc);
+const rules = [
+  ['RSI (14)', '> 50', '< 50', 'overbought > 70, oversold < 30'],
+  ['STOCH (9,6), slow %K', '> 50', '< 50', 'overbought > 80, oversold < 20'],
+  ['StochRSI (14)', '> 50', '< 50', 'overbought > 80, oversold < 20'],
+  ['MACD (12,26,9) line', '> 0', '< 0', ''],
+  ['ADX (14)', 'ADX ≥ 25 and +DI > −DI', 'ADX ≥ 25 and −DI > +DI', 'ADX < 25: neutral'],
+  ['Williams %R (14)', '> −50', '< −50', 'overbought > −20, oversold < −80'],
+  ['CCI (14)', '> 0', '< 0', 'overbought > 200, oversold < −200'],
+  ['ATR (14)', '—', '—', 'volatility only, not counted'],
+  ['Highs/Lows (14)', '> 0', '< 0', ''],
+  ['Ultimate Oscillator (7,14,28)', '> 50', '< 50', 'overbought > 70, oversold < 30'],
+  ['ROC (12)', '> 0', '< 0', ''],
+  ['Bull/Bear Power (13)', '> 0', '< 0', ''],
+  ['SMA / EMA 5–200', 'price above MA', 'price below MA', ''],
+];
+---
+
+<TextPage
+  title="Methodology: How FinForecast Predicts Prices | FinForecast"
+  heading="Methodology"
+  description="How FinForecast calculates its price predictions: data sources, the three forecasting models, technical-analysis rules and measured accuracy."
+  lead="How the forecasts on this site are calculated, where the data comes from, and how accurate the models have been."
+  updated={`Model parameters below are from the ${date(fc.run_date)} run.`}
+>
+  <h2>Data</h2>
+  <p>
+    Silver spot prices (XAG/USD) come from Alpha Vantage, one price per day, with history from June 2011. Alpha Vantage does not
+    provide a daily high and low for spot silver, so we estimate them from the iShares Silver Trust (SLV) ETF on Twelve Data: each
+    day, SLV's open, high and low are scaled by the ratio of the spot close to the SLV close. Indicators that use the daily range
+    (STOCH, ADX, Williams %R, CCI, ATR, Highs/Lows, Ultimate Oscillator, Bull/Bear Power and pivot points) therefore use estimated
+    highs and lows. Weekends are excluded.
+  </p>
+  <p>The data is updated once a day after the close. Each page shows the date of the last price used.</p>
+
+  <h2>The three forecasting models</h2>
+  <p>All models work on the logarithm of the price, so percentage moves are treated the same at any price level.</p>
+  <ol>
+    <li>
+      <strong>ARIMA.</strong> A time-series model that captures short-term momentum and noise in the last five years of prices.
+      The order and whether to include a drift are chosen automatically by the lowest AIC. Today's model is ARIMA({String((arima.order as number[] | undefined)?.join(',') ?? '')}){arima.drift ? ' with drift' : ' without drift'}{!arima.drift && ', so its forecast is flat: statistically, the recent data gives no reliable direction'}.
+    </li>
+    <li>
+      <strong>Trend + mean reversion.</strong> We fit the long-run trend of the price over all available history and model how
+      the price moves around it. When the price is far from the trend, the forecast gradually pulls it back. Today the trend is{' '}
+      {number(Number(rev.trend_annual_pct))}% per year, the price is {number(Number(rev.deviation_from_trend_pct))}% above it, and half of
+      that gap is expected to close in about {number(Number(rev.half_life_bars) / 261)} years.
+    </li>
+    <li>
+      <strong>Monte Carlo simulation.</strong> We simulate {Number(mc.paths).toLocaleString('en-US')} possible price paths using the
+      average daily return of the last 10 years ({number(Number(mc.mu_daily) * 261 * 100)}% per year) and the volatility of the last
+      3 years ({number(Number(mc.sigma_daily) * Math.sqrt(261) * 100)}% per year). The forecast is the median path; the range is the
+      10th–90th percentile.
+    </li>
+  </ol>
+  <p>
+    The <strong>consensus</strong> is the average of the three. Its range combines the widest band of the models (80% of outcomes).
+    Monthly tables show the monthly average and the lowest P10 and highest P90 within the month. From 2031 only the two long-run
+    models are used. Any model whose path becomes unrealistic (non-finite, or beyond 0.1× to 10× today's price within 5 years) is
+    excluded automatically for that day.
+  </p>
+  <p>
+    We tested Prophet, a popular forecasting library, and dropped it: on silver it projected the latest spike or crash forward
+    for years, producing 2035 values anywhere between $0.30 and $221 depending on settings.
+  </p>
+
+  <h2>Accuracy</h2>
+  <p>
+    Accuracy is the mean absolute percentage error (MAPE): the average distance between forecast and actual price. Until we have
+    30 days of published forecasts, it comes from a walk-forward test: the models are refit on past data only, at {fc.accuracy.consensus?.samples ?? 0} past dates,
+    and compared with what happened next.
+  </p>
+  <DataTable caption="Average forecast error (MAPE), silver" columns={accuracy.columns} rows={accuracy.rows} />
+
+  <h2>Technical analysis rules</h2>
+  <p>
+    Indicators are calculated on daily bars and on weekly and monthly bars built from them (the current week and month are
+    included while in progress). Inside an overbought or oversold zone a signal is shown as such and counted as neutral.
+  </p>
+  <DataTable
+    caption="Signal rules"
+    columns={[{ key: 'n', label: 'Indicator', rowHeader: true }, { key: 'b', label: 'Buy', align: 'left' }, { key: 's', label: 'Sell', align: 'left' }, { key: 'z', label: 'Notes', align: 'left' }]}
+    rows={rules.map(([n, b, s, z]) => ({ n, b, s, z }))}
+  />
+  <p>
+    The summary score is (buy signals − sell signals) ÷ signals counted. A score of −0.5 or lower is Strong Sell, below −0.1 Sell,
+    up to 0.1 Neutral, below 0.5 Buy, and 0.5 or higher Strong Buy. Pivot points (Classic, Fibonacci, Camarilla, Woodie and DeMark)
+    use the previous completed day, week or month. Today's silver data: {ta.ohlc_basis === 'proxy' ? 'estimated highs and lows' : 'actual highs and lows'}.
+  </p>
+
+  <h2>Limitations</h2>
+  <ul>
+    <li>Statistical models only know past prices. They cannot anticipate news, policy changes or shocks.</li>
+    <li>Uncertainty grows quickly with the horizon; the ranges matter more than the point values.</li>
+    <li>Nothing on this site is investment advice. See the <a href="/disclaimer/">disclaimer</a>.</li>
+  </ul>
+  <p>Methodology reviewed by <a href="/authors/margerie-holtz/">Margerie Holtz</a>.</p>
+</TextPage>

@@ -6,16 +6,19 @@ interface Props {
   variant?: 'light' | 'white' | 'dark';
   /** put the aside column on the left (used for variety on dark sections) */
   reverse?: boolean;
+  /** h3 for per-year sections under a parent h2; styled the same as h2 */
+  level?: 'h2' | 'h3';
 }
 
-const { id, heading, variant = 'light', reverse = false } = Astro.props;
+const { id, heading, variant = 'light', reverse = false, level = 'h2' } = Astro.props;
+const Heading = level;
 const cls = { light: 'section--soft', white: 'section--white', dark: 'section--dark on-dark' }[variant];
 ---
 
 <section id={id} class:list={['section', cls]}>
   <div class:list={['container grid-2 year', { 'year--reverse': reverse }]}>
     <div class="year__text">
-      <h2>{heading}</h2>
+      <Heading class="year__heading">{heading}</Heading>
       <slot />
       <div class="year__card"><slot name="card" /></div>
       <slot name="actions" />
@@ -27,6 +30,17 @@ const cls = { light: 'section--soft', white: 'section--white', dark: 'section--d
 </section>
 
 <style>
+  h3.year__heading {
+    font-family: var(--font-serif);
+    font-size: clamp(34px, 4.6vw, 52px);
+    font-weight: 400;
+    line-height: 1.2;
+    margin: 0;
+    padding-bottom: 12px;
+  }
+  :global(.section--dark) h3.year__heading {
+    color: var(--cream);
+  }
   .year__text :global(.btn) {
     margin-top: 24px;
   }

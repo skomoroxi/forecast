@@ -1,0 +1,81 @@
+---
+// Simple reading layout for service pages: dark title band, then a narrow text column.
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title: string;
+  heading: string;
+  description?: string;
+  lead?: string;
+  updated?: string;
+}
+
+const { title, heading, description, lead, updated } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <section class="band section--dark on-dark">
+    <div class="container">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span aria-hidden="true">›</span> <span aria-current="page">{heading}</span></nav>
+      <h1>{heading}</h1>
+      {lead && <p class="lead">{lead}</p>}
+      {updated && <p class="meta">{updated}</p>}
+    </div>
+  </section>
+  <section class="section section--white">
+    <div class="container">
+      <article class="prose">
+        <slot />
+      </article>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .band {
+    padding: 64px 0 48px;
+  }
+  .crumbs {
+    font-size: 13px;
+    letter-spacing: normal;
+    margin-bottom: 24px;
+    color: var(--muted-on-dark);
+  }
+  .crumbs a,
+  .crumbs a:visited {
+    color: var(--gray-300);
+  }
+  .lead {
+    margin-top: 20px;
+    max-width: 720px;
+    font-size: 18px;
+    color: var(--gray-300);
+  }
+  .prose {
+    max-width: 760px;
+  }
+  .prose :global(h2) {
+    font-size: clamp(28px, 3.4vw, 36px);
+    margin: 48px 0 12px;
+  }
+  .prose :global(h2:first-child) {
+    margin-top: 0;
+  }
+  .prose :global(ul),
+  .prose :global(ol) {
+    padding-left: 22px;
+    margin: 0 0 16px;
+  }
+  .prose :global(li) {
+    margin-bottom: 6px;
+  }
+  .prose :global(code) {
+    font-size: 14px;
+    background: var(--gray-100);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+  .prose :global(.dt) {
+    margin: 16px 0 24px;
+  }
+</style>

@@ -2,6 +2,15 @@
 import silverPrices from '../../data/silver/prices.json';
 import silverForecast from '../../data/silver/forecast.json';
 import silverTa from '../../data/silver/ta.json';
+import silverAnalysts from '../../data/silver/analysts.json';
+
+export interface AnalystEntry {
+  id: string; institution: string; type: string;
+  target_usd?: number | null; target_low_usd?: number | null; target_high_usd?: number | null;
+  basis: 'average' | 'end' | 'peak'; horizon: string; published_on: string;
+  source_title: string; source_url: string; note?: string | null; show?: boolean;
+}
+export interface Analysts { asset: string; reviewed_at: string | null; reviewed_by: string; entries: AnalystEntry[] }
 
 export interface Bar { date: string; open: number; high: number; low: number; close: number; ohlc?: 'proxy' | 'close' }
 export interface PriceHistory { asset: string; symbol: string; currency: string; source: string; updated_at: string; bars: Bar[] }
@@ -42,8 +51,25 @@ const ASSETS = {
     prices: silverPrices as PriceHistory,
     forecast: silverForecast as unknown as Forecast,
     ta: silverTa as unknown as TechnicalAnalysis,
+    analysts: silverAnalysts as Analysts,
   },
 };
+
+/** Freshness rules (TECHNICAL-TASK §5.6): hide entries older than 9 months, past horizons,
+ *  individuals (they belong on a separate page) and hidden ones. The block needs at least 2. */
+export function visibleAnalysts(a: Analysts, runDate: string): AnalystEntry[] {
+  const run = new Date(runDate);
+  const cutoff = new Date(run);
+  cutoff.setUTCMonth(cutoff.getUTCMonth() - 9);
+  const horizonEnd = (h: string) => {
+    const [y, q] = h.split('-Q');
+    return new Date(Date.UTC(Number(y), q ? Number(q) * 3 : 12, 0));
+  };
+  const list = a.entries.filter(
+    (e) => e.show !== false && e.type !== 'individual' && new Date(e.published_on) >= cutoff && horizonEnd(e.horizon) >= run,
+  );
+  return list.length >= 2 ? list.sort((x, y) => x.horizon.localeCompare(y.horizon) || x.institution.localeCompare(y.institution)) : [];
+}
 
 export type AssetId = keyof typeof ASSETS;
 
