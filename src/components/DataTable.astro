@@ -1,0 +1,195 @@
+---
+// DESIGN §4.6: static HTML table (crawlable), hairline rows, tabular numbers,
+// optional "Show all" for long tables, horizontal scroll on small screens.
+export interface Column {
+  key: string;
+  label: string;
+  align?: 'left' | 'right';
+  /** cells for this column are a row header (<th scope="row">) */
+  rowHeader?: boolean;
+}
+export interface Cell {
+  text: string;
+  /** up / down / buy / sell / neutral: colors the cell (the text itself carries ▲/▼ or the word) */
+  tone?: 'up' | 'down' | 'buy' | 'sell' | 'neutral' | 'muted';
+  strong?: boolean;
+}
+
+interface Props {
+  caption: string;
+  /** visually hide the caption (it stays available to screen readers) */
+  hideCaption?: boolean;
+  columns: Column[];
+  rows: Record<string, string | Cell>[];
+  /** show only this many rows until "Show all" is clicked */
+  initialRows?: number;
+  note?: string;
+  dark?: boolean;
+}
+
+const { caption, hideCaption = false, columns, rows, initialRows, note, dark = false } = Astro.props;
+const collapsible = initialRows != null && rows.length > initialRows;
+const cell = (v: string | Cell): Cell => (typeof v === 'string' ? { text: v } : v);
+---
+
+<div class:list={['dt', { 'dt--dark': dark }]} data-collapsed={collapsible ? 'true' : undefined}>
+  <div class="dt__scroll" tabindex="0" role="region" aria-label={caption}>
+    <table>
+      <caption class:list={{ 'visually-hidden': hideCaption }}>{caption}</caption>
+      <thead>
+        <tr>
+          {columns.map((c) => <th scope="col" class:list={[c.align ?? (c.rowHeader ? 'left' : 'right')]}>{c.label}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((r, i) => (
+            <tr class:list={{ extra: collapsible && i >= initialRows! }}>
+              {columns.map((c) => {
+                const v = cell(r[c.key] ?? '—');
+                const cls = [c.align ?? (c.rowHeader ? 'left' : 'right'), v.tone, { strong: v.strong }];
+                return c.rowHeader ? (
+                  <th scope="row" class:list={cls}>{v.text}</th>
+                ) : (
+                  <td class:list={cls}>{v.text}</td>
+                );
+              })}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+  {
+    collapsible && (
+      <button class="btn--text dt__more" type="button" aria-expanded="false">
+        Show all {rows.length} rows
+      </button>
+    )
+  }
+  {note && <p class="meta dt__note">{note}</p>}
+</div>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.dt__more').forEach((btn) => {
+    const total = btn.textContent?.match(/\d+/)?.[0];
+    btn.addEventListener('click', () => {
+      const box = btn.closest<HTMLElement>('.dt')!;
+      const open = box.dataset.collapsed === 'true';
+      box.dataset.collapsed = open ? 'false' : 'true';
+      btn.setAttribute('aria-expanded', String(open));
+      btn.textContent = open ? 'Show fewer rows' : `Show all ${total} rows`;
+    });
+  });
+</script>
+
+<style>
+  .dt {
+    position: relative;
+    min-width: 0;
+  }
+  .dt__scroll {
+    overflow-x: auto;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
+  }
+  @media (min-width: 768px) {
+    .dt__scroll {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+  }
+  .dt__scroll:focus-visible {
+    outline-offset: 4px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    letter-spacing: normal;
+    font-variant-numeric: tabular-nums;
+  }
+  caption {
+    text-align: left;
+    font-weight: 500;
+    font-size: 15px;
+    padding-bottom: 12px;
+  }
+  thead th {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--muted);
+    border-bottom: var(--hairline) solid var(--gray-300);
+    padding: 10px 8px;
+    white-space: nowrap;
+  }
+  td,
+  tbody th {
+    padding: 12px 8px;
+    border-bottom: var(--hairline) solid var(--gray-200);
+    white-space: nowrap;
+    font-weight: 400;
+  }
+  .left {
+    text-align: left;
+  }
+  .right {
+    text-align: right;
+  }
+  .strong {
+    font-weight: 500;
+  }
+  .up,
+  .buy {
+    color: var(--up-text);
+  }
+  .down,
+  .sell {
+    color: var(--down-text);
+  }
+  .muted,
+  .neutral {
+    color: var(--muted);
+  }
+  .dt[data-collapsed='true'] .extra {
+    display: none;
+  }
+  .dt__more {
+    margin-top: 12px;
+    font-size: 15px;
+  }
+  .dt__note {
+    margin: 12px 0 0;
+  }
+
+  .dt--dark caption,
+  .dt--dark td,
+  .dt--dark tbody th {
+    color: var(--gray-300);
+  }
+  .dt--dark thead th,
+  .dt--dark .muted,
+  .dt--dark .neutral {
+    color: var(--muted-on-dark);
+  }
+  .dt--dark thead th {
+    border-color: var(--slate-500);
+  }
+  .dt--dark td,
+  .dt--dark tbody th {
+    border-color: var(--navy-700);
+  }
+  .dt--dark .up,
+  .dt--dark .buy {
+    color: var(--up);
+  }
+  .dt--dark .down,
+  .dt--dark .sell {
+    color: var(--down-on-dark);
+  }
+  .dt--dark .dt__more {
+    color: #8fa2ff;
+  }
+</style>

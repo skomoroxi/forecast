@@ -147,7 +147,7 @@ Rules:
 ### 4.7 Technical analysis summary (our addition)
 - A white card with a hairline `--gray-200` border and radius 6.
 - Tabs at the top (Daily / Weekly / Monthly), sans 14. The active tab has a 2px accent underline.
-- Three semicircle gauges in a row: Summary, Indicators and Moving averages.
+- Three semicircle gauges in a row: Summary, Indicators and Moving averages. They are drawn as inline SVG (`Gauge.astro`), with no chart library.
   - Each gauge has 5 segments from Strong Sell to Strong Buy, colored with `--down` → gray → `--up`, and a needle.
   - The verdict sits under each gauge in serif 24px, with the Buy/Neutral/Sell counts under that (sans 13).
 
@@ -219,3 +219,17 @@ The hub (home) page reuses the ticker, navbar, a dark hero, then grids of asset 
 3. Use realistic sample data (a silver price around the current level, 30 daily rows) so table and card widths are tested.
 4. Don't fetch, embed or hotlink anything from goldrepublic.com. Use our own imagery and placeholders.
 5. When in doubt about a style, choose the more restrained option: hairline borders, serif weight 400, no shadows, no gradients except the chart fill.
+
+## 8. Image renders to generate (owner task)
+
+The site currently uses `public/images/silver-bars.svg`, a vector placeholder. Replace it with AI-generated renders before launch:
+- Export as 1600×1800 px (hero) and 1200×1400 px (sections), saved as AVIF and WebP in `public/images/`.
+- Use a dark navy background `#181d27` so the hero image blends into the section.
+- No logos, hallmarks, mint marks or legible text on any bar or coin.
+
+Suggested prompts:
+1. **Hero:** "Photorealistic studio render of four stacked fine silver bullion bars, unbranded, smooth tops without any stamps, soft rim light from the upper left, deep navy background #181d27, subtle reflections, shallow depth of field, premium editorial style, no text"
+2. **Year sections:** "Close-up render of unbranded silver coins and a single silver bar on dark slate, soft studio light, navy tones, no text or symbols"
+3. **Dark sections:** "Abstract dark navy background with faint silver line-chart texture, minimal, elegant, no numbers or text"
+4. **Coming soon, gold:** "Unbranded gold bullion bar on deep navy background, soft studio light, no stamps or text"
+5. **Coming soon, bitcoin:** "Abstract metallic coin with a generic circuit pattern on deep navy background, no logos or text"

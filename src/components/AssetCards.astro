@@ -1,0 +1,153 @@
+---
+// Asset cards for the hub grid and the "related forecasts" row: serif name, price, change,
+// 30-day consensus and a sparkline. Disabled assets show "Coming soon" without a link.
+import Sparkline from './Sparkline.astro';
+import { assets, assetUrl, unitShort, type AssetConfig } from '../lib/assets';
+import { assetData, changeOver, type AssetId } from '../lib/data';
+import { arrow, direction, money, percent } from '../lib/format';
+
+interface Props {
+  /** asset ids to show; default: all */
+  ids?: string[];
+  exclude?: string;
+}
+
+const { ids, exclude } = Astro.props;
+const list = assets.filter((a) => (!ids || ids.includes(a.id)) && a.id !== exclude);
+
+function live(a: AssetConfig) {
+  const { prices, forecast } = assetData(a.id as AssetId);
+  const bars = prices.bars;
+  const next = forecast.daily.at(-1)?.consensus;
+  return {
+    price: bars.at(-1)!.close,
+    change: changeOver(bars, 1),
+    next,
+    nextChange: next != null ? next / bars.at(-1)!.close - 1 : null,
+    spark: bars.slice(-60).map((b) => b.close),
+  };
+}
+---
+
+<ul class="cards">
+  {
+    list.map((a) => {
+      if (!a.enabled)
+        return (
+          <li class="card card--soon">
+            <span class="card__name serif">{a.name}</span>
+            <span class="meta">{a.symbol}</span>
+            <span class="card__soon">Forecast coming soon</span>
+          </li>
+        );
+      const d = live(a);
+      return (
+        <li class="card">
+          <a class="card__link" href={assetUrl(a)}>
+            <span class="card__top">
+              <span>
+                <span class="card__name serif">{a.name}</span>
+                <span class="meta">{a.symbol}</span>
+              </span>
+              <Sparkline values={d.spark} width={90} height={32} />
+            </span>
+            <span class="card__price">
+              {money(d.price)}
+              <small>{unitShort(a)}</small>
+              <span class={`card__chg ${direction(d.change)}`}>
+                {arrow(d.change)} {percent(d.change)}
+              </span>
+            </span>
+            <span class="card__next meta">
+              30-day consensus: <strong>{money(d.next)}</strong>{' '}
+              <span class={direction(d.nextChange)}>({percent(d.nextChange)})</span>
+            </span>
+            <span class="card__cta">View forecast →</span>
+          </a>
+        </li>
+      );
+    })
+  }
+</ul>
+
+<style>
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .card {
+    background: var(--white);
+    border: var(--hairline) solid var(--gray-200);
+    border-radius: var(--radius-widget);
+  }
+  .card__link,
+  .card__link:visited,
+  .card--soon {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+    padding: 20px;
+    color: var(--navy-900);
+    text-decoration: none;
+  }
+  .card__link:hover {
+    border-color: var(--slate-500);
+  }
+  .card:has(.card__link:hover) {
+    border-color: var(--slate-500);
+  }
+  .card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .card__name {
+    display: block;
+    font-size: 26px;
+    line-height: 1.1;
+  }
+  .card__price {
+    font-size: 20px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: normal;
+  }
+  .card__price small {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+  }
+  .card__chg {
+    font-size: 14px;
+    margin-left: 8px;
+  }
+  .card__next strong {
+    color: var(--navy-900);
+    font-weight: 500;
+  }
+  .card__cta {
+    margin-top: auto;
+    color: var(--accent);
+    font-size: 15px;
+  }
+  .card--soon {
+    background: var(--gray-50);
+  }
+  .card__soon {
+    margin-top: auto;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .up {
+    color: var(--up-text);
+  }
+  .down {
+    color: var(--down-text);
+  }
+</style>

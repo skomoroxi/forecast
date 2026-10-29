@@ -1,0 +1,372 @@
+---
+// DESIGN §4.5: price chart widget. Header and quick-period strip are static HTML;
+// the chart itself loads lazily (Lightweight Charts + /data/<asset>/chart.json).
+import { assetData, changeOver, yearToDate, type AssetId } from '../lib/data';
+import { arrow, date, direction, money, percent } from '../lib/format';
+
+interface Props {
+  asset: AssetId;
+  name: string;
+  color?: string;
+}
+
+const { asset, name, color = '#8a96a8' } = Astro.props;
+const { prices } = assetData(asset);
+const bars = prices.bars;
+const last = bars.at(-1)!;
+const prev = bars.at(-2)!;
+const abs = last.close - prev.close;
+const rel = last.close / prev.close - 1;
+const periods = [
+  { label: '1 day', v: changeOver(bars, 1) },
+  { label: '1 week', v: changeOver(bars, 5) },
+  { label: '1 month', v: changeOver(bars, 21) },
+  { label: '6 months', v: changeOver(bars, 126) },
+  { label: 'Year to date', v: yearToDate(bars) },
+];
+const estimated = last.ohlc === 'proxy';
+---
+
+<div class="pc" data-asset={asset} data-color={color}>
+  <div class="pc__head">
+    <div class="pc__price">
+      <span class={`pc__arrow ${direction(rel)}`} aria-hidden="true">{arrow(rel)}</span>
+      {money(last.close)}<small>/oz</small>
+    </div>
+    <dl class="pc__stats">
+      <div>
+        <dt>Change (abs)</dt>
+        <dd class={direction(rel)}>{percent(rel)} · {abs >= 0 ? '+' : '−'}{money(Math.abs(abs))}</dd>
+      </div>
+      <div>
+        <dt>Day high{estimated && '*'}</dt>
+        <dd>{money(last.high)}</dd>
+      </div>
+      <div>
+        <dt>Day low{estimated && '*'}</dt>
+        <dd>{money(last.low)}</dd>
+      </div>
+    </dl>
+    <p class="meta pc__asof">
+      Close of {date(last.date)} (UTC){estimated && ' · *high/low estimated from the SLV ETF'}
+    </p>
+  </div>
+
+  <div class="pc__controls">
+    <label>
+      <span class="visually-hidden">Time range</span>
+      <select class="pc__range">
+        <option value="1M">1 month</option>
+        <option value="6M">6 months</option>
+        <option value="1Y" selected>1 year</option>
+        <option value="5Y">5 years</option>
+        <option value="10Y">10 years</option>
+        <option value="ALL">All</option>
+      </select>
+    </label>
+    <label>
+      <span class="visually-hidden">Forecast lines</span>
+      <select class="pc__fc">
+        <option value="all" selected>Forecast: all models</option>
+        <option value="consensus">Forecast: consensus</option>
+        <option value="none">Forecast: hidden</option>
+      </select>
+    </label>
+    <ul class="pc__legend" aria-label="Legend">
+      <li><i style={`background:${color}`}></i>{name} price</li>
+      <li><i class="dash c-arima"></i>ARIMA</li>
+      <li><i class="dash c-reversion"></i>Trend + reversion</li>
+      <li><i class="dash c-montecarlo"></i>Monte Carlo</li>
+      <li><i class="dash c-consensus"></i>Consensus</li>
+      <li><i class="band"></i>P10–P90</li>
+    </ul>
+  </div>
+
+  <div class="pc__chart" role="img" aria-label={`${name} price history and forecast chart`}>
+    <noscript>
+      <p class="meta">The interactive chart needs JavaScript. All forecast values are listed in the tables on this page.</p>
+    </noscript>
+  </div>
+
+  <ul class="pc__periods">
+    {
+      periods.map((p) => (
+        <li>
+          <span class="meta">{p.label}</span>
+          <strong class={direction(p.v)}>
+            {arrow(p.v)} {percent(p.v)}
+          </strong>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<script>
+  const COLORS = { arima: '#1431cd', reversion: '#b0662f', montecarlo: '#7a3fb0', consensus: '#181d27' };
+  const RANGES: Record<string, number> = { '1M': 31, '6M': 183, '1Y': 366, '5Y': 1827, '10Y': 3653 };
+
+  async function init(el: HTMLElement) {
+    const [{ createChart, AreaSeries, LineSeries, LineStyle }, data] = await Promise.all([
+      import('lightweight-charts'),
+      fetch(`/data/${el.dataset.asset}/chart.json`).then((r) => r.json()),
+    ]);
+    const box = el.querySelector<HTMLElement>('.pc__chart')!;
+    const color = el.dataset.color ?? '#8a96a8';
+    const chart = createChart(box, {
+      autoSize: true,
+      layout: { background: { color: '#ffffff' }, textColor: 'rgba(24,29,39,0.62)', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, attributionLogo: false },
+      grid: { vertLines: { visible: false }, horzLines: { color: '#f0f0f0' } },
+      rightPriceScale: { borderVisible: false },
+      timeScale: { borderVisible: false },
+      crosshair: { mode: 0 },
+      handleScroll: false,
+      handleScale: false,
+    });
+    const toPoints = (rows: [string, number | null][]) =>
+      rows.filter(([, v]) => v != null).map(([time, value]) => ({ time, value: value as number }));
+
+    const history = chart.addSeries(AreaSeries, {
+      lineColor: color,
+      lineWidth: 2,
+      topColor: color + '38',
+      bottomColor: color + '00',
+      priceLineColor: color,
+      lastValueVisible: true,
+    });
+    history.setData(toPoints(data.history));
+
+    const band = () =>
+      chart.addSeries(LineSeries, { color: 'rgba(24,29,39,0.25)', lineWidth: 1, lineStyle: LineStyle.Dotted, lastValueVisible: false, priceLineVisible: false, crosshairMarkerVisible: false });
+    const low = band();
+    const high = band();
+    low.setData(toPoints(data.forecast.low));
+    high.setData(toPoints(data.forecast.high));
+
+    const lines = Object.fromEntries(
+      (['arima', 'reversion', 'montecarlo', 'consensus'] as const).map((k) => {
+        const s = chart.addSeries(LineSeries, {
+          color: COLORS[k],
+          lineWidth: k === 'consensus' ? 2 : 1,
+          lineStyle: k === 'consensus' ? LineStyle.Solid : LineStyle.Dashed,
+          lastValueVisible: false,
+          priceLineVisible: false,
+        });
+        s.setData(toPoints(data.forecast[k]));
+        return [k, s];
+      }),
+    );
+
+    const lastHistory = data.history.at(-1)[0] as string;
+    const lastForecast = data.forecast.consensus.at(-1)[0] as string;
+    const range = el.querySelector<HTMLSelectElement>('.pc__range')!;
+    const fcMode = el.querySelector<HTMLSelectElement>('.pc__fc')!;
+
+    function apply() {
+      const mode = fcMode.value;
+      for (const [k, s] of Object.entries(lines)) s.applyOptions({ visible: mode === 'all' || (mode === 'consensus' && k === 'consensus') });
+      low.applyOptions({ visible: mode !== 'none' });
+      high.applyOptions({ visible: mode !== 'none' });
+      const days = RANGES[range.value];
+      const end = new Date(lastHistory);
+      const from = days ? new Date(end.getTime() - days * 864e5) : new Date(data.history[0][0]);
+      // Show as much forecast as history (at least one month), capped at the last forecast date.
+      const ahead = mode === 'none' ? 0 : Math.max(31, days ?? 3653);
+      const to = new Date(Math.min(end.getTime() + ahead * 864e5, new Date(lastForecast).getTime()));
+      chart.timeScale().setVisibleRange({ from: from.toISOString().slice(0, 10), to: to.toISOString().slice(0, 10) });
+    }
+    range.addEventListener('change', apply);
+    fcMode.addEventListener('change', apply);
+    apply();
+  }
+
+  const charts = document.querySelectorAll<HTMLElement>('.pc');
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          io.unobserve(e.target);
+          init(e.target as HTMLElement);
+        }
+      }
+    },
+    { rootMargin: '200px' },
+  );
+  charts.forEach((c) => io.observe(c));
+</script>
+
+<style>
+  .pc {
+    background: var(--white);
+    border: var(--hairline) solid var(--gray-200);
+    border-radius: var(--radius-widget);
+    padding: 24px;
+    letter-spacing: normal;
+  }
+  .pc__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 12px 32px;
+  }
+  .pc__price {
+    font-size: 28px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .pc__price small {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--muted);
+  }
+  .pc__arrow {
+    font-size: 16px;
+  }
+  .pc__arrow.up {
+    color: var(--up-text);
+  }
+  .pc__arrow.down {
+    color: var(--down-text);
+  }
+  .pc__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    margin: 0;
+  }
+  .pc__stats dt {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .pc__stats dd {
+    margin: 2px 0 0;
+    font-size: 15px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .pc__asof {
+    flex-basis: 100%;
+    margin: 0;
+    font-size: 12px;
+  }
+  .pc__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+    margin: 20px 0 12px;
+  }
+  .pc__controls select {
+    height: 36px;
+    padding: 0 32px 0 12px;
+    border: var(--hairline) solid var(--gray-200);
+    border-radius: var(--radius-widget);
+    background: var(--white)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%23181d27' stroke-width='1.4'/%3E%3C/svg%3E")
+      no-repeat right 12px center / 12px;
+    font: 400 14px var(--font-sans);
+    color: var(--navy-900);
+    appearance: none;
+    cursor: pointer;
+  }
+  .pc__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .pc__legend li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pc__legend i {
+    display: inline-block;
+    width: 16px;
+    height: 3px;
+    border-radius: 2px;
+  }
+  .pc__legend .dash {
+    height: 0;
+    border-top: 2px dashed;
+  }
+  .pc__legend .c-arima {
+    color: #1431cd;
+  }
+  .pc__legend .c-reversion {
+    color: #b0662f;
+  }
+  .pc__legend .c-montecarlo {
+    color: #7a3fb0;
+  }
+  .pc__legend .c-consensus {
+    color: #181d27;
+    border-top-style: solid;
+  }
+  .pc__legend .band {
+    height: 0;
+    border-top: 1px dotted rgb(24 29 39 / 0.5);
+  }
+  .pc__chart {
+    height: 440px;
+    position: relative;
+  }
+  .pc__periods {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+    border: var(--hairline) solid var(--gray-200);
+    border-radius: var(--radius-widget);
+  }
+  .pc__periods li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .pc__periods li + li {
+    border-left: var(--hairline) solid var(--gray-200);
+  }
+  .pc__periods strong {
+    font-size: 15px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .pc__periods .up,
+  .pc__stats .up {
+    color: var(--up-text);
+  }
+  .pc__periods .down,
+  .pc__stats .down {
+    color: var(--down-text);
+  }
+
+  @media (max-width: 767px) {
+    .pc {
+      padding: 16px;
+    }
+    .pc__chart {
+      height: 300px;
+    }
+    .pc__periods {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .pc__periods li:nth-child(4) {
+      border-left: 0;
+    }
+    .pc__periods li:nth-child(n + 4) {
+      border-top: var(--hairline) solid var(--gray-200);
+    }
+  }
+</style>

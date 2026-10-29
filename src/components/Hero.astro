@@ -1,0 +1,105 @@
+---
+// DESIGN §4.3: dark hero. Text left; decorative render bleeds to the right edge.
+interface Props {
+  title: string;
+  image?: string;
+  disclaimer?: string;
+  cta?: { href: string; label: string };
+  updated?: string;
+}
+
+const {
+  title,
+  image = '/images/silver-bars.svg',
+  disclaimer = 'These forecasts are statistical estimates based on historical prices, not financial advice. Past performance does not guarantee future results.',
+  cta,
+  updated,
+} = Astro.props;
+---
+
+<section class="hero section--dark on-dark">
+  <img class="hero__image" src={image} alt="" width="800" height="900" fetchpriority="high" />
+  <div class="hero__inner container">
+    <div class="hero__text">
+      <slot name="before" />
+      <h1>{title}</h1>
+      {updated && <p class="meta hero__updated">{updated}</p>}
+      <div class="hero__intro"><slot /></div>
+      <div class="disclaimer" role="note">
+        <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+          <rect x="0.75" y="0.75" width="18.5" height="18.5" rx="3" fill="none" stroke="currentColor" stroke-width="1.2" />
+          <path d="M10 8.5v6M10 5.5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+        <p>{disclaimer}</p>
+      </div>
+      {cta && <a class="btn btn--primary" href={cta.href}>{cta.label}</a>}
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    min-height: min(90vh, 820px);
+    display: flex;
+    align-items: center;
+    padding: 96px 0;
+  }
+  .hero__image {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 58%;
+    height: 100%;
+    object-fit: cover;
+    object-position: left center;
+  }
+  .hero__inner {
+    position: relative;
+    width: 100%;
+  }
+  .hero__text {
+    max-width: 560px;
+  }
+  .hero__updated {
+    margin: 16px 0 0;
+  }
+  .hero__intro {
+    margin-top: 24px;
+  }
+  .hero__intro :global(p) {
+    color: var(--gray-300);
+  }
+  .disclaimer {
+    margin: 24px 0 32px;
+    padding: 12px;
+    background: var(--navy-700);
+    border-radius: var(--radius);
+    color: var(--gray-300);
+  }
+  .disclaimer svg {
+    color: var(--cream);
+    margin-bottom: 12px;
+  }
+  .disclaimer p {
+    margin: 0;
+  }
+
+  @media (max-width: 991px) {
+    .hero__image {
+      width: 70%;
+      opacity: 0.35;
+    }
+  }
+  @media (max-width: 767px) {
+    .hero {
+      min-height: 0;
+      padding: 56px 0 48px;
+    }
+    .hero__image {
+      width: 100%;
+      opacity: 0.18;
+    }
+  }
+</style>

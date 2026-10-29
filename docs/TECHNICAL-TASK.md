@@ -46,7 +46,7 @@
 | Layer | Choice | Notes |
 |---|---|---|
 | Static site | **Astro 7** (TypeScript, `output: "static"`; Node ≥ 22.23) | Hand-written CSS with custom properties, following `docs/DESIGN.md`. No Tailwind or UI kit. |
-| Charts | **TradingView Lightweight Charts 4.x** (price, forecast, bands); **Apache ECharts 5** for the gauges only, tree-shaken | Loaded lazily (below the fold). |
+| Charts | **TradingView Lightweight Charts 4.x** (price, forecast, bands); hand-made **SVG gauges** (no chart library needed) | Loaded lazily (below the fold). |
 | Data pipeline | **Python 3.12** with `pandas`, `numpy`, `statsmodels` (indicators written in pandas), `requests`, `pydantic`, `jinja2` (text templates) | Dependencies pinned in `pipeline/requirements.txt`. |
 | Storage | **JSON files** in `data/` committed to the repo | No database. |
 | CI / scheduler | **GitHub Actions** | Daily cron plus manual `workflow_dispatch`. |
@@ -431,7 +431,7 @@ Owner design decisions:
 |---|---|---|---|
 | M1 | Repo setup + data | Astro skeleton, CLAUDE.md, docs/, the source adapter, history backfill, `prices.json` | 1–2 days |
 | M2 | Models and TA | ARIMA / trend + reversion / MC / consensus, backtest, TA + summary, pytest, JSON schemas. Done 2026-10-29 | 3–4 days |
-| M3 | Design system | tokens, components, `/styleguide` → owner approval | 2–3 days |
+| M3 | Design system | tokens, components, `/styleguide` → owner approval. Built 2026-10-29, awaiting approval | 2–3 days |
 | M4 | Pages | Hub, silver page, service pages, text templates, FAQ | 3 days |
 | M5 | SEO + automation | JSON-LD, sitemap, OG images, daily workflow, Cloudflare, CI, Lighthouse | 1–2 days |
 | M6 | QA and launch | acceptance checks §11, Search Console, 7 days of unattended runs | 1 week elapsed |

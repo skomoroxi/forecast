@@ -1,0 +1,91 @@
+---
+// DESIGN §4.8: centered heading, columns separated by hairlines.
+interface Props {
+  id?: string;
+  heading: string;
+  items: { title: string; text: string }[];
+  /** ranked: number the items (used for "What will drive silver prices") */
+  ranked?: boolean;
+}
+
+const { id, heading, items, ranked = false } = Astro.props;
+const Tag = ranked ? 'ol' : 'ul';
+---
+
+<section id={id} class="section section--white">
+  <div class="container">
+    <h2 class="centered">{heading}</h2>
+    <slot />
+    <Tag class:list={['factors', { ranked }]} style={`--cols:${Math.min(items.length, 4)}`}>
+      {
+        items.map((it) => (
+          <li>
+            <strong>{it.title}</strong>
+            <p>{it.text}</p>
+          </li>
+        ))
+      }
+    </Tag>
+  </div>
+</section>
+
+<style>
+  .factors {
+    display: grid;
+    grid-template-columns: repeat(var(--cols), 1fr);
+    gap: 24px;
+    margin: 64px 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: factor;
+  }
+  .factors li {
+    padding-right: 24px;
+    border-right: var(--hairline) solid var(--gray-300);
+    font-size: 14px;
+  }
+  .factors li:last-child {
+    border-right: 0;
+  }
+  .factors strong {
+    display: block;
+    font-weight: 700;
+    letter-spacing: normal;
+    margin-bottom: 6px;
+  }
+  .ranked li {
+    counter-increment: factor;
+  }
+  .ranked strong::before {
+    content: counter(factor) '. ';
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 18px;
+  }
+  .factors p {
+    margin: 0;
+  }
+  @media (max-width: 991px) {
+    .factors {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .factors li:nth-child(2n) {
+      border-right: 0;
+    }
+  }
+  @media (max-width: 767px) {
+    .factors {
+      grid-template-columns: 1fr;
+      gap: 0;
+      margin-top: 32px;
+    }
+    .factors li {
+      border-right: 0;
+      padding: 16px 0;
+      border-bottom: var(--hairline) solid var(--gray-300);
+    }
+    .factors li:last-child {
+      border-bottom: 0;
+    }
+  }
+</style>

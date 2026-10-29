@@ -1,0 +1,146 @@
+---
+// DESIGN §4.1: dark price bar above the navbar.
+import Sparkline from './Sparkline.astro';
+import { assets, assetUrl, unitShort } from '../lib/assets';
+import { assetData, changeOver, type AssetId } from '../lib/data';
+import { arrow, date, direction, money, percent } from '../lib/format';
+
+const DOT: Record<string, string> = { silver: '#c9cdd3', gold: '#e5b53c', bitcoin: '#f2a33a' };
+
+const items = assets.map((a) => {
+  if (!a.enabled) return { a, live: false as const };
+  const { prices } = assetData(a.id as AssetId);
+  const bars = prices.bars;
+  return {
+    a,
+    live: true as const,
+    price: bars.at(-1)!.close,
+    change: changeOver(bars, 1),
+    spark: bars.slice(-30).map((b) => b.close),
+    asOf: bars.at(-1)!.date,
+  };
+});
+const asOf = items.find((i) => i.live)?.asOf;
+---
+
+<div class="ticker on-dark" role="region" aria-label="Latest prices">
+  <div class="ticker__inner container">
+    <ul class="ticker__list">
+      {
+        items.map((i) => (
+          <li class="ticker__item">
+            <span class="dot" style={`background:${DOT[i.a.id] ?? 'var(--gray-300)'}`} aria-hidden="true" />
+            {i.live ? (
+              <a class="ticker__link" href={assetUrl(i.a)}>
+                <span class="name">{i.a.name}</span>
+                <span class="price">
+                  {money(i.price)}
+                  <small>{unitShort(i.a)}</small>
+                </span>
+                <span class={`chg ${direction(i.change)}`}>
+                  {arrow(i.change)} {percent(i.change)}
+                </span>
+                <Sparkline values={i.spark} />
+              </a>
+            ) : (
+              <span class="ticker__soon">
+                <span class="name">{i.a.name}</span>
+                <span class="soon">Coming soon</span>
+              </span>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+    {
+      asOf && (
+        <span class="ticker__status">
+          <span class="pulse" aria-hidden="true" />
+          Updated daily · close {date(asOf, { month: 'short', day: 'numeric' })}
+        </span>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .ticker {
+    background: var(--navy-850);
+    color: var(--white);
+    font-size: 12px;
+    line-height: 1.2;
+    letter-spacing: normal;
+  }
+  .ticker__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    height: var(--ticker-h);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .ticker__inner::-webkit-scrollbar {
+    display: none;
+  }
+  .ticker__list {
+    display: flex;
+    gap: 28px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ticker__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .ticker__link,
+  .ticker__link:visited,
+  .ticker__soon {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--white);
+    text-decoration: none;
+  }
+  .ticker__link:hover .name {
+    text-decoration: underline;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex: none;
+  }
+  .price small {
+    color: var(--muted-on-dark);
+    margin-left: 1px;
+  }
+  .chg {
+    font-weight: 500;
+  }
+  .soon {
+    color: var(--muted-on-dark);
+  }
+  .ticker__status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    color: var(--muted-on-dark);
+  }
+  .pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--up);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    50% {
+      opacity: 0.35;
+    }
+  }
+</style>

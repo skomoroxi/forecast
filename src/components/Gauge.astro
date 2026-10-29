@@ -1,0 +1,102 @@
+---
+// DESIGN §4.7: semicircle gauge, 5 segments Strong Sell → Strong Buy, needle at the score.
+import type { Tally } from '../lib/data';
+import { VERDICT_LABEL } from '../lib/format';
+
+interface Props {
+  title: string;
+  tally: Tally;
+}
+
+const { title, tally } = Astro.props;
+const total = tally.buy + tally.sell + tally.neutral;
+const score = total ? (tally.buy - tally.sell) / total : 0; // −1 … 1
+const R = 80;
+const CX = 100;
+const CY = 96;
+const SEGMENTS = ['#ef4444', '#f4a3a3', '#cccdce', '#9fe3c6', '#16c47f'];
+const GAP = 2; // degrees between segments
+
+// Angle 180° (left, strong sell) → 0° (right, strong buy)
+const pt = (deg: number, r = R) => [CX + r * Math.cos((deg * Math.PI) / 180), CY - r * Math.sin((deg * Math.PI) / 180)];
+const arcs = SEGMENTS.map((c, i) => {
+  const a0 = 180 - i * 36 - (i ? GAP / 2 : 0);
+  const a1 = 180 - (i + 1) * 36 + (i < 4 ? GAP / 2 : 0);
+  const [x0, y0] = pt(a0);
+  const [x1, y1] = pt(a1);
+  return { c, d: `M${x0.toFixed(2)} ${y0.toFixed(2)} A${R} ${R} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)}` };
+});
+const needleDeg = 90 - score * 90;
+const [nx, ny] = pt(needleDeg, R - 18);
+const tone = tally.verdict.includes('buy') ? 'buy' : tally.verdict.includes('sell') ? 'sell' : 'neutral';
+---
+
+<figure class="gauge">
+  <figcaption class="gauge__title">{title}</figcaption>
+  <svg viewBox="0 0 200 110" role="img" aria-label={`${title}: ${VERDICT_LABEL[tally.verdict]}`}>
+    {arcs.map((a) => <path d={a.d} fill="none" stroke={a.c} stroke-width="12" />)}
+    <text x="14" y="108" class="lbl">Sell</text>
+    <text x="186" y="108" class="lbl" text-anchor="end">Buy</text>
+    <line x1={CX} y1={CY} x2={nx.toFixed(2)} y2={ny.toFixed(2)} stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+    <circle cx={CX} cy={CY} r="5" fill="currentColor" />
+  </svg>
+  <div class={`gauge__verdict ${tone}`}>{VERDICT_LABEL[tally.verdict]}</div>
+  <dl class="gauge__counts">
+    <div><dt>Buy</dt><dd class="buy">{tally.buy}</dd></div>
+    <div><dt>Neutral</dt><dd>{tally.neutral}</dd></div>
+    <div><dt>Sell</dt><dd class="sell">{tally.sell}</dd></div>
+  </dl>
+</figure>
+
+<style>
+  .gauge {
+    margin: 0;
+    text-align: center;
+    color: var(--navy-900);
+  }
+  .gauge__title {
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: normal;
+    margin-bottom: 8px;
+  }
+  .gauge svg {
+    width: 100%;
+    max-width: 220px;
+    margin: 0 auto;
+  }
+  .lbl {
+    font: 400 10px var(--font-sans);
+    fill: var(--muted);
+  }
+  .gauge__verdict {
+    font-family: var(--font-serif);
+    font-size: 24px;
+    margin-top: 4px;
+  }
+  .gauge__counts {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin: 6px 0 0;
+    font-size: 13px;
+    letter-spacing: normal;
+  }
+  .gauge__counts div {
+    display: flex;
+    gap: 4px;
+  }
+  .gauge__counts dt {
+    color: var(--muted);
+  }
+  .gauge__counts dd {
+    margin: 0;
+    font-weight: 500;
+  }
+  .buy {
+    color: var(--up-text);
+  }
+  .sell {
+    color: var(--down-text);
+  }
+</style>

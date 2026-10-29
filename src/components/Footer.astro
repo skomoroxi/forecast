@@ -1,0 +1,139 @@
+---
+// DESIGN §4.11: white footer with link columns, dark bottom band with disclaimer and attribution.
+// Newsletter and social tiles are left out until they exist (TECHNICAL-TASK §2).
+import { assets, assetUrl } from '../lib/assets';
+
+const year = new Date().getUTCFullYear();
+const columns = [
+  {
+    title: 'Forecasts',
+    links: assets.map((a) => ({ label: `${a.name} price prediction`, href: a.enabled ? assetUrl(a) : null })),
+  },
+  {
+    title: 'FinForecast',
+    links: [
+      { label: 'Methodology', href: '/methodology/' },
+      { label: 'About', href: '/about/' },
+      { label: 'Margerie Holtz', href: '/authors/margerie-holtz/' },
+    ],
+  },
+  {
+    title: 'Legal',
+    links: [
+      { label: 'Disclaimer', href: '/disclaimer/' },
+      { label: 'Privacy', href: '/privacy/' },
+    ],
+  },
+];
+---
+
+<footer class="footer">
+  <div class="footer__top container">
+    <div class="footer__brand">
+      <a class="wordmark" href="/">FinForecast</a>
+      <p class="small">
+        Statistical price forecasts for precious metals and crypto, updated every day from public market data.
+      </p>
+    </div>
+    {
+      columns.map((c) => (
+        <nav class="footer__col" aria-label={c.title}>
+          <h4>{c.title}</h4>
+          <ul>
+            {c.links.map((l) => (
+              <li>{l.href ? <a href={l.href}>{l.label}</a> : <span class="soon">{l.label} (soon)</span>}</li>
+            ))}
+          </ul>
+        </nav>
+      ))
+    }
+  </div>
+  <div class="footer__band on-dark">
+    <div class="container">
+      <p>
+        <strong>Not financial advice.</strong> FinForecast publishes statistical model output for information only. Forecasts can
+        be wrong, and past performance does not guarantee future results. Do your own research before making investment decisions.
+      </p>
+      <p class="meta">Market data: Twelve Data, Alpha Vantage. Non-commercial use. © {year} FinForecast.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--white);
+    border-top: var(--hairline) solid var(--gray-200);
+  }
+  .footer__top {
+    display: grid;
+    grid-template-columns: 2fr repeat(3, 1fr);
+    gap: 40px;
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+  .wordmark,
+  .wordmark:visited {
+    font-family: var(--font-serif);
+    font-size: 26px;
+    color: var(--navy-900);
+    text-decoration: none;
+  }
+  .footer__brand p {
+    margin-top: 12px;
+    max-width: 340px;
+    color: var(--muted);
+  }
+  h4 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 20px;
+    margin: 0 0 12px;
+  }
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  li {
+    margin-bottom: 8px;
+    font-size: 15px;
+    letter-spacing: normal;
+  }
+  .footer__col a,
+  .footer__col a:visited {
+    color: var(--navy-900);
+    text-decoration: none;
+  }
+  .footer__col a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+  .soon {
+    color: var(--muted);
+  }
+  .footer__band {
+    background: var(--navy-900);
+    color: var(--gray-300);
+    padding: 32px 0;
+    font-size: 14px;
+  }
+  .footer__band p {
+    max-width: 900px;
+  }
+  .footer__band strong {
+    color: var(--white);
+  }
+  .footer__band .meta {
+    color: var(--muted-on-dark);
+    margin: 0;
+  }
+  @media (max-width: 767px) {
+    .footer__top {
+      grid-template-columns: 1fr 1fr;
+      gap: 32px 24px;
+    }
+    .footer__brand {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

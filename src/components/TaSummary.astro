@@ -1,0 +1,161 @@
+---
+// DESIGN §4.7: technical analysis card with Daily / Weekly / Monthly tabs.
+// All three panels are rendered as static HTML; the tabs only toggle visibility.
+import Gauge from './Gauge.astro';
+import DataTable from './DataTable.astro';
+import type { TechnicalAnalysis } from '../lib/data';
+import { maTable, oscillatorTable, pivotTable } from '../lib/tables';
+import { date } from '../lib/format';
+
+interface Props {
+  ta: TechnicalAnalysis;
+  name: string;
+  /** render the indicator, MA and pivot tables under the gauges */
+  details?: boolean;
+}
+
+const { ta, name, details = true } = Astro.props;
+const TABS = [
+  ['daily', 'Daily'],
+  ['weekly', 'Weekly'],
+  ['monthly', 'Monthly'],
+] as const;
+const uid = `ta-${ta.asset}`;
+---
+
+<div class="ta" data-tabs>
+  <div class="ta__tabs" role="tablist" aria-label="Timeframe">
+    {
+      TABS.map(([key, label], i) => (
+        <button
+          type="button"
+          role="tab"
+          id={`${uid}-tab-${key}`}
+          aria-controls={`${uid}-panel-${key}`}
+          aria-selected={i === 0 ? 'true' : 'false'}
+          tabindex={i === 0 ? 0 : -1}
+        >
+          {label}
+        </button>
+      ))
+    }
+  </div>
+
+  {
+    TABS.map(([key, label], i) => {
+      const tf = ta.timeframes[key];
+      const osc = oscillatorTable(tf);
+      const mas = maTable(tf);
+      const piv = pivotTable(tf);
+      return (
+        <div class="ta__panel" role="tabpanel" id={`${uid}-panel-${key}`} aria-labelledby={`${uid}-tab-${key}`} hidden={i !== 0}>
+          <div class="ta__gauges">
+            <Gauge title="Summary" tally={tf.summary.overall} />
+            <Gauge title="Technical indicators" tally={tf.summary.oscillators} />
+            <Gauge title="Moving averages" tally={tf.summary.moving_averages} />
+          </div>
+          <p class="meta ta__asof">
+            {label} timeframe · based on the {key === 'daily' ? 'close' : `${key === 'weekly' ? 'week' : 'month'} to date`} of{' '}
+            {date(key === 'daily' ? tf.bar_date : ta.run_date)}
+            {ta.ohlc_basis === 'proxy' && ' · high/low-based indicators use estimated highs and lows'}
+          </p>
+          {details && (
+            <div class="ta__tables">
+              <DataTable caption={`${name} technical indicators (${label.toLowerCase()})`} columns={osc.columns} rows={osc.rows} />
+              <DataTable caption={`${name} moving averages (${label.toLowerCase()})`} columns={mas.columns} rows={mas.rows} />
+              <div class="ta__pivots">
+                <DataTable caption={`${name} pivot points (${label.toLowerCase()})`} columns={piv.columns} rows={piv.rows} />
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    })
+  }
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((box) => {
+    const tabs = [...box.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const select = (tab: HTMLButtonElement) => {
+      for (const t of tabs) {
+        const on = t === tab;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        box.querySelector<HTMLElement>(`#${t.getAttribute('aria-controls')}`)!.hidden = !on;
+      }
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => select(t));
+      t.addEventListener('keydown', (e) => {
+        const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!d) return;
+        const next = tabs[(i + d + tabs.length) % tabs.length];
+        select(next);
+        next.focus();
+      });
+    });
+  });
+</script>
+
+<style>
+  .ta {
+    background: var(--white);
+    border: var(--hairline) solid var(--gray-200);
+    border-radius: var(--radius-widget);
+    padding: 0 24px 24px;
+  }
+  .ta__tabs {
+    display: flex;
+    gap: 24px;
+    border-bottom: var(--hairline) solid var(--gray-200);
+    margin-bottom: 24px;
+  }
+  .ta__tabs button {
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: 16px 0 12px;
+    font: 400 14px var(--font-sans);
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .ta__tabs button[aria-selected='true'] {
+    color: var(--navy-900);
+    font-weight: 500;
+    border-bottom-color: var(--accent);
+  }
+  .ta__gauges {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .ta__asof {
+    text-align: center;
+    margin: 16px 0 0;
+  }
+  .ta__tables {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 32px var(--grid-gap);
+    margin-top: 32px;
+  }
+  .ta__pivots {
+    grid-column: 1 / -1;
+  }
+  @media (max-width: 767px) {
+    .ta {
+      padding: 0 16px 16px;
+    }
+    .ta__gauges {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px 8px;
+    }
+    .ta__gauges > :first-child {
+      grid-column: 1 / -1;
+    }
+    .ta__tables {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

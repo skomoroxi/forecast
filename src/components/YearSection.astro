@@ -1,0 +1,54 @@
+---
+// DESIGN §4.4: two-column year section. Default slot = text column, slot "aside" = table or image.
+interface Props {
+  id?: string;
+  heading: string;
+  variant?: 'light' | 'white' | 'dark';
+  /** put the aside column on the left (used for variety on dark sections) */
+  reverse?: boolean;
+}
+
+const { id, heading, variant = 'light', reverse = false } = Astro.props;
+const cls = { light: 'section--soft', white: 'section--white', dark: 'section--dark on-dark' }[variant];
+---
+
+<section id={id} class:list={['section', cls]}>
+  <div class:list={['container grid-2 year', { 'year--reverse': reverse }]}>
+    <div class="year__text">
+      <h2>{heading}</h2>
+      <slot />
+      <div class="year__card"><slot name="card" /></div>
+      <slot name="actions" />
+    </div>
+    <div class="year__aside">
+      <slot name="aside" />
+    </div>
+  </div>
+</section>
+
+<style>
+  .year__text :global(.btn) {
+    margin-top: 24px;
+  }
+  .year__card:empty {
+    display: none;
+  }
+  .year__card {
+    margin-top: 8px;
+  }
+  .year__aside {
+    min-width: 0;
+  }
+  .year__aside :global(img) {
+    width: 100%;
+    height: 100%;
+    min-height: 420px;
+    object-fit: cover;
+    border-radius: var(--radius);
+  }
+  @media (min-width: 768px) {
+    .year--reverse .year__text {
+      order: 2;
+    }
+  }
+</style>

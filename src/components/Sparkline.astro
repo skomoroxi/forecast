@@ -1,0 +1,33 @@
+---
+interface Props {
+  values: number[];
+  width?: number;
+  height?: number;
+  class?: string;
+}
+
+const { values, width = 60, height = 20, class: className } = Astro.props;
+const min = Math.min(...values);
+const max = Math.max(...values);
+const span = max - min || 1;
+const points = values
+  .map((v, i) => `${((i / (values.length - 1)) * width).toFixed(1)},${(height - 1 - ((v - min) / span) * (height - 2)).toFixed(1)}`)
+  .join(' ');
+const trend = values.at(-1)! >= values[0] ? 'up' : 'down';
+---
+
+<svg class:list={['spark', trend, className]} viewBox={`0 0 ${width} ${height}`} width={width} height={height} aria-hidden="true">
+  <polyline points={points} fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"></polyline>
+</svg>
+
+<style>
+  .spark {
+    flex: none;
+  }
+  .spark.up {
+    color: var(--up);
+  }
+  .spark.down {
+    color: var(--down);
+  }
+</style>

@@ -1,0 +1,225 @@
+---
+// M3: every component with real silver data, for review at 360 / 768 / 1300 px (always noindex).
+// Paragraph copy here is placeholder; the real generated text arrives in M4.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import ForecastCard from '../components/ForecastCard.astro';
+import YearSection from '../components/YearSection.astro';
+import DataTable from '../components/DataTable.astro';
+import PriceChart from '../components/PriceChart.astro';
+import TaSummary from '../components/TaSummary.astro';
+import Factors from '../components/Factors.astro';
+import CtaSection from '../components/CtaSection.astro';
+import Faq from '../components/Faq.astro';
+import AssetCards from '../components/AssetCards.astro';
+import { assetData, consensusAt } from '../lib/data';
+import { dateTimeUtc, money, date } from '../lib/format';
+import { accuracyTable, dailyTable, longTermTable, monthlyTable, yearSummaryTable } from '../lib/tables';
+
+const { forecast: fc, ta } = assetData('silver');
+const today = fc.last_close.price;
+const daily = dailyTable(fc);
+const m2026 = monthlyTable(fc, 2026);
+const m2030 = monthlyTable(fc, 2030);
+const summary = yearSummaryTable(fc, [2026, 2027, 2028, 2029, 2030]);
+const longTerm = longTermTable(fc);
+const accuracy = accuracyTable(fc);
+const in30 = consensusAt(fc, 'daily-end');
+const end2026 = consensusAt(fc, 2026);
+const y2030 = consensusAt(fc, 2030);
+const updated = `Last updated: ${date(fc.run_date)}`;
+
+const swatches = [
+  ['--navy-900', 'Navy 900'], ['--navy-850', 'Navy 850'], ['--navy-700', 'Navy 700'], ['--slate-500', 'Slate 500'],
+  ['--gray-300', 'Gray 300'], ['--gray-200', 'Gray 200'], ['--gray-100', 'Gray 100'], ['--gray-50', 'Gray 50'],
+  ['--cream', 'Cream'], ['--accent', 'Accent'], ['--accent-hover', 'Accent hover'], ['--up', 'Up'], ['--down', 'Down'],
+];
+---
+
+<BaseLayout title="Styleguide · FinForecast" description="FinForecast design system components">
+  <section class="section section--white">
+    <div class="container">
+      <p class="meta">M3 · design system review · data from the {date(fc.run_date)} run</p>
+      <h1 class="sg-h1">Styleguide</h1>
+
+      <h3>Colors</h3>
+      <ul class="swatches">
+        {swatches.map(([v, n]) => <li><span style={`background:var(${v})`} /><b>{n}</b><code>{v}</code></li>)}
+      </ul>
+
+      <h3>Type scale</h3>
+      <div class="type">
+        <p class="serif" style="font-size:60px;line-height:1;letter-spacing:-2px">H1 Silver price forecast</p>
+        <p class="serif" style="font-size:52px;line-height:1.2">H2 Expected silver price 2026</p>
+        <p class="big-number">$54.25</p>
+        <p style="font-size:18px;font-weight:500;letter-spacing:normal">H3 / FAQ question, Inter 18 medium</p>
+        <p>Body: Inter 16/1.6 with 0.4px tracking. Key numbers are <strong>bold</strong> and <a href="#">links are accent</a>.</p>
+        <p class="small">Small body 14/1.6 for factor text and tables.</p>
+        <p class="meta">Meta 13/1.4, muted: “Last updated: Oct 29, 2026”</p>
+      </div>
+
+      <h3>Buttons</h3>
+      <div class="row">
+        <a class="btn btn--primary" href="#">Primary button</a>
+        <a class="btn btn--secondary" href="#">Secondary button</a>
+        <button class="btn--text" type="button">Text button</button>
+      </div>
+
+      <h3>Forecast cards</h3>
+      <div class="cards3">
+        <ForecastCard label="In 30 days" value={money(in30)} meta={updated} change={in30 && in30 / today - 1} />
+        <ForecastCard label="End of 2026" value={money(end2026)} meta="December 2026 average" change={end2026 && end2026 / today - 1} />
+        <ForecastCard label="2030" value={money(y2030)} meta="December 2030 average" change={y2030 && y2030 / today - 1} />
+      </div>
+    </div>
+  </section>
+
+  <Hero title="Silver Price Prediction & Forecast 2026–2030" updated={`Updated ${dateTimeUtc(fc.generated_at)}`} cta={{ href: '#chart', label: "See today's forecast" }}>
+    <p>Daily silver price forecasts for the next 30 days, monthly averages to 2030 and an outlook to 2035, from three statistical models.</p>
+    <p>Placeholder intro copy: the generated text replaces this in M4.</p>
+  </Hero>
+
+  <section id="chart" class="section section--soft">
+    <div class="container">
+      <h2>Price chart</h2>
+      <PriceChart asset="silver" name="Silver" />
+    </div>
+  </section>
+
+  <section class="section section--white">
+    <div class="container">
+      <h2>Silver price forecast for the next 30 days</h2>
+      <p>Placeholder trend text. Silver closed at <strong>{money(today)}</strong>; the three models expect <strong>{money(in30)}</strong> in 30 days.</p>
+      <DataTable caption="Silver daily price forecast, next 30 days (USD per troy ounce)" columns={daily.columns} rows={daily.rows} initialRows={10} />
+    </div>
+  </section>
+
+  <YearSection heading="Expected silver price 2026">
+    <p>Placeholder paragraph about the rest of 2026, with <strong>key numbers in bold</strong> and <a href="#">a linked institution</a>.</p>
+    <p>Second paragraph of placeholder copy so the text column has a realistic length next to the table.</p>
+    <ForecastCard slot="card" label="Forecast end of 2026" value={money(end2026)} meta={updated} change={end2026 && end2026 / today - 1} />
+    <a slot="actions" class="btn btn--primary" href="#ta">See technical analysis</a>
+    <DataTable slot="aside" caption="Silver monthly forecast 2026" columns={m2026.columns} rows={m2026.rows} />
+  </YearSection>
+
+  <YearSection heading="Silver price prediction 2030" variant="dark" reverse>
+    <p>Dark variant: long horizons use the navy section, with the table on the left.</p>
+    <ForecastCard slot="card" label="Forecast 2030" value={money(y2030)} meta="December 2030 average" change={y2030 && y2030 / today - 1} />
+    <DataTable slot="aside" dark caption="Silver monthly forecast 2030" columns={m2030.columns} rows={m2030.rows} initialRows={6} />
+  </YearSection>
+
+  <YearSection heading="Year section with image" variant="white">
+    <p>Image variant for visual relief between data-heavy sections.</p>
+    <img slot="aside" src="/images/silver-bars.svg" alt="" width="800" height="900" loading="lazy" />
+  </YearSection>
+
+  <section class="section section--soft">
+    <div class="container">
+      <h2>Model comparison 2026–2030</h2>
+      <DataTable caption="Average forecast per year and model (USD)" columns={summary.columns} rows={summary.rows} />
+    </div>
+  </section>
+
+  <section class="section section--dark on-dark">
+    <div class="container">
+      <h2>Silver price outlook to 2035</h2>
+      <DataTable dark caption="Yearly average forecast 2031–2035" columns={longTerm.columns} rows={longTerm.rows}
+        note="Uncertainty grows quickly with the horizon: the P10–P90 range shows where 80% of model outcomes fall." />
+    </div>
+  </section>
+
+  <section id="ta" class="section section--soft">
+    <div class="container">
+      <h2>Silver technical analysis</h2>
+      <TaSummary ta={ta} name="Silver" />
+    </div>
+  </section>
+
+  <Factors
+    heading="What will drive silver prices"
+    ranked
+    items={[
+      { title: 'Supply deficit', text: 'Placeholder: mine output and recycling versus demand.' },
+      { title: 'Industrial demand', text: 'Placeholder: solar panels, electronics and electric vehicles.' },
+      { title: 'Interest rates and the dollar', text: 'Placeholder: lower real rates and a weaker dollar support metals.' },
+      { title: 'Investment flows', text: 'Placeholder: ETF holdings and coin and bar demand.' },
+    ]}
+  />
+
+  <CtaSection heading="How we forecast silver and how accurate we are">
+    <p>Placeholder methodology summary. Accuracy is the mean absolute percentage error of past forecasts.</p>
+    <DataTable caption="Forecast error (MAPE)" columns={accuracy.columns} rows={accuracy.rows}
+      note={`Walk-forward test on ${fc.accuracy.consensus?.samples ?? 0} past dates. Live track record replaces it after 30 days.`} />
+    <a class="btn btn--secondary" href="/methodology/">Read the methodology</a>
+  </CtaSection>
+
+  <Faq
+    schema={false}
+    items={[
+      { q: 'What is the silver price forecast for 2026?', a: `The model consensus for December 2026 is ${money(end2026)} per troy ounce.` },
+      { q: 'Will silver reach $100 by 2030?', a: 'Placeholder answer using live numbers from the forecast.' },
+      { q: 'How accurate are these predictions?', a: 'Placeholder answer quoting the MAPE table.' },
+    ]}
+  />
+
+  <section class="section section--white">
+    <div class="container">
+      <h2>Related forecasts</h2>
+      <AssetCards />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .sg-h1 {
+    margin-bottom: 8px;
+  }
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+    letter-spacing: normal;
+  }
+  .swatches span {
+    display: block;
+    height: 56px;
+    border-radius: var(--radius);
+    border: var(--hairline) solid var(--gray-200);
+    margin-bottom: 6px;
+  }
+  .swatches b {
+    display: block;
+    font-weight: 500;
+  }
+  .swatches code {
+    color: var(--muted);
+  }
+  .type p {
+    margin-bottom: 12px;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+  }
+  .cards3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 991px) {
+    .cards3 {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 480px) {
+    .type .serif {
+      font-size: 36px !important;
+    }
+  }
+</style>

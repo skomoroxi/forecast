@@ -1,0 +1,51 @@
+/* Design tokens: docs/DESIGN.md §1. Components use these only, never raw colors. */
+:root {
+  /* colors */
+  --navy-900: #181d27;
+  --navy-850: #181d29;
+  --navy-700: #252b37;
+  --slate-500: #535862;
+  --gray-300: #d5d7da;
+  --gray-250: #cccdce;
+  --gray-200: #e5e7eb;
+  --gray-100: #f5f5f5;
+  --gray-50: #fafafa;
+  --white: #ffffff;
+  --cream: #f4efed;
+  --accent: #1431cd;
+  --accent-hover: #0f27a6;
+  --up: #16c47f;
+  --down: #ef4444;
+  --up-text: #0b7a4e;   /* darker variants for text on light backgrounds (contrast ≥ 4.5:1) */
+  --down-text: #c42b2b;
+  --down-on-dark: #f26161; /* red text on navy (contrast ≥ 4.5:1); --down stays for fills */
+  --muted: rgb(24 29 39 / 0.62);
+  --muted-on-dark: rgb(213 215 218 / 0.75);
+  --chart-line: #8a96a8;                    /* silver; gold uses #c07a4f */
+  --chart-fill-top: rgb(138 150 168 / 0.22);
+  --gridline: #f0f0f0;
+
+  /* type */
+  --font-serif: "Old Standard TT", Georgia, serif;
+  --font-sans: "Inter", system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+
+  /* layout */
+  --container: 1300px;
+  --gutter: 24px;
+  --section-y: 64px;
+  --grid-gap: 40px;
+  --radius: 4px;
+  --radius-widget: 6px;
+  --hairline: 0.8px;
+  --ticker-h: 35px;
+  --nav-h: 70px;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --gutter: 16px;
+    --section-y: 48px;
+    --grid-gap: 24px;
+    --nav-h: 60px;
+  }
+}

@@ -1,0 +1,32 @@
+---
+// DESIGN §4.9: serif heading left, content right. Also used for methodology / "good investment?" blocks.
+interface Props {
+  id?: string;
+  heading: string;
+  variant?: 'soft' | 'white';
+}
+
+const { id, heading, variant = 'soft' } = Astro.props;
+---
+
+<section id={id} class:list={['section', variant === 'soft' ? 'section--soft' : 'section--white']}>
+  <div class="container grid-2">
+    <h2>{heading}</h2>
+    <div class="cta__body">
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta__body :global(ul) {
+    padding-left: 20px;
+    margin: 0 0 16px;
+  }
+  .cta__body :global(li) {
+    margin-bottom: 6px;
+  }
+  .cta__body :global(.btn) {
+    margin-top: 8px;
+  }
+</style>
