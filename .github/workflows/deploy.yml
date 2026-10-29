@@ -37,7 +37,7 @@ jobs:
           fi
 
       # Always the latest main, so a run called right after the data commit deploys the new data.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: main
 
