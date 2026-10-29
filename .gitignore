@@ -1,0 +1,22 @@
+# build
+dist/
+.astro/
+node_modules/
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# secrets: the Twelve Data key lives only in .env locally and in GitHub Secrets
+.env
+.env.*
+!.env.example
+
+# os / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

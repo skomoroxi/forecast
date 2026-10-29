@@ -1,0 +1,55 @@
+# One entry per asset. Adding an asset = adding an entry here (docs/TECHNICAL-TASK.md §5.1).
+# enabled: false → shown on the hub as "Coming soon", skipped by the pipeline.
+
+- id: silver
+  name: Silver
+  symbol: XAG/USD
+  slug: silver-price-prediction
+  unit: troy ounce
+  currency: USD
+  calendar: fx            # fx = Mon–Fri; crypto = 7 days; nyse = NYSE trading days
+  has_volume: false
+  max_daily_change: 0.35  # a bigger close-to-close move stops the daily run for a manual check
+  source:
+    # Twelve Data's free plan does not include XAG/USD (it needs the Grow plan), so silver spot
+    # comes from Alpha Vantage (close only) and the daily range is estimated from the SLV ETF.
+    primary: alphavantage
+    symbol: SILVER
+    ohlc_proxy:
+      source: twelvedata
+      symbol: SLV
+    fallback: null        # to be chosen and verified (TECHNICAL-TASK §5.2)
+  chart_color: "#8A96A8"
+  enabled: true
+
+- id: gold
+  name: Gold
+  symbol: XAU/USD
+  slug: gold-price-prediction
+  unit: troy ounce
+  currency: USD
+  calendar: fx
+  has_volume: false
+  max_daily_change: 0.25
+  source:
+    primary: twelvedata
+    symbol: XAU/USD
+    fallback: null
+  chart_color: "#C07A4F"
+  enabled: false
+
+- id: bitcoin
+  name: Bitcoin
+  symbol: BTC/USD
+  slug: bitcoin-price-prediction
+  unit: coin
+  currency: USD
+  calendar: crypto
+  has_volume: true
+  max_daily_change: 0.5
+  source:
+    primary: twelvedata
+    symbol: BTC/USD
+    fallback: null
+  chart_color: "#E8A33D"
+  enabled: false

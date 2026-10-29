@@ -1,0 +1,4 @@
+# Pre-launch: the production domain is not decided yet, so nothing is indexed.
+# Replace at launch (M6) with "Allow: /", "Disallow: /styleguide/" and the sitemap URL.
+User-agent: *
+Disallow: /

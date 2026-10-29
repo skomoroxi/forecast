@@ -1,0 +1,5 @@
+# M1: data layer. Forecast and TA dependencies are added in M2.
+requests==2.34.2
+pydantic==2.14.1
+PyYAML==6.0.3
+pytest==9.2.0

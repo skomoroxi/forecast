@@ -1,0 +1,26 @@
+---
+// M1 placeholder. The real hub page is built in M4 (docs/TECHNICAL-TASK.md §6.1).
+import prices from '../../data/silver/prices.json';
+
+const last = prices.bars.at(-1);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>FinForecast (in development)</title>
+  </head>
+  <body>
+    <h1>FinForecast</h1>
+    <p>Price predictions for silver, gold and bitcoin. Under construction.</p>
+    {last && (
+      <p>
+        Silver (XAG/USD) last close: <strong>${last.close.toFixed(2)}</strong> on {last.date} ·{' '}
+        {prices.bars.length} daily bars since {prices.bars[0]?.date}.
+      </p>
+    )}
+  </body>
+</html>

@@ -45,7 +45,7 @@
 
 | Layer | Choice | Notes |
 |---|---|---|
-| Static site | **Astro 5** (TypeScript, `output: "static"`) | Hand-written CSS with custom properties, following `docs/DESIGN.md`. No Tailwind or UI kit. |
+| Static site | **Astro 7** (TypeScript, `output: "static"`; Node ≥ 22.23) | Hand-written CSS with custom properties, following `docs/DESIGN.md`. No Tailwind or UI kit. |
 | Charts | **TradingView Lightweight Charts 4.x** (price, forecast, bands); **Apache ECharts 5** for the gauges only, tree-shaken | Loaded lazily (below the fold). |
 | Data pipeline | **Python 3.12** with `pandas`, `numpy`, `statsmodels`, `pmdarima` (or `statsforecast`), `prophet`, `TA-Lib` (pip wheels), `requests`, `pydantic`, `jinja2` (text templates) | Dependencies pinned in `pipeline/requirements.txt`. |
 | Storage | **JSON files** in `data/` committed to the repo | No database. |
@@ -118,13 +118,34 @@ forecast/
 ```
 
 ### 5.2 Price source
-- **Primary: Twelve Data** `time_series` endpoint, `symbol=XAG/USD`, `interval=1day`.
-  - The first run downloads the full available history (max `outputsize=5000`, about 20 years of trading days).
-  - Daily runs fetch the last 10 bars and upsert them, which fixes any revised bars.
-  - The free plan allows 800 calls/day and 8/minute. The API key is stored as the GitHub secret `TWELVEDATA_API_KEY` and **never committed** (the repo is public). The owner adds the secret in the repo settings. For local runs the key goes in an untracked `.env` file, which is listed in `.gitignore`.
-- **Fallback:** a second provider behind the same interface. Choose and verify it in phase 1 (candidates: Alpha Vantage, metals.dev, Stooq CSV). If both fail, the run ends with an error and the site keeps yesterday's data (§9).
-- **Validation:** reject a day if `close` ≤ 0, if the daily change is greater than 20%, or if there are duplicate dates. Log and skip; never write bad data.
-- **Licensing check (phase 1):** confirm that the chosen plan allows public display of the data. Add an attribution line in the footer.
+**Finding in M1 (2026-10-29):** Twelve Data's free plan does **not** include silver spot (XAG/USD returns "available starting with the Grow plan"). XAU/USD, BTC/USD and US stocks/ETFs are included. Silver therefore uses:
+
+- **Silver price: Alpha Vantage `GOLD_SILVER_HISTORY`** (`symbol=SILVER`, `interval=daily`).
+  - Free key, 25 requests/day.
+  - One price per day, with history from 2011-06-01.
+  - The secret is `ALPHAVANTAGE_API_KEY`.
+- **Silver daily high/low (estimated): the SLV ETF from Twelve Data.**
+  - For each day, SLV's open/high/low are scaled by `spot_close / SLV_close`.
+  - The bar is stored with `"ohlc": "proxy"`.
+  - Days without an SLV bar (US holidays) stay `"ohlc": "close"`.
+  - Indicators that need high/low (STOCH, ADX, Williams %R, CCI, ATR, pivots) use these estimates. `/methodology/` must say so.
+- **Gold and bitcoin (later):** Twelve Data `time_series` with `XAU/USD` and `BTC/USD`, `interval=1day`; the free plan allows 800 calls/day and 8/minute.
+
+**Fetching:**
+- The first run (or `--backfill`) loads the full history. Daily runs re-fetch recent bars and upsert them, which fixes any revised bars.
+- The current day's bar is dropped (it is still forming), and weekends are dropped for the `fx` calendar.
+
+**Keys:**
+- Keys are GitHub secrets (`TWELVEDATA_API_KEY`, `ALPHAVANTAGE_API_KEY`) and are **never committed**, because the repo is public.
+- For local runs the keys go in an untracked `.env` file.
+
+**Validation:**
+- A bar is rejected if a price is ≤ 0, if `low > high`, or if open/close is outside the high–low range.
+- A daily run stops without writing anything if a close moves more than the asset's `max_daily_change` (silver 35%: the history already contains a one-day move of about 30%, around 2026-02-02). After checking the move, rerun with `--allow-jumps`.
+
+**Fallback:** to be chosen; it plugs into the same interface. If the sources fail, the run ends with an error and the site keeps yesterday's data (§9).
+
+**Licensing:** the site is non-commercial, which the free plans cover. The footer credits "Market data: Twelve Data, Alpha Vantage".
 
 ### 5.3 Forecast models
 All models work on **log prices** and all output is converted back to USD. Forecast dates follow the asset calendar (`fx`: business days, no weekends).
@@ -343,7 +364,7 @@ Owner design decisions:
   3. `python -m pipeline.run`
   4. validate the JSON against the schemas
   5. if the data changed, commit `data/**` as `github-actions[bot]` with the message `data: daily update YYYY-MM-DD`, and push to `main`
-- **Secrets:** `TWELVEDATA_API_KEY` (+ the fallback key). Permissions: `contents: write` only.
+- **Secrets:** `TWELVEDATA_API_KEY`, `ALPHAVANTAGE_API_KEY`. Permissions: `contents: write` only.
 - **On failure:** the workflow fails, which triggers GitHub's e-mail notification. No commit is made, so the site keeps the last good data. A failed or stale run also shows a small "data as of {date}" note on the page (the site checks whether `generated_at` is older than 48h).
 - **Runtime budget:** under 10 minutes per run (Prophet and 10k Monte Carlo paths on one asset are well within this).
 
@@ -397,8 +418,8 @@ Owner design decisions:
 | Accent color | `#1431cd` |
 | Imagery | AI-generated renders (§7) |
 | Author | Margerie Holtz, Senior Analyst; HWR Berlin M.A. 2015; Brown Brothers Harriman since 2017, Senior Analyst since 2020 (§6.3) |
-| Price API | Twelve Data free plan. The key is stored only as the GitHub secret `TWELVEDATA_API_KEY` (§5.2). |
-| Usage / licensing | Non-commercial: no ads and no affiliate links, which the free plan covers. Footer attribution: "Market data: Twelve Data". **If monetization is added later, upgrade the data plan first.** |
+| Price API | Silver: Alpha Vantage (free), with high/low estimated from SLV on Twelve Data. Gold and bitcoin: Twelve Data free plan. Keys are stored only as GitHub secrets (§5.2). |
+| Usage / licensing | Non-commercial: no ads and no affiliate links, which the free plan covers. Footer attribution: "Market data: Twelve Data, Alpha Vantage". **If monetization is added later, upgrade the data plan first.** |
 | Analyst targets | `analysts.json`, reviewed monthly by the author (§5.6) |
 
 **Still open (not blocking M1–M4):**
