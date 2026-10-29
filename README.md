@@ -6,7 +6,7 @@ See [`docs/TECHNICAL-TASK.md`](docs/TECHNICAL-TASK.md) for the full specificatio
 
 ## Status
 - [x] **M1: repo setup and data.** Astro skeleton, price pipeline and silver history since 2011.
-- [ ] M2: forecast models and technical analysis
+- [x] **M2: forecast models and technical analysis.** ARIMA, trend + mean reversion, Monte Carlo, consensus, backtest; 12 oscillators, 12 moving averages and 5 pivot sets on daily/weekly/monthly.
 - [ ] M3: design system and `/styleguide`
 - [ ] M4: hub and silver pages
 - [ ] M5: SEO and daily automation

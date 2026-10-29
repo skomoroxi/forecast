@@ -1,0 +1,104 @@
+{
+  "$defs": {
+    "Bar": {
+      "properties": {
+        "date": {
+          "format": "date",
+          "title": "Date",
+          "type": "string"
+        },
+        "open": {
+          "exclusiveMinimum": 0,
+          "title": "Open",
+          "type": "number"
+        },
+        "high": {
+          "exclusiveMinimum": 0,
+          "title": "High",
+          "type": "number"
+        },
+        "low": {
+          "exclusiveMinimum": 0,
+          "title": "Low",
+          "type": "number"
+        },
+        "close": {
+          "exclusiveMinimum": 0,
+          "title": "Close",
+          "type": "number"
+        },
+        "volume": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Volume"
+        },
+        "ohlc": {
+          "default": "actual",
+          "enum": [
+            "actual",
+            "proxy",
+            "close"
+          ],
+          "title": "Ohlc",
+          "type": "string"
+        }
+      },
+      "required": [
+        "date",
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "title": "Bar",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "asset": {
+      "title": "Asset",
+      "type": "string"
+    },
+    "symbol": {
+      "title": "Symbol",
+      "type": "string"
+    },
+    "currency": {
+      "title": "Currency",
+      "type": "string"
+    },
+    "source": {
+      "title": "Source",
+      "type": "string"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    },
+    "bars": {
+      "items": {
+        "$ref": "#/$defs/Bar"
+      },
+      "title": "Bars",
+      "type": "array"
+    }
+  },
+  "required": [
+    "asset",
+    "symbol",
+    "currency",
+    "source",
+    "updated_at",
+    "bars"
+  ],
+  "title": "PriceHistory",
+  "type": "object"
+}

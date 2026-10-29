@@ -47,7 +47,7 @@
 |---|---|---|
 | Static site | **Astro 7** (TypeScript, `output: "static"`; Node ≥ 22.23) | Hand-written CSS with custom properties, following `docs/DESIGN.md`. No Tailwind or UI kit. |
 | Charts | **TradingView Lightweight Charts 4.x** (price, forecast, bands); **Apache ECharts 5** for the gauges only, tree-shaken | Loaded lazily (below the fold). |
-| Data pipeline | **Python 3.12** with `pandas`, `numpy`, `statsmodels`, `pmdarima` (or `statsforecast`), `prophet`, `TA-Lib` (pip wheels), `requests`, `pydantic`, `jinja2` (text templates) | Dependencies pinned in `pipeline/requirements.txt`. |
+| Data pipeline | **Python 3.12** with `pandas`, `numpy`, `statsmodels` (indicators written in pandas), `requests`, `pydantic`, `jinja2` (text templates) | Dependencies pinned in `pipeline/requirements.txt`. |
 | Storage | **JSON files** in `data/` committed to the repo | No database. |
 | CI / scheduler | **GitHub Actions** | Daily cron plus manual `workflow_dispatch`. |
 | Hosting / CDN | **Cloudflare Pages** | Build command `npm run build`, output `dist/`, Node 20. |
@@ -66,7 +66,7 @@ forecast/
 │  ├─ requirements.txt
 │  ├─ run.py                   # entry point: python -m pipeline.run [--asset silver]
 │  ├─ sources/                 # twelvedata.py, fallback_source.py (common interface)
-│  ├─ forecast/                # arima.py, prophet_model.py, montecarlo.py, consensus.py, backtest.py
+│  ├─ forecast/                # arima.py, reversion.py, montecarlo.py, build.py, backtest.py
 │  ├─ ta/                      # indicators.py, moving_averages.py, pivots.py, summary.py
 │  ├─ text/                    # generator.py + templates/*.j2 (several variants per sentence)
 │  ├─ schemas.py               # pydantic models = JSON contract with the site
@@ -148,37 +148,65 @@ forecast/
 **Licensing:** the site is non-commercial, which the free plans cover. The footer credits "Market data: Twelve Data, Alpha Vantage".
 
 ### 5.3 Forecast models
-All models work on **log prices** and all output is converted back to USD. Forecast dates follow the asset calendar (`fx`: business days, no weekends).
+All models work on **log prices**, and all output is converted back to USD. Forecast dates follow the asset calendar (`fx`: business days, no weekends). Every method reports an **80% interval** (P10–P90).
 
-| Method | Implementation | Training window | Output |
+| Method | Implementation | Data window | Output |
 |---|---|---|---|
-| **M1: ARIMA** | `auto_arima` on log close, `seasonal=False`, chosen by AIC. Prediction intervals at 80%. | Last 3 years of daily data | Daily path + 80% interval |
-| **M2: Prophet** | Yearly + weekly seasonality, `changepoint_prior_scale` 0.05 (tunable in config), `interval_width=0.8` | Last 10 years | Daily path + interval |
-| **M3: Monte Carlo (GBM)** | Drift μ and volatility σ from daily log returns. 10,000 paths, fixed seed per run date (reproducible). | μ from 10 years, σ from 3 years | Median path + P10 / P90 |
-| **Consensus** | Simple mean of M1–M3 per date. Its range is the min of the lower bounds and the max of the upper bounds. | — | Daily path + range |
+| **M1: ARIMA** | `statsmodels` ARIMA(p,1,q). The grid is p, q ∈ 0..3, with drift on or off, and the lowest AIC wins. | Last 5 years | Daily path + 80% interval |
+| **M2: Trend + mean reversion** | `log price = a + b·t + e_t`, with an AR(1) deviation `e_t = φ·e_(t-1) + ε` (a discrete Ornstein-Uhlenbeck process). The forecast decays today's deviation back toward the trend line, with half-life `ln 0.5 / ln φ`. | All history, up to 20 years | Daily path + 80% interval |
+| **M3: Monte Carlo (GBM)** | Drift μ and volatility σ from daily log returns. 10,000 paths, simulated step by step; the seed is the run date, so results are reproducible. | μ from 10 years, σ from 3 years | Median path + P10 / P90 |
+| **Consensus** | Mean of the methods that passed the sanity check, per date. Its range is the min of the lower bounds and the max of the upper bounds. | — | Daily path + range |
+
+**Why not Prophet (decided in M2, 2026-10-29).** Prophet was tested on silver and dropped. It extends its last trend segment for years, which here is either the January 2026 spike or the crash after it. Its 2035 value ranged from $0.30 to $221 depending on settings. The trend + mean-reversion model gives a stable, explainable view that differs from the other two:
+- **ARIMA** = momentum / "no change". On current data AIC chooses no drift, so it is flat.
+- **Trend + reversion** = pull back toward the long-run trend.
+- **Monte Carlo** = continuation of the 10-year drift.
 
 **Horizons:**
-- **Daily:** the next 30 calendar days (business days only for `fx`).
-- **Monthly:** every month from the current month to **Dec 2030**, with avg / min / max of each method's daily path inside the month. Min and max come from the interval bounds.
-- **Yearly:** 2031–2035, yearly avg per method. Only M2, M3 and the consensus are shown here, because ARIMA reverts to drift and adds no information at this horizon.
+- **Daily:** business days within the next 30 calendar days of the run date.
+- **Monthly:** every month from the current month to **Dec 2030**, per method:
+  - `avg` = the mean of the daily central path in the month
+  - `min` / `max` = the lowest P10 and highest P90 in the month
 
-**Sanity guard:** if any method produces non-finite values, or values outside [0.1×, 10×] of the current price within 5 years, drop that method from the run, mark it `"status": "failed"` in the JSON, and compute the consensus from the rest.
+  The site must label these "Low (P10)" and "High (P90)", not as hard minimum/maximum prices.
+- **Yearly:** 2031–2035, yearly mean of **trend + reversion** and **Monte Carlo** only (ARIMA is flat or pure drift at that range), plus their consensus and the band means `p10` / `p90`.
 
-**Accuracy (backtest):**
-- Every run is archived to `data/silver/history/`.
-- A rolling job computes the **MAPE per method** for 1-, 7- and 30-day horizons from the archived forecasts vs actual closes.
-- Until 30+ days of archive exist, fall back to a **walk-forward backtest** on history: the last 250 origins, at the same horizons.
-- The result goes into `forecast.json → accuracy`.
+**Sanity guard:** if a method produces non-finite values, or a path outside [0.1×, 10×] of the current price within 5 years, it is marked `"status": "failed"` with the error, and the consensus is computed from the rest.
+
+**Accuracy (MAPE):**
+- **Walk-forward backtest:** 50 origins, every 5 trading days, over roughly the last year. At each origin the methods are refit on data up to that day; ARIMA keeps today's chosen order. Each forecast is compared with the actual close **1, 5 and 21 trading days** later (labelled 1d / 7d / 30d).
+  - For speed, Monte Carlo uses its analytic median (`S0·e^(μh)`), which equals the simulated median.
+- **Live:** every run archives its daily table to `data/<asset>/history/forecast-<date>.json`. Once there are **30+ matched samples** per horizon, accuracy switches to the live track record (`"basis": "live"`).
+- `--no-backtest` reuses the previous figures.
+
+**First run (2026-10-29, silver $54.25):**
+- **Consensus:** about $54.0 at the end of November 2026, $59.5 in December 2030, $93 in 2035.
+- **Walk-forward MAPE:** about 2.9% (1d), 6.8% (7d) and 13.5% (30d), nearly the same for all methods.
+- **Runtime:** about 15 s per asset, including the backtest.
 
 ### 5.4 Technical analysis
-Computed on daily bars, and on weekly and monthly bars resampled from daily (timeframes **D / W / M**):
+Implemented in pandas (`pipeline/ta/`), with no TA-Lib dependency. Computed on daily bars, and on weekly (`W-FRI`) and monthly bars resampled from daily (timeframes **D / W / M**). The current week or month is still in progress and is included. For silver, high/low are SLV-based estimates (`"ohlc_basis": "proxy"`); /methodology/ must say so.
 
-- **Oscillators** (each gives Buy / Sell / Neutral): RSI(14), STOCH(9,6), StochRSI(14), MACD(12,26,9), ADX(14) with ±DI, Williams %R(14), CCI(14), ATR(14) (volatility, no signal), Highs/Lows(14), Ultimate Oscillator(7,14,28), ROC(12), Bull/Bear Power(13).
-- **Moving averages:** SMA and EMA for 5, 10, 20, 50, 100 and 200. Signal: Buy if the price is above the MA, Sell if below.
-- **Pivot points:** Classic, Fibonacci, Camarilla, Woodie and DeMark, with S3–R3 levels (DeMark: S1/R1), from the previous period's high, low and close.
-- **Signal rules:** document them in `ta/summary.py` and on `/methodology/`. Example: RSI < 30 → Buy, > 70 → Sell, else Neutral. MACD above signal → Buy.
-- **Summary:** score = (buys − sells) / counted. Map to: ≤ −0.5 Strong Sell, < −0.1 Sell, ≤ 0.1 Neutral, < 0.5 Buy, ≥ 0.5 Strong Buy. Compute it separately for oscillators, for MAs and overall.
-- **Volume:** XAG/USD spot has no reliable volume, so volume-based indicators are excluded for this asset (config flag `has_volume: false`).
+**Signal rules** (`pipeline/ta/rules.py`). Inside an overbought or oversold zone the action is shown as such and **counted as neutral**:
+
+| Indicator | Buy | Sell | Zones |
+|---|---|---|---|
+| RSI(14) | > 50 | < 50 | overbought > 70, oversold < 30 |
+| STOCH(9,6): slow %K | > 50 | < 50 | > 80 / < 20 |
+| StochRSI(14) | > 50 | < 50 | > 80 / < 20 |
+| MACD(12,26,9): MACD line | > 0 | < 0 | (signal line reported) |
+| ADX(14) | ADX ≥ 25 and +DI > −DI | ADX ≥ 25 and −DI > +DI | ADX < 25 → neutral |
+| Williams %R(14) | > −50 | < −50 | > −20 / < −80 |
+| CCI(14) | > 0 | < 0 | > 200 / < −200 |
+| ATR(14) | — | — | high/low volatility vs its 14-bar average; **not counted** |
+| Highs/Lows(14) | > 0 | < 0 | |
+| Ultimate Oscillator(7,14,28) | > 50 | < 50 | > 70 / < 30 |
+| ROC(12) | > 0 | < 0 | |
+| Bull/Bear Power(13) | > 0 | < 0 | |
+| SMA / EMA 5, 10, 20, 50, 100, 200 | price > MA | price < MA | MA omitted if there is too little history |
+
+- **Pivot points:** Classic, Fibonacci, Camarilla, Woodie (S3–R3) and DeMark (S1/R1). Daily pivots come from the last finished day; weekly and monthly pivots from the previous finished week or month.
+- **Summary:** score = (buys − sells) / counted, computed separately for oscillators, for MAs and overall. Mapping: ≤ −0.5 Strong Sell, < −0.1 Sell, ≤ 0.1 Neutral, < 0.5 Buy, ≥ 0.5 Strong Buy.
 
 ### 5.5 Generated text (`text.json`)
 - **Jinja2 templates** fed by the numbers. At least **3 variants per sentence**, picked deterministically by a hash of `(asset, date, block)`, so the text changes day to day but stays stable within a day.
@@ -257,10 +285,10 @@ Pydantic models in `pipeline/schemas.py` are the single source of truth. Export 
 ```json
 {
   "asset": "silver", "generated_at": "2026-10-29T01:10:00Z", "last_close": {"date": "2026-10-28", "price": 52.81},
-  "methods": { "arima": {"status": "ok", "params": {...}}, "prophet": {...}, "montecarlo": {...} },
-  "daily":   [ {"date": "2026-10-30", "arima": 52.9, "prophet": 53.1, "montecarlo": 52.8, "consensus": 52.93, "low": 50.6, "high": 55.2} ],
-  "monthly": [ {"month": "2026-11", "arima": {"avg": 53.4, "min": 50.1, "max": 56.9}, "prophet": {...}, "montecarlo": {...}, "consensus": {...}} ],
-  "yearly":  [ {"year": 2031, "prophet": 61.2, "montecarlo": 63.0, "consensus": 62.1, "p10": 38.0, "p90": 104.0} ],
+  "methods": { "arima": {"status": "ok", "params": {...}}, "reversion": {...}, "montecarlo": {...} },
+  "daily":   [ {"date": "2026-10-30", "arima": 52.9, "reversion": 53.1, "montecarlo": 52.8, "consensus": 52.93, "low": 50.6, "high": 55.2} ],
+  "monthly": [ {"month": "2026-11", "arima": {"avg": 53.4, "min": 50.1, "max": 56.9}, "reversion": {...}, "montecarlo": {...}, "consensus": {...}} ],
+  "yearly":  [ {"year": 2031, "reversion": 61.2, "montecarlo": 63.0, "consensus": 62.1, "p10": 38.0, "p90": 104.0} ],
   "accuracy": { "arima": {"mape_1d": 0.9, "mape_7d": 2.8, "mape_30d": 6.1, "basis": "walk-forward"} }
 }
 ```
@@ -290,7 +318,7 @@ Block order and content follow `docs/SEO-silver.md` (structure) and `docs/DESIGN
 | 2 | Hero: H1 "Silver Price Prediction & Forecast 2026–2030", intro, disclaimer, "Updated {date}" | text.json | |
 | 3 | Key forecast summary: 3 forecast cards (30 days / end of 2026 / 2030) + TA verdict pill | forecast.json, ta.json | Above the fold on desktop |
 | 4 | Price chart: history with 1M/6M/1Y/5Y/10Y/All, plus 3 dashed forecast lines and the MC P10–P90 band, plus a quick-period strip (1D/1W/1M/6M/YTD) | prices.json, forecast.json | Lazy-loaded JS; static `<noscript>` summary |
-| 5 | H2 "Silver price forecast for the next 30 days": text + daily table (Date, ARIMA, Prophet, Monte Carlo, Consensus, Low–High) | forecast.daily | First 10 rows visible, "Show all" |
+| 5 | H2 "Silver price forecast for the next 30 days": text + daily table (Date, ARIMA, Trend + reversion, Monte Carlo, Consensus, Low–High) | forecast.daily | First 10 rows visible, "Show all" |
 | 6 | H2 "Silver price forecast 2026": text + monthly table for the remaining months | forecast.monthly | |
 | 7 | H2 "Silver price prediction 2027–2030": yearly summary table, then an H3 per year with text + monthly table (Month, Min, Avg, Max, change vs today) | forecast.monthly | 2030 uses the dark variant |
 | 8 | H2 "Silver price outlook to 2035": yearly table with P10–P90 + uncertainty note | forecast.yearly | |
@@ -366,7 +394,7 @@ Owner design decisions:
   5. if the data changed, commit `data/**` as `github-actions[bot]` with the message `data: daily update YYYY-MM-DD`, and push to `main`
 - **Secrets:** `TWELVEDATA_API_KEY`, `ALPHAVANTAGE_API_KEY`. Permissions: `contents: write` only.
 - **On failure:** the workflow fails, which triggers GitHub's e-mail notification. No commit is made, so the site keeps the last good data. A failed or stale run also shows a small "data as of {date}" note on the page (the site checks whether `generated_at` is older than 48h).
-- **Runtime budget:** under 10 minutes per run (Prophet and 10k Monte Carlo paths on one asset are well within this).
+- **Runtime budget:** under 10 minutes per run (one asset takes about 15 s).
 
 **Cloudflare Pages:**
 - Connect the repo; production branch `main`; build `npm ci && npm run build`; output `dist`; Node 20.
@@ -402,7 +430,7 @@ Owner design decisions:
 | # | Milestone | Deliverables | Est. |
 |---|---|---|---|
 | M1 | Repo setup + data | Astro skeleton, CLAUDE.md, docs/, the source adapter, history backfill, `prices.json` | 1–2 days |
-| M2 | Models and TA | ARIMA / Prophet / MC / consensus, backtest, TA + summary, pytest, JSON schemas | 3–4 days |
+| M2 | Models and TA | ARIMA / trend + reversion / MC / consensus, backtest, TA + summary, pytest, JSON schemas. Done 2026-10-29 | 3–4 days |
 | M3 | Design system | tokens, components, `/styleguide` → owner approval | 2–3 days |
 | M4 | Pages | Hub, silver page, service pages, text templates, FAQ | 3 days |
 | M5 | SEO + automation | JSON-LD, sitemap, OG images, daily workflow, Cloudflare, CI, Lighthouse | 1–2 days |

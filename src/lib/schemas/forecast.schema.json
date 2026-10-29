@@ -1,0 +1,402 @@
+{
+  "$defs": {
+    "Accuracy": {
+      "properties": {
+        "mape_1d": {
+          "title": "Mape 1D",
+          "type": "number"
+        },
+        "mape_7d": {
+          "title": "Mape 7D",
+          "type": "number"
+        },
+        "mape_30d": {
+          "title": "Mape 30D",
+          "type": "number"
+        },
+        "basis": {
+          "enum": [
+            "walk-forward",
+            "live"
+          ],
+          "title": "Basis",
+          "type": "string"
+        },
+        "samples": {
+          "title": "Samples",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "mape_1d",
+        "mape_7d",
+        "mape_30d",
+        "basis",
+        "samples"
+      ],
+      "title": "Accuracy",
+      "type": "object"
+    },
+    "Band": {
+      "properties": {
+        "avg": {
+          "title": "Avg",
+          "type": "number"
+        },
+        "min": {
+          "title": "Min",
+          "type": "number"
+        },
+        "max": {
+          "title": "Max",
+          "type": "number"
+        }
+      },
+      "required": [
+        "avg",
+        "min",
+        "max"
+      ],
+      "title": "Band",
+      "type": "object"
+    },
+    "DailyRow": {
+      "properties": {
+        "date": {
+          "format": "date",
+          "title": "Date",
+          "type": "string"
+        },
+        "arima": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Arima"
+        },
+        "reversion": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reversion"
+        },
+        "montecarlo": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Montecarlo"
+        },
+        "consensus": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consensus"
+        },
+        "low": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Low"
+        },
+        "high": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "High"
+        }
+      },
+      "required": [
+        "date"
+      ],
+      "title": "DailyRow",
+      "type": "object"
+    },
+    "LastClose": {
+      "properties": {
+        "date": {
+          "format": "date",
+          "title": "Date",
+          "type": "string"
+        },
+        "price": {
+          "title": "Price",
+          "type": "number"
+        }
+      },
+      "required": [
+        "date",
+        "price"
+      ],
+      "title": "LastClose",
+      "type": "object"
+    },
+    "MethodInfo": {
+      "properties": {
+        "status": {
+          "enum": [
+            "ok",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "status",
+        "params"
+      ],
+      "title": "MethodInfo",
+      "type": "object"
+    },
+    "MonthlyRow": {
+      "properties": {
+        "month": {
+          "title": "Month",
+          "type": "string"
+        },
+        "arima": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Band"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reversion": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Band"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "montecarlo": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Band"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "consensus": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Band"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "month"
+      ],
+      "title": "MonthlyRow",
+      "type": "object"
+    },
+    "YearlyRow": {
+      "properties": {
+        "year": {
+          "title": "Year",
+          "type": "integer"
+        },
+        "reversion": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reversion"
+        },
+        "montecarlo": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Montecarlo"
+        },
+        "consensus": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consensus"
+        },
+        "p10": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P10"
+        },
+        "p90": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P90"
+        }
+      },
+      "required": [
+        "year"
+      ],
+      "title": "YearlyRow",
+      "type": "object"
+    }
+  },
+  "description": "data/<asset>/forecast.json",
+  "properties": {
+    "asset": {
+      "title": "Asset",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "run_date": {
+      "format": "date",
+      "title": "Run Date",
+      "type": "string"
+    },
+    "last_close": {
+      "$ref": "#/$defs/LastClose"
+    },
+    "methods": {
+      "additionalProperties": {
+        "$ref": "#/$defs/MethodInfo"
+      },
+      "title": "Methods",
+      "type": "object"
+    },
+    "daily": {
+      "items": {
+        "$ref": "#/$defs/DailyRow"
+      },
+      "title": "Daily",
+      "type": "array"
+    },
+    "monthly": {
+      "items": {
+        "$ref": "#/$defs/MonthlyRow"
+      },
+      "title": "Monthly",
+      "type": "array"
+    },
+    "yearly": {
+      "items": {
+        "$ref": "#/$defs/YearlyRow"
+      },
+      "title": "Yearly",
+      "type": "array"
+    },
+    "accuracy": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Accuracy"
+      },
+      "title": "Accuracy",
+      "type": "object"
+    }
+  },
+  "required": [
+    "asset",
+    "generated_at",
+    "run_date",
+    "last_close",
+    "methods",
+    "daily",
+    "monthly",
+    "yearly",
+    "accuracy"
+  ],
+  "title": "Forecast",
+  "type": "object"
+}

@@ -131,7 +131,7 @@ Rules:
   - The y-axis is on the right, with a price tag in the line color for the last value.
   - Light horizontal gridlines `#F0F0F0`, no vertical gridlines. X-axis labels are 11px muted.
   - An optional faint serif wordmark watermark, top right, at 10% opacity (our own logo only).
-  - **Our addition:** forecast series after "today", drawn dashed (ARIMA, Prophet, Monte Carlo median) with the Monte Carlo 10–90% band as a light fill. Add a legend under the controls.
+  - **Our addition:** forecast series after "today", drawn dashed (ARIMA, trend + reversion, Monte Carlo median) with the Monte Carlo 10–90% band as a light fill. Add a legend under the controls.
 - **Quick-period strip** under the chart: 5 equal cells (1 day, 1 week, 1 month, 6 months, Year to date) inside a `--gray-200` hairline box, radius 6. Each cell is centered, with the label at 13px muted and the % (15px, weight 500) colored up or down. Cells are separated by hairlines.
 - Library: TradingView Lightweight Charts (preferred) or Chart.js 4. Style either one to the spec above.
 

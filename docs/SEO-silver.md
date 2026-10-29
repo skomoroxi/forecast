@@ -112,10 +112,10 @@
 **Expected format:** direct verdict with evidence + attribute table (method → MAPE by horizon)
 **User Journey Stage:** Evaluation
 **Demand:** estimated (no direct keyword; trust signal required on a YMYL page)
-**Content Angle:** Plain-language explanation of ARIMA, Prophet and Monte Carlo, the data source and update time, a live track-record table of past forecasts vs actual prices, and a not-financial-advice disclaimer.
+**Content Angle:** Plain-language explanation of ARIMA, trend + mean reversion and Monte Carlo, the data source and update time, a live track-record table of past forecasts vs actual prices, and a not-financial-advice disclaimer.
 
 **EAV Slots:**
-- ARIMA / Prophet / Monte Carlo → 30-day MAPE → TO-RESEARCH (%, from backtest)
+- ARIMA / trend + reversion / Monte Carlo → 30-day MAPE → TO-RESEARCH (%, from backtest)
 - Forecast → data source and update time → TO-RESEARCH (provider, UTC time)
 - Forecast → regulated_by → TO-RESEARCH (disclaimer / not investment advice)
 
@@ -309,7 +309,7 @@ The page is table-heavy by nature, so 4 (verdict), 8 (ranked list) and 11 (check
 ## Pipeline Handoff Notes
 Key entities:
 - **XAG/USD spot price** — the base of every number on the page — 1, 2, 3, 4, 7, 9
-- **Forecast models (ARIMA, Prophet, Monte Carlo/GBM)** — the methodology and trust signal — 1, 2, 3, 4, 6
+- **Forecast models (ARIMA, trend + mean reversion, Monte Carlo/GBM)** — the methodology and trust signal — 1, 2, 3, 4, 6
 - **Silver Institute / World Silver Survey** — the source for the deficit and demand figures — 8
 - **Institutional forecasters (JPMorgan, BofA, UBS, Goldman Sachs, HSBC, Citi, World Bank, LBMA)** — the consensus table — 5
 - **Gold (XAU/USD) and the gold/silver ratio** — the comparison and cross-link to the gold page — 10
@@ -353,7 +353,7 @@ Excluded noise: "nate silver …" (elections), which appears because of the word
 | 0 | Breadcrumbs · H1 · "Updated {date} {time} UTC" · methodology byline | Live price, 24h % change | 6 | silver price prediction |
 | 1 | **Key forecast summary** (box above the fold) | 3–4 sentence BLUF: price in 30 days, end of 2026, 2030 (consensus), TA signal today. Generated daily | 1, 2, 3, 7 | silver price forecast 2026 |
 | 2 | Chart | History + 3 forecast lines + Monte Carlo band; 1M/1Y/5Y/10Y toggles | 1, 9 | silver price chart |
-| 3 | H2 **Silver price forecast for the next 30 days** | Daily table (date, ARIMA, Prophet, Monte Carlo, consensus, low–high) + trend text; H3 "Tomorrow and next week" | 1 | prediction for next week, tomorrow |
+| 3 | H2 **Silver price forecast for the next 30 days** | Daily table (date, ARIMA, trend + reversion, Monte Carlo, consensus, low–high) + trend text; H3 "Tomorrow and next week" | 1 | prediction for next week, tomorrow |
 | 4 | H2 **Silver price forecast for 2026** | Remaining months avg/min/max + end-of-year figure | 2 | forecast 2026, end of 2026 |
 | 5 | H2 **Silver price prediction for the next 5 years (2027–2030)** | Yearly summary comparison table, then H3 per year (2027, 2028, 2029, 2030) with monthly tables | 3 | next 5 years, 2027, 2030 |
 | 6 | H2 **Silver price outlook for the next 10 years (2031–2035)** | Yearly table + uncertainty caveat | 4 | next 10 years, 2035 |

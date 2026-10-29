@@ -1,0 +1,281 @@
+{
+  "$defs": {
+    "MAValue": {
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        },
+        "action": {
+          "anyOf": [
+            {
+              "enum": [
+                "buy",
+                "sell",
+                "neutral"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Action"
+        }
+      },
+      "required": [
+        "value",
+        "action"
+      ],
+      "title": "MAValue",
+      "type": "object"
+    },
+    "MovingAverage": {
+      "properties": {
+        "period": {
+          "title": "Period",
+          "type": "integer"
+        },
+        "simple": {
+          "$ref": "#/$defs/MAValue"
+        },
+        "exponential": {
+          "$ref": "#/$defs/MAValue"
+        }
+      },
+      "required": [
+        "period",
+        "simple",
+        "exponential"
+      ],
+      "title": "MovingAverage",
+      "type": "object"
+    },
+    "Oscillator": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        },
+        "action": {
+          "title": "Action",
+          "type": "string"
+        },
+        "signal_line": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Signal Line"
+        },
+        "plus_di": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Plus Di"
+        },
+        "minus_di": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Minus Di"
+        }
+      },
+      "required": [
+        "name",
+        "value",
+        "action"
+      ],
+      "title": "Oscillator",
+      "type": "object"
+    },
+    "Summary": {
+      "properties": {
+        "oscillators": {
+          "$ref": "#/$defs/Tally"
+        },
+        "moving_averages": {
+          "$ref": "#/$defs/Tally"
+        },
+        "overall": {
+          "$ref": "#/$defs/Tally"
+        }
+      },
+      "required": [
+        "oscillators",
+        "moving_averages",
+        "overall"
+      ],
+      "title": "Summary",
+      "type": "object"
+    },
+    "Tally": {
+      "properties": {
+        "buy": {
+          "title": "Buy",
+          "type": "integer"
+        },
+        "sell": {
+          "title": "Sell",
+          "type": "integer"
+        },
+        "neutral": {
+          "title": "Neutral",
+          "type": "integer"
+        },
+        "verdict": {
+          "enum": [
+            "strong_sell",
+            "sell",
+            "neutral",
+            "buy",
+            "strong_buy"
+          ],
+          "title": "Verdict",
+          "type": "string"
+        }
+      },
+      "required": [
+        "buy",
+        "sell",
+        "neutral",
+        "verdict"
+      ],
+      "title": "Tally",
+      "type": "object"
+    },
+    "Timeframe": {
+      "properties": {
+        "bar_date": {
+          "format": "date",
+          "title": "Bar Date",
+          "type": "string"
+        },
+        "close": {
+          "title": "Close",
+          "type": "number"
+        },
+        "oscillators": {
+          "items": {
+            "$ref": "#/$defs/Oscillator"
+          },
+          "title": "Oscillators",
+          "type": "array"
+        },
+        "moving_averages": {
+          "items": {
+            "$ref": "#/$defs/MovingAverage"
+          },
+          "title": "Moving Averages",
+          "type": "array"
+        },
+        "pivots": {
+          "additionalProperties": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object"
+          },
+          "title": "Pivots",
+          "type": "object"
+        },
+        "summary": {
+          "$ref": "#/$defs/Summary"
+        }
+      },
+      "required": [
+        "bar_date",
+        "close",
+        "oscillators",
+        "moving_averages",
+        "pivots",
+        "summary"
+      ],
+      "title": "Timeframe",
+      "type": "object"
+    }
+  },
+  "description": "data/<asset>/ta.json",
+  "properties": {
+    "asset": {
+      "title": "Asset",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "run_date": {
+      "format": "date",
+      "title": "Run Date",
+      "type": "string"
+    },
+    "ohlc_basis": {
+      "enum": [
+        "actual",
+        "proxy"
+      ],
+      "title": "Ohlc Basis",
+      "type": "string"
+    },
+    "timeframes": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Timeframe"
+      },
+      "propertyNames": {
+        "enum": [
+          "daily",
+          "weekly",
+          "monthly"
+        ]
+      },
+      "title": "Timeframes",
+      "type": "object"
+    }
+  },
+  "required": [
+    "asset",
+    "generated_at",
+    "run_date",
+    "ohlc_basis",
+    "timeframes"
+  ],
+  "title": "TechnicalAnalysis",
+  "type": "object"
+}
