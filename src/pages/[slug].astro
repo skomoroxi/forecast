@@ -16,6 +16,7 @@ import { assetData, consensusAt, visibleAnalysts, type AssetId } from '../lib/da
 import { date, dateTimeUtc, money, number, VERDICT_LABEL } from '../lib/format';
 import { Writer, yearlyHistory } from '../lib/text';
 import { CONTENT } from '../lib/assetContent';
+import { article, breadcrumbs, dataset } from '../lib/seo';
 import {
   accuracyTable, analystsTable, dailyTable, historyTable, longTermTable, monthlyTable, yearSummaryTable,
 } from '../lib/tables';
@@ -68,9 +69,25 @@ const faq = w.faq();
 
 const title = `${N} Price Prediction ${runYear}–${lastMonthlyYear}: Daily & 5-Year Forecast`;
 const description = `${N} price forecast for tomorrow, next 30 days, end of ${runYear} and ${runYear + 1}–${lastMonthlyYear}. Three models, analyst consensus and live technical analysis. Updated daily.`;
+const site = Astro.site!;
+const path = `/${asset.slug}/`;
+const ogImage = `/og/${asset.slug}.png`;
+const jsonLd = [
+  breadcrumbs(site, [{ name: 'Home', path: '/' }, { name: `${N} price prediction`, path }]),
+  ...article(site, { path, headline: `${N} Price Prediction & Forecast ${runYear}–${lastMonthlyYear}`, description, modified: fc.generated_at, image: ogImage }),
+  dataset(site, {
+    path,
+    asset: N,
+    name: `${N} price forecast ${runYear}–${lastYearly ?? lastMonthlyYear}`,
+    description: `Daily, monthly and yearly ${n} price forecasts from ARIMA, trend + mean reversion and Monte Carlo models, with 80% ranges. Recalculated daily.`,
+    from: fc.daily[0].date,
+    to: `${lastYearly ?? lastMonthlyYear}-12-31`,
+    modified: fc.generated_at,
+  }),
+];
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} jsonLd={jsonLd} ogImage={ogImage} ogType="article">
   <Hero
     title={`${N} Price Prediction & Forecast ${runYear}–${lastMonthlyYear}`}
     updated={`Updated ${dateTimeUtc(fc.generated_at)} · Reviewed by Margerie Holtz`}
@@ -86,6 +103,9 @@ const description = `${N} price forecast for tomorrow, next 30 days, end of ${ru
   <section id="summary" class="section section--white">
     <div class="container">
       <h2>{N} forecast at a glance</h2>
+      <p class="stale" role="status" data-generated={fc.generated_at} hidden>
+        The daily update is delayed: these forecasts use data as of {date(fc.last_close.date)}.
+      </p>
       <p class="lead">{w.summary()}</p>
       <div class="glance">
         <ForecastCard label="In 30 days" value={money(in30)} meta={updatedLine} change={pct(in30)} />
@@ -311,7 +331,21 @@ const description = `${N} price forecast for tomorrow, next 30 days, end of ${ru
   </section>
 </BaseLayout>
 
+<script>
+  // Static page, so staleness is checked in the browser: warn if the last update is > 48 h old.
+  document.querySelectorAll<HTMLElement>('.stale[data-generated]').forEach((el) => {
+    if (Date.now() - Date.parse(el.dataset.generated!) > 48 * 3600 * 1000) el.hidden = false;
+  });
+</script>
+
 <style>
+  .stale {
+    margin: 8px 0 16px;
+    padding: 10px 14px;
+    border-left: 3px solid var(--down);
+    background: var(--gray-50);
+    font-size: 15px;
+  }
   .crumbs {
     font-size: 13px;
     letter-spacing: normal;

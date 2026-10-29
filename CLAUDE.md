@@ -20,4 +20,6 @@ Static price-forecast site: an Astro front end plus a Python data pipeline, upda
 - `.venv/Scripts/python -m pytest -q pipeline`: pipeline tests
 - `.venv/Scripts/python -m pipeline.run [--asset silver] [--backfill] [--allow-jumps] [--no-backtest] [--force]`
 - `.venv/Scripts/python -m pipeline.export_schemas`: regenerate `src/lib/schemas/*.schema.json` after changing `schemas.py`
-- `npm install`, `npm run check`, `npm run build`, `npm run dev`
+- `.venv/Scripts/python -m pipeline.validate`: validate every data file against the contract
+- `npm install`, `npm run check`, `npm run build`, `npm run dev`, `node scripts/smoke.mjs` (after a build)
+- Indexing is off unless the build has `INDEXING=on` (launch only). Deployment and operations: `docs/DEPLOY.md`.

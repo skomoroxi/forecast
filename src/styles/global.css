@@ -157,7 +157,7 @@ a:visited {
   color: var(--muted-on-dark);
 }
 
-.section--dark a {
+.section--dark a:not(.btn) {
   color: #8fa2ff;
 }
 

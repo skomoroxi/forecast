@@ -383,6 +383,8 @@ Owner design decisions:
 | Internal links | Hub ↔ asset; asset → methodology; "how to buy silver" placeholder link reserved (next page in the plan) |
 | E-E-A-T (YMYL) | Author block, methodology, accuracy, disclaimer, About and Contact (e-mail) |
 | Analytics | Cloudflare Web Analytics (cookieless, so no consent banner is needed). Google Search Console verification via DNS. |
+| Indexing switch | Every page is `noindex` and `robots.txt` blocks everything unless the build has `INDEXING=on` (set at launch). `/styleguide/` is always `noindex`. |
+| Fonts | Self-hosted (`@fontsource`), with the latin 400 files preloaded and CSS inlined: no third-party requests on page load. |
 
 ## 9. Automation and deployment
 
@@ -435,7 +437,7 @@ Owner design decisions:
 | M2 | Models and TA | ARIMA / trend + reversion / MC / consensus, backtest, TA + summary, pytest, JSON schemas. Done 2026-10-29 | 3–4 days |
 | M3 | Design system | tokens, components, `/styleguide` → owner approval. Built 2026-10-29, awaiting approval | 2–3 days |
 | M4 | Pages | Hub, silver page, service pages, text templates, FAQ. Done 2026-10-29 | 3 days |
-| M5 | SEO + automation | JSON-LD, sitemap, OG images, daily workflow, Cloudflare, CI, Lighthouse | 1–2 days |
+| M5 | SEO + automation | JSON-LD, sitemap, OG images, daily workflow, Cloudflare, CI, Lighthouse. Code done 2026-10-29; Cloudflare connection by the owner (docs/DEPLOY.md) | 1–2 days |
 | M6 | QA and launch | acceptance checks §11, Search Console, 7 days of unattended runs | 1 week elapsed |
 
 ## 13. Owner decisions and remaining questions

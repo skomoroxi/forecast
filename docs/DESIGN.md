@@ -59,7 +59,7 @@ Stack context: the small site is Astro (static) with plain CSS. Put the tokens i
 }
 ```
 
-Load fonts from Google Fonts: `Old+Standard+TT:ital,wght@0,400;0,700;1,400` and `Inter:wght@400;500;700`, with `display=swap`.
+Fonts are self-hosted from the `@fontsource/inter` (400/500/700) and `@fontsource/old-standard-tt` (400) packages, with the two latin 400 files preloaded. No Google Fonts requests (faster first paint, no third-party IP sharing).
 
 ## 2. Typography
 

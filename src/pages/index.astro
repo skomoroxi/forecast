@@ -8,6 +8,7 @@ import Faq from '../components/Faq.astro';
 import { assets, assetUrl, GROUPS } from '../lib/assets';
 import { assetData, type AssetId } from '../lib/data';
 import { dateTimeUtc } from '../lib/format';
+import { website } from '../lib/seo';
 
 const groups = [...new Set(assets.map((a) => GROUPS[a.id] ?? 'Other'))];
 const first = assets.find((a) => a.enabled)!;
@@ -17,6 +18,7 @@ const fc = assetData(first.id as AssetId).forecast;
 <BaseLayout
   title="Price Predictions: Silver, Gold & Bitcoin Forecasts | FinForecast"
   description="Daily price predictions for silver, gold and bitcoin: 30-day, monthly and long-term forecasts from three statistical models, plus technical analysis. Updated every day."
+  jsonLd={[website(Astro.site!)]}
 >
   <Hero title="Price predictions for silver, gold and bitcoin" updated={`Updated ${dateTimeUtc(fc.generated_at)}`} cta={{ href: assetUrl(first), label: `${first.name} price prediction` }}>
     <p>

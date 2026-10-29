@@ -1,6 +1,7 @@
 ---
 // Simple reading layout for service pages: dark title band, then a narrow text column.
 import BaseLayout from './BaseLayout.astro';
+import { breadcrumbs } from '../lib/seo';
 
 interface Props {
   title: string;
@@ -11,9 +12,10 @@ interface Props {
 }
 
 const { title, heading, description, lead, updated } = Astro.props;
+const crumbs = [breadcrumbs(Astro.site!, [{ name: 'Home', path: '/' }, { name: heading, path: Astro.url.pathname }])];
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} jsonLd={crumbs}>
   <section class="band section--dark on-dark">
     <div class="container">
       <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span aria-hidden="true">›</span> <span aria-current="page">{heading}</span></nav>

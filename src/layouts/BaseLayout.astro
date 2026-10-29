@@ -1,18 +1,37 @@
 ---
+// Self-hosted fonts (no render-blocking third-party CSS, no IP sent to Google).
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/700.css';
+import '@fontsource/old-standard-tt/400.css';
+import interLatin from '@fontsource/inter/files/inter-latin-400-normal.woff2?url';
+import serifLatin from '@fontsource/old-standard-tt/files/old-standard-tt-latin-400-normal.woff2?url';
 import '../styles/global.css';
 import Ticker from '../components/Ticker.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
+import { graph, organization, SITE_NAME } from '../lib/seo';
 
 interface Props {
   title: string;
   description?: string;
-  /** Pre-launch every page is noindex (domain not decided). /styleguide stays noindex forever. */
+  /** Pre-launch every page is noindex (INDEXING env var unset). /styleguide stays noindex forever. */
   noindex?: boolean;
+  /** Extra JSON-LD nodes for this page (Organization is always included). */
+  jsonLd?: object[];
+  /** Absolute path of the Open Graph image, 1200×630. */
+  ogImage?: string;
+  ogType?: 'website' | 'article';
 }
 
-const { title, description = '', noindex = true } = Astro.props;
-const canonical = new URL(Astro.url.pathname, Astro.site);
+const { title, description = '', noindex = false, jsonLd = [], ogImage = '/og/default.png', ogType = 'website' } = Astro.props;
+// Indexing is switched on at launch (M6) by setting INDEXING=on in the Cloudflare build env.
+const indexing = import.meta.env.INDEXING === 'on';
+const robots = noindex || !indexing ? 'noindex, nofollow' : 'index, follow, max-image-preview:large';
+const site = Astro.site!;
+const canonical = new URL(Astro.url.pathname, site).href;
+const image = new URL(ogImage, site).href;
+const ld = graph([organization(site), ...jsonLd]);
 ---
 
 <!doctype html>
@@ -23,14 +42,27 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
     <link rel="canonical" href={canonical} />
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="robots" content={robots} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap"
-    />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    {description && <meta name="twitter:description" content={description} />}
+    <meta name="twitter:image" content={image} />
+
+    <link rel="preload" href={serifLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
+    <script type="application/ld+json" set:html={JSON.stringify(ld)} />
     <slot name="head" />
   </head>
   <body>

@@ -38,7 +38,7 @@ const columns = [
     {
       columns.map((c) => (
         <nav class="footer__col" aria-label={c.title}>
-          <h4>{c.title}</h4>
+          <p class="footer__title">{c.title}</p>
           <ul>
             {c.links.map((l) => (
               <li>{l.href ? <a href={l.href}>{l.label}</a> : <span class="soon">{l.label} (soon)</span>}</li>
@@ -83,7 +83,7 @@ const columns = [
     max-width: 340px;
     color: var(--muted);
   }
-  h4 {
+  .footer__title {
     font-family: var(--font-serif);
     font-weight: 400;
     font-size: 20px;
