@@ -1,16 +1,16 @@
 {
  "asset": "xrp",
- "generated_at": "2026-10-30T07:06:08Z",
- "run_date": "2026-10-30",
+ "generated_at": "2026-10-31T06:59:27Z",
+ "run_date": "2026-10-31",
  "ohlc_basis": "actual",
  "timeframes": {
   "daily": {
-   "bar_date": "2026-10-29",
-   "close": 1.2377,
+   "bar_date": "2026-10-30",
+   "close": 1.2567,
    "oscillators": [
     {
      "name": "rsi_14",
-     "value": 34.1161,
+     "value": 37.6153,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -18,7 +18,7 @@
     },
     {
      "name": "stoch_9_6",
-     "value": 34.7093,
+     "value": 35.0748,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -26,39 +26,39 @@
     },
     {
      "name": "stochrsi_14",
-     "value": 0.0,
-     "action": "oversold",
+     "value": 26.4095,
+     "action": "sell",
      "signal_line": null,
      "plus_di": null,
      "minus_di": null
     },
     {
      "name": "macd_12_26",
-     "value": -0.0325,
+     "value": -0.0345,
      "action": "sell",
-     "signal_line": -0.0305,
+     "signal_line": -0.0313,
      "plus_di": null,
      "minus_di": null
     },
     {
      "name": "adx_14",
-     "value": 17.3031,
+     "value": 18.0794,
      "action": "neutral",
      "signal_line": null,
-     "plus_di": 18.31,
-     "minus_di": 29.66
+     "plus_di": 16.7,
+     "minus_di": 29.81
     },
     {
      "name": "williams_r_14",
-     "value": -91.8135,
-     "action": "oversold",
+     "value": -71.608,
+     "action": "sell",
      "signal_line": null,
      "plus_di": null,
      "minus_di": null
     },
     {
      "name": "cci_14",
-     "value": -166.6829,
+     "value": -186.9297,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -66,7 +66,7 @@
     },
     {
      "name": "atr_14",
-     "value": 0.0589,
+     "value": 0.06,
      "action": "low_volatility",
      "signal_line": null,
      "plus_di": null,
@@ -74,7 +74,7 @@
     },
     {
      "name": "highs_lows_14",
-     "value": -0.0362,
+     "value": -0.0626,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -82,7 +82,7 @@
     },
     {
      "name": "ultimate_oscillator",
-     "value": 50.6716,
+     "value": 56.7813,
      "action": "buy",
      "signal_line": null,
      "plus_di": null,
@@ -90,7 +90,7 @@
     },
     {
      "name": "roc_12",
-     "value": -4.3582,
+     "value": -3.8559,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -98,7 +98,7 @@
     },
     {
      "name": "bull_bear_power_13",
-     "value": -0.0776,
+     "value": -0.1374,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -109,118 +109,118 @@
     {
      "period": 5,
      "simple": {
-      "value": 1.3001,
+      "value": 1.2922,
       "action": "sell"
      },
      "exponential": {
-      "value": 1.2917,
+      "value": 1.2801,
       "action": "sell"
      }
     },
     {
      "period": 10,
      "simple": {
-      "value": 1.3106,
+      "value": 1.3027,
       "action": "sell"
      },
      "exponential": {
-      "value": 1.3059,
+      "value": 1.297,
       "action": "sell"
      }
     },
     {
      "period": 20,
      "simple": {
-      "value": 1.3255,
+      "value": 1.3182,
       "action": "sell"
      },
      "exponential": {
-      "value": 1.3319,
+      "value": 1.3248,
       "action": "sell"
      }
     },
     {
      "period": 50,
      "simple": {
-      "value": 1.397,
+      "value": 1.3955,
       "action": "sell"
      },
      "exponential": {
-      "value": 1.3552,
+      "value": 1.3514,
       "action": "sell"
      }
     },
     {
      "period": 100,
      "simple": {
-      "value": 1.3001,
+      "value": 1.3013,
       "action": "sell"
      },
      "exponential": {
-      "value": 1.3318,
+      "value": 1.3303,
       "action": "sell"
      }
     },
     {
      "period": 200,
      "simple": {
-      "value": 1.2786,
+      "value": 1.278,
       "action": "sell"
      },
      "exponential": {
-      "value": 1.3694,
+      "value": 1.3683,
       "action": "sell"
      }
     }
    ],
    "pivots": {
     "classic": {
-     "s3": 1.0948,
-     "s2": 1.159,
-     "s1": 1.1984,
-     "p": 1.2626,
-     "r1": 1.302,
-     "r2": 1.3662,
-     "r3": 1.4056
+     "s3": 1.1396,
+     "s2": 1.1699,
+     "s1": 1.2133,
+     "p": 1.2436,
+     "r1": 1.287,
+     "r2": 1.3173,
+     "r3": 1.3607
     },
     "fibonacci": {
-     "s3": 1.159,
-     "s2": 1.1986,
-     "s1": 1.2231,
-     "p": 1.2626,
-     "r1": 1.3022,
-     "r2": 1.3267,
-     "r3": 1.3662
+     "s3": 1.1699,
+     "s2": 1.1981,
+     "s1": 1.2154,
+     "p": 1.2436,
+     "r1": 1.2718,
+     "r2": 1.2891,
+     "r3": 1.3173
     },
     "camarilla": {
-     "s3": 1.2092,
-     "s2": 1.2187,
-     "s1": 1.2282,
-     "p": 1.2626,
-     "r1": 1.2472,
-     "r2": 1.2567,
-     "r3": 1.2662
+     "s3": 1.2364,
+     "s2": 1.2432,
+     "s1": 1.2499,
+     "p": 1.2436,
+     "r1": 1.2635,
+     "r2": 1.2702,
+     "r3": 1.277
     },
     "woodie": {
-     "s3": 1.0823,
-     "s2": 1.1528,
-     "s1": 1.1859,
-     "p": 1.2564,
-     "r1": 1.2895,
-     "r2": 1.36,
-     "r3": 1.3931
+     "s3": 1.1461,
+     "s2": 1.1732,
+     "s1": 1.2198,
+     "p": 1.2469,
+     "r1": 1.2935,
+     "r2": 1.3206,
+     "r3": 1.3673
     },
     "demark": {
-     "s1": 1.1787,
-     "p": 1.2528,
-     "r1": 1.2823
+     "s1": 1.2284,
+     "p": 1.2512,
+     "r1": 1.3021
     }
    },
    "summary": {
     "oscillators": {
      "buy": 1,
-     "sell": 7,
-     "neutral": 3,
+     "sell": 9,
+     "neutral": 1,
      "verdict": "strong_sell"
     },
     "moving_averages": {
@@ -231,19 +231,19 @@
     },
     "overall": {
      "buy": 1,
-     "sell": 19,
-     "neutral": 3,
+     "sell": 21,
+     "neutral": 1,
      "verdict": "strong_sell"
     }
    }
   },
   "weekly": {
    "bar_date": "2026-10-30",
-   "close": 1.2377,
+   "close": 1.2567,
    "oscillators": [
     {
      "name": "rsi_14",
-     "value": 44.3682,
+     "value": 45.1524,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -251,7 +251,7 @@
     },
     {
      "name": "stoch_9_6",
-     "value": 44.7006,
+     "value": 46.2051,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -259,31 +259,31 @@
     },
     {
      "name": "stochrsi_14",
-     "value": 48.3324,
-     "action": "sell",
+     "value": 51.0027,
+     "action": "buy",
      "signal_line": null,
      "plus_di": null,
      "minus_di": null
     },
     {
      "name": "macd_12_26",
-     "value": -0.0234,
+     "value": -0.0219,
      "action": "sell",
-     "signal_line": -0.0459,
+     "signal_line": -0.0456,
      "plus_di": null,
      "minus_di": null
     },
     {
      "name": "adx_14",
-     "value": 20.2315,
+     "value": 20.0849,
      "action": "neutral",
      "signal_line": null,
-     "plus_di": 22.97,
-     "minus_di": 21.59
+     "plus_di": 22.77,
+     "minus_di": 22.29
     },
     {
      "name": "williams_r_14",
-     "value": -64.7611,
+     "value": -62.0989,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -291,7 +291,7 @@
     },
     {
      "name": "cci_14",
-     "value": -25.8136,
+     "value": -26.4597,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -299,15 +299,15 @@
     },
     {
      "name": "atr_14",
-     "value": 0.1824,
-     "action": "low_volatility",
+     "value": 0.184,
+     "action": "high_volatility",
      "signal_line": null,
      "plus_di": null,
      "minus_di": null
     },
     {
      "name": "highs_lows_14",
-     "value": -0.0592,
+     "value": -0.0707,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -315,7 +315,7 @@
     },
     {
      "name": "ultimate_oscillator",
-     "value": 42.8285,
+     "value": 44.6722,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -323,7 +323,7 @@
     },
     {
      "name": "roc_12",
-     "value": 21.2243,
+     "value": 23.0852,
      "action": "buy",
      "signal_line": null,
      "plus_di": null,
@@ -331,7 +331,7 @@
     },
     {
      "name": "bull_bear_power_13",
-     "value": -0.076,
+     "value": -0.1045,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -342,66 +342,66 @@
     {
      "period": 5,
      "simple": {
-      "value": 1.3449,
+      "value": 1.3487,
       "action": "sell"
      },
      "exponential": {
-      "value": 1.3171,
+      "value": 1.3234,
       "action": "sell"
      }
     },
     {
      "period": 10,
      "simple": {
-      "value": 1.3828,
+      "value": 1.3847,
       "action": "sell"
      },
      "exponential": {
-      "value": 1.3274,
+      "value": 1.3308,
       "action": "sell"
      }
     },
     {
      "period": 20,
      "simple": {
-      "value": 1.2485,
-      "action": "sell"
+      "value": 1.2495,
+      "action": "buy"
      },
      "exponential": {
-      "value": 1.3241,
+      "value": 1.326,
       "action": "sell"
      }
     },
     {
      "period": 50,
      "simple": {
-      "value": 1.4526,
+      "value": 1.453,
       "action": "sell"
      },
      "exponential": {
-      "value": 1.486,
+      "value": 1.4867,
       "action": "sell"
      }
     },
     {
      "period": 100,
      "simple": {
-      "value": 1.9935,
+      "value": 1.9937,
       "action": "sell"
      },
      "exponential": {
-      "value": 1.558,
+      "value": 1.5583,
       "action": "sell"
      }
     },
     {
      "period": 200,
      "simple": {
-      "value": 1.2742,
+      "value": 1.2743,
       "action": "sell"
      },
      "exponential": {
-      "value": 1.3766,
+      "value": 1.3768,
       "action": "sell"
      }
     }
@@ -451,20 +451,20 @@
    },
    "summary": {
     "oscillators": {
-     "buy": 1,
-     "sell": 9,
+     "buy": 2,
+     "sell": 8,
      "neutral": 1,
      "verdict": "strong_sell"
     },
     "moving_averages": {
-     "buy": 0,
-     "sell": 12,
+     "buy": 1,
+     "sell": 11,
      "neutral": 0,
      "verdict": "strong_sell"
     },
     "overall": {
-     "buy": 1,
-     "sell": 21,
+     "buy": 3,
+     "sell": 19,
      "neutral": 1,
      "verdict": "strong_sell"
     }
@@ -472,11 +472,11 @@
   },
   "monthly": {
    "bar_date": "2026-10-31",
-   "close": 1.2377,
+   "close": 1.2567,
    "oscillators": [
     {
      "name": "rsi_14",
-     "value": 45.0232,
+     "value": 45.3142,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -484,7 +484,7 @@
     },
     {
      "name": "stoch_9_6",
-     "value": 18.869,
+     "value": 19.3127,
      "action": "oversold",
      "signal_line": null,
      "plus_di": null,
@@ -492,7 +492,7 @@
     },
     {
      "name": "stochrsi_14",
-     "value": 15.7572,
+     "value": 16.7872,
      "action": "oversold",
      "signal_line": null,
      "plus_di": null,
@@ -500,23 +500,23 @@
     },
     {
      "name": "macd_12_26",
-     "value": -0.0457,
+     "value": -0.0442,
      "action": "sell",
-     "signal_line": 0.0763,
+     "signal_line": 0.0766,
      "plus_di": null,
      "minus_di": null
     },
     {
      "name": "adx_14",
-     "value": 24.8647,
+     "value": 24.8084,
      "action": "neutral",
      "signal_line": null,
-     "plus_di": 21.7,
-     "minus_di": 19.38
+     "plus_di": 21.63,
+     "minus_di": 19.63
     },
     {
      "name": "williams_r_14",
-     "value": -88.5661,
+     "value": -87.7023,
      "action": "oversold",
      "signal_line": null,
      "plus_di": null,
@@ -524,7 +524,7 @@
     },
     {
      "name": "cci_14",
-     "value": -50.1704,
+     "value": -50.3648,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -532,7 +532,7 @@
     },
     {
      "name": "atr_14",
-     "value": 0.5349,
+     "value": 0.5365,
      "action": "low_volatility",
      "signal_line": null,
      "plus_di": null,
@@ -540,7 +540,7 @@
     },
     {
      "name": "highs_lows_14",
-     "value": -0.6968,
+     "value": -0.7084,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -548,7 +548,7 @@
     },
     {
      "name": "ultimate_oscillator",
-     "value": 38.5031,
+     "value": 39.4252,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -556,7 +556,7 @@
     },
     {
      "name": "roc_12",
-     "value": -50.6833,
+     "value": -49.9263,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -564,7 +564,7 @@
     },
     {
      "name": "bull_bear_power_13",
-     "value": -0.1961,
+     "value": -0.2246,
      "action": "sell",
      "signal_line": null,
      "plus_di": null,
@@ -575,55 +575,55 @@
     {
      "period": 5,
      "simple": {
-      "value": 1.2419,
-      "action": "sell"
+      "value": 1.2457,
+      "action": "buy"
      },
      "exponential": {
-      "value": 1.3174,
+      "value": 1.3237,
       "action": "sell"
      }
     },
     {
      "period": 10,
      "simple": {
-      "value": 1.3275,
+      "value": 1.3294,
       "action": "sell"
      },
      "exponential": {
-      "value": 1.4291,
+      "value": 1.4325,
       "action": "sell"
      }
     },
     {
      "period": 20,
      "simple": {
-      "value": 1.8559,
+      "value": 1.8568,
       "action": "sell"
      },
      "exponential": {
-      "value": 1.5355,
+      "value": 1.5373,
       "action": "sell"
      }
     },
     {
      "period": 50,
      "simple": {
-      "value": 1.1974,
+      "value": 1.1978,
       "action": "buy"
      },
      "exponential": {
-      "value": 1.3245,
+      "value": 1.3252,
       "action": "sell"
      }
     },
     {
      "period": 100,
      "simple": {
-      "value": 0.8406,
+      "value": 0.8407,
       "action": "buy"
      },
      "exponential": {
-      "value": 1.0495,
+      "value": 1.0499,
       "action": "buy"
      }
     },
@@ -690,16 +690,16 @@
      "verdict": "strong_sell"
     },
     "moving_averages": {
-     "buy": 3,
-     "sell": 7,
+     "buy": 4,
+     "sell": 6,
      "neutral": 0,
      "verdict": "sell"
     },
     "overall": {
-     "buy": 3,
-     "sell": 14,
+     "buy": 4,
+     "sell": 13,
      "neutral": 4,
-     "verdict": "strong_sell"
+     "verdict": "sell"
     }
    }
   }

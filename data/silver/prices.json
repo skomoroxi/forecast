@@ -3,7 +3,7 @@
   "symbol": "XAG/USD",
   "currency": "USD",
   "source": "alphavantage",
-  "updated_at": "2026-10-30T07:05:00Z",
+  "updated_at": "2026-10-31T06:58:18Z",
   "bars": [
     {"date": "2011-06-01", "open": 38.1278, "high": 38.5909, "low": 36.5224, "close": 36.79, "ohlc": "proxy"},
     {"date": "2011-06-02", "open": 37.0822, "high": 37.1744, "low": 35.5251, "close": 36.15, "ohlc": "proxy"},
@@ -4026,6 +4026,7 @@
     {"date": "2026-10-26", "open": 53.8449, "high": 54.3997, "low": 53.1016, "close": 53.9891666634, "ohlc": "proxy"},
     {"date": "2026-10-27", "open": 53.3657, "high": 54.191, "low": 53.3437, "close": 54.0919230784, "ohlc": "proxy"},
     {"date": "2026-10-28", "open": 53.9912, "high": 54.2676, "low": 53.2061, "close": 54.2454737224, "ohlc": "proxy"},
-    {"date": "2026-10-29", "open": 54.0125, "high": 54.4699, "low": 53.658, "close": 54.069661481, "ohlc": "proxy"}
+    {"date": "2026-10-29", "open": 54.0125, "high": 54.4699, "low": 53.658, "close": 54.069661481, "ohlc": "proxy"},
+    {"date": "2026-10-30", "open": 51.6261, "high": 51.7064, "low": 50.6163, "close": 51.1785676933, "ohlc": "proxy"}
   ]
 }
