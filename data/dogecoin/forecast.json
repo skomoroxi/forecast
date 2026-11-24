@@ -1,10 +1,10 @@
 {
  "asset": "dogecoin",
- "generated_at": "2026-11-23T09:00:33Z",
- "run_date": "2026-11-23",
+ "generated_at": "2026-11-24T10:55:00Z",
+ "run_date": "2026-11-24",
  "last_close": {
-  "date": "2026-11-22",
-  "price": 0.0554
+  "date": "2026-11-23",
+  "price": 0.0564
  },
  "methods": {
   "arima": {
@@ -26,12 +26,12 @@
    "error": null,
    "params": {
     "trend_annual_pct": 25.0,
-    "trend_annual_pct_raw": 47.15,
+    "trend_annual_pct_raw": 47.06,
     "trend_capped": true,
-    "deviation_from_trend_pct": -64.59,
-    "phi": 0.99755,
-    "half_life_bars": 282.2,
-    "window_bars": 2456
+    "deviation_from_trend_pct": -63.94,
+    "phi": 0.99754,
+    "half_life_bars": 281.7,
+    "window_bars": 2457
    }
   },
   "montecarlo": {
@@ -39,9 +39,9 @@
    "error": null,
    "params": {
     "mu_daily": 0.000611,
-    "mu_daily_raw": 0.001262,
+    "mu_daily_raw": 0.001269,
     "drift_capped": true,
-    "sigma_daily": 0.045889,
+    "sigma_daily": 0.045885,
     "paths": 10000,
     "drift_bars": 3650,
     "vol_bars": 1095
@@ -50,1434 +50,1434 @@
  },
  "daily": [
   {
-   "date": "2026-11-23",
-   "arima": 0.0554,
-   "reversion": 0.0555,
-   "montecarlo": 0.0554,
-   "consensus": 0.0554,
-   "low": 0.0509,
-   "high": 0.0606
-  },
-  {
    "date": "2026-11-24",
-   "arima": 0.0554,
-   "reversion": 0.0557,
-   "montecarlo": 0.0555,
-   "consensus": 0.0555,
-   "low": 0.0493,
-   "high": 0.063
+   "arima": 0.0564,
+   "reversion": 0.0566,
+   "montecarlo": 0.0564,
+   "consensus": 0.0565,
+   "low": 0.0519,
+   "high": 0.0617
   },
   {
    "date": "2026-11-25",
-   "arima": 0.0554,
-   "reversion": 0.0559,
-   "montecarlo": 0.0555,
-   "consensus": 0.0556,
-   "low": 0.0481,
-   "high": 0.0649
+   "arima": 0.0564,
+   "reversion": 0.0568,
+   "montecarlo": 0.0564,
+   "consensus": 0.0565,
+   "low": 0.0502,
+   "high": 0.0641
   },
   {
    "date": "2026-11-26",
-   "arima": 0.0554,
-   "reversion": 0.0561,
-   "montecarlo": 0.0555,
-   "consensus": 0.0557,
-   "low": 0.0472,
-   "high": 0.0666
+   "arima": 0.0564,
+   "reversion": 0.0569,
+   "montecarlo": 0.0565,
+   "consensus": 0.0566,
+   "low": 0.049,
+   "high": 0.0661
   },
   {
    "date": "2026-11-27",
-   "arima": 0.0554,
-   "reversion": 0.0562,
-   "montecarlo": 0.0557,
-   "consensus": 0.0558,
-   "low": 0.0464,
-   "high": 0.0682
+   "arima": 0.0564,
+   "reversion": 0.0571,
+   "montecarlo": 0.0566,
+   "consensus": 0.0567,
+   "low": 0.0481,
+   "high": 0.0679
   },
   {
    "date": "2026-11-28",
-   "arima": 0.0554,
-   "reversion": 0.0564,
-   "montecarlo": 0.0556,
-   "consensus": 0.0558,
-   "low": 0.0457,
-   "high": 0.0697
+   "arima": 0.0564,
+   "reversion": 0.0573,
+   "montecarlo": 0.0566,
+   "consensus": 0.0567,
+   "low": 0.0472,
+   "high": 0.0695
   },
   {
    "date": "2026-11-29",
-   "arima": 0.0554,
-   "reversion": 0.0566,
-   "montecarlo": 0.0557,
-   "consensus": 0.0559,
-   "low": 0.0451,
-   "high": 0.0711
+   "arima": 0.0564,
+   "reversion": 0.0575,
+   "montecarlo": 0.0566,
+   "consensus": 0.0568,
+   "low": 0.0465,
+   "high": 0.0709
   },
   {
    "date": "2026-11-30",
-   "arima": 0.0554,
-   "reversion": 0.0568,
-   "montecarlo": 0.0556,
-   "consensus": 0.0559,
-   "low": 0.0445,
+   "arima": 0.0564,
+   "reversion": 0.0576,
+   "montecarlo": 0.0566,
+   "consensus": 0.0569,
+   "low": 0.0459,
    "high": 0.0724
   },
   {
    "date": "2026-12-01",
-   "arima": 0.0554,
-   "reversion": 0.057,
-   "montecarlo": 0.0557,
-   "consensus": 0.056,
-   "low": 0.044,
+   "arima": 0.0564,
+   "reversion": 0.0578,
+   "montecarlo": 0.0566,
+   "consensus": 0.0569,
+   "low": 0.0454,
    "high": 0.0737
   },
   {
    "date": "2026-12-02",
-   "arima": 0.0554,
-   "reversion": 0.0571,
-   "montecarlo": 0.0557,
-   "consensus": 0.0561,
-   "low": 0.0436,
-   "high": 0.0749
+   "arima": 0.0564,
+   "reversion": 0.058,
+   "montecarlo": 0.0566,
+   "consensus": 0.057,
+   "low": 0.0448,
+   "high": 0.075
   },
   {
    "date": "2026-12-03",
-   "arima": 0.0554,
-   "reversion": 0.0573,
-   "montecarlo": 0.0557,
-   "consensus": 0.0561,
-   "low": 0.0432,
-   "high": 0.0761
+   "arima": 0.0564,
+   "reversion": 0.0582,
+   "montecarlo": 0.0566,
+   "consensus": 0.0571,
+   "low": 0.0444,
+   "high": 0.0763
   },
   {
    "date": "2026-12-04",
-   "arima": 0.0554,
-   "reversion": 0.0575,
-   "montecarlo": 0.0558,
-   "consensus": 0.0562,
-   "low": 0.0428,
-   "high": 0.0773
+   "arima": 0.0564,
+   "reversion": 0.0583,
+   "montecarlo": 0.0566,
+   "consensus": 0.0571,
+   "low": 0.0439,
+   "high": 0.0775
   },
   {
    "date": "2026-12-05",
-   "arima": 0.0554,
-   "reversion": 0.0577,
-   "montecarlo": 0.0558,
-   "consensus": 0.0563,
-   "low": 0.0424,
-   "high": 0.0784
+   "arima": 0.0564,
+   "reversion": 0.0585,
+   "montecarlo": 0.0566,
+   "consensus": 0.0572,
+   "low": 0.0435,
+   "high": 0.0787
   },
   {
    "date": "2026-12-06",
-   "arima": 0.0554,
-   "reversion": 0.0578,
-   "montecarlo": 0.0558,
-   "consensus": 0.0563,
-   "low": 0.042,
-   "high": 0.0796
+   "arima": 0.0564,
+   "reversion": 0.0587,
+   "montecarlo": 0.0566,
+   "consensus": 0.0572,
+   "low": 0.0432,
+   "high": 0.0798
   },
   {
    "date": "2026-12-07",
-   "arima": 0.0554,
-   "reversion": 0.058,
-   "montecarlo": 0.056,
-   "consensus": 0.0565,
-   "low": 0.0417,
-   "high": 0.0807
+   "arima": 0.0564,
+   "reversion": 0.0589,
+   "montecarlo": 0.0567,
+   "consensus": 0.0573,
+   "low": 0.0428,
+   "high": 0.081
   },
   {
    "date": "2026-12-08",
-   "arima": 0.0554,
-   "reversion": 0.0582,
-   "montecarlo": 0.056,
-   "consensus": 0.0565,
-   "low": 0.0414,
-   "high": 0.0818
+   "arima": 0.0564,
+   "reversion": 0.0591,
+   "montecarlo": 0.0567,
+   "consensus": 0.0574,
+   "low": 0.0425,
+   "high": 0.0821
   },
   {
    "date": "2026-12-09",
-   "arima": 0.0554,
-   "reversion": 0.0584,
-   "montecarlo": 0.0561,
-   "consensus": 0.0566,
-   "low": 0.0411,
-   "high": 0.0828
+   "arima": 0.0564,
+   "reversion": 0.0592,
+   "montecarlo": 0.0568,
+   "consensus": 0.0575,
+   "low": 0.0422,
+   "high": 0.0832
   },
   {
    "date": "2026-12-10",
-   "arima": 0.0554,
-   "reversion": 0.0586,
-   "montecarlo": 0.0561,
-   "consensus": 0.0567,
-   "low": 0.0409,
-   "high": 0.0839
+   "arima": 0.0564,
+   "reversion": 0.0594,
+   "montecarlo": 0.0569,
+   "consensus": 0.0576,
+   "low": 0.0419,
+   "high": 0.0843
   },
   {
    "date": "2026-12-11",
-   "arima": 0.0554,
-   "reversion": 0.0587,
-   "montecarlo": 0.0562,
-   "consensus": 0.0568,
-   "low": 0.0406,
-   "high": 0.085
+   "arima": 0.0564,
+   "reversion": 0.0596,
+   "montecarlo": 0.0569,
+   "consensus": 0.0576,
+   "low": 0.0416,
+   "high": 0.0854
   },
   {
    "date": "2026-12-12",
-   "arima": 0.0554,
-   "reversion": 0.0589,
-   "montecarlo": 0.0562,
-   "consensus": 0.0568,
-   "low": 0.0404,
-   "high": 0.086
+   "arima": 0.0564,
+   "reversion": 0.0598,
+   "montecarlo": 0.0569,
+   "consensus": 0.0577,
+   "low": 0.0413,
+   "high": 0.0865
   },
   {
    "date": "2026-12-13",
-   "arima": 0.0554,
-   "reversion": 0.0591,
-   "montecarlo": 0.0562,
-   "consensus": 0.0569,
-   "low": 0.0401,
-   "high": 0.087
+   "arima": 0.0564,
+   "reversion": 0.06,
+   "montecarlo": 0.057,
+   "consensus": 0.0578,
+   "low": 0.0411,
+   "high": 0.0875
   },
   {
    "date": "2026-12-14",
-   "arima": 0.0554,
-   "reversion": 0.0593,
-   "montecarlo": 0.0563,
-   "consensus": 0.057,
-   "low": 0.0399,
-   "high": 0.0881
+   "arima": 0.0564,
+   "reversion": 0.0601,
+   "montecarlo": 0.057,
+   "consensus": 0.0579,
+   "low": 0.0408,
+   "high": 0.0886
   },
   {
    "date": "2026-12-15",
-   "arima": 0.0554,
-   "reversion": 0.0594,
-   "montecarlo": 0.0563,
-   "consensus": 0.057,
-   "low": 0.0397,
-   "high": 0.0891
+   "arima": 0.0564,
+   "reversion": 0.0603,
+   "montecarlo": 0.057,
+   "consensus": 0.0579,
+   "low": 0.0406,
+   "high": 0.0896
   },
   {
    "date": "2026-12-16",
-   "arima": 0.0554,
-   "reversion": 0.0596,
-   "montecarlo": 0.0563,
-   "consensus": 0.0571,
-   "low": 0.0395,
-   "high": 0.0901
+   "arima": 0.0564,
+   "reversion": 0.0605,
+   "montecarlo": 0.057,
+   "consensus": 0.058,
+   "low": 0.0404,
+   "high": 0.0906
   },
   {
    "date": "2026-12-17",
-   "arima": 0.0554,
-   "reversion": 0.0598,
-   "montecarlo": 0.0563,
-   "consensus": 0.0572,
-   "low": 0.0393,
-   "high": 0.0911
+   "arima": 0.0564,
+   "reversion": 0.0607,
+   "montecarlo": 0.0571,
+   "consensus": 0.0581,
+   "low": 0.0402,
+   "high": 0.0917
   },
   {
    "date": "2026-12-18",
-   "arima": 0.0554,
-   "reversion": 0.06,
-   "montecarlo": 0.0564,
-   "consensus": 0.0573,
-   "low": 0.0391,
-   "high": 0.0921
+   "arima": 0.0564,
+   "reversion": 0.0609,
+   "montecarlo": 0.0572,
+   "consensus": 0.0581,
+   "low": 0.04,
+   "high": 0.0927
   },
   {
    "date": "2026-12-19",
-   "arima": 0.0554,
-   "reversion": 0.0602,
-   "montecarlo": 0.0566,
-   "consensus": 0.0574,
-   "low": 0.0389,
-   "high": 0.093
+   "arima": 0.0564,
+   "reversion": 0.061,
+   "montecarlo": 0.0572,
+   "consensus": 0.0582,
+   "low": 0.0398,
+   "high": 0.0937
   },
   {
    "date": "2026-12-20",
-   "arima": 0.0554,
-   "reversion": 0.0603,
-   "montecarlo": 0.0565,
-   "consensus": 0.0574,
-   "low": 0.0387,
-   "high": 0.094
+   "arima": 0.0564,
+   "reversion": 0.0612,
+   "montecarlo": 0.0573,
+   "consensus": 0.0583,
+   "low": 0.0396,
+   "high": 0.0947
   },
   {
    "date": "2026-12-21",
-   "arima": 0.0554,
-   "reversion": 0.0605,
-   "montecarlo": 0.0564,
-   "consensus": 0.0574,
-   "low": 0.0386,
-   "high": 0.095
+   "arima": 0.0564,
+   "reversion": 0.0614,
+   "montecarlo": 0.0573,
+   "consensus": 0.0584,
+   "low": 0.0394,
+   "high": 0.0957
   },
   {
    "date": "2026-12-22",
-   "arima": 0.0554,
-   "reversion": 0.0607,
-   "montecarlo": 0.0565,
-   "consensus": 0.0575,
-   "low": 0.0384,
-   "high": 0.096
+   "arima": 0.0564,
+   "reversion": 0.0616,
+   "montecarlo": 0.0574,
+   "consensus": 0.0585,
+   "low": 0.0392,
+   "high": 0.0966
   },
   {
    "date": "2026-12-23",
-   "arima": 0.0554,
-   "reversion": 0.0609,
-   "montecarlo": 0.0566,
-   "consensus": 0.0576,
-   "low": 0.0383,
-   "high": 0.0969
+   "arima": 0.0564,
+   "reversion": 0.0618,
+   "montecarlo": 0.0573,
+   "consensus": 0.0585,
+   "low": 0.0391,
+   "high": 0.0976
+  },
+  {
+   "date": "2026-12-24",
+   "arima": 0.0564,
+   "reversion": 0.062,
+   "montecarlo": 0.0574,
+   "consensus": 0.0586,
+   "low": 0.0389,
+   "high": 0.0986
   }
  ],
  "monthly": [
   {
    "month": "2026-11",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0469,
-    "max": 0.0654
+    "avg": 0.0564,
+    "min": 0.0482,
+    "max": 0.0659
    },
    "reversion": {
-    "avg": 0.0562,
-    "min": 0.0445,
+    "avg": 0.0571,
+    "min": 0.0459,
     "max": 0.0724
    },
    "montecarlo": {
-    "avg": 0.0556,
-    "min": 0.047,
-    "max": 0.0658
+    "avg": 0.0565,
+    "min": 0.0485,
+    "max": 0.0661
    },
    "consensus": {
-    "avg": 0.0557,
-    "min": 0.0445,
+    "avg": 0.0567,
+    "min": 0.0459,
     "max": 0.0724
    }
   },
   {
    "month": "2026-12",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0383,
-    "max": 0.0801
+    "avg": 0.0564,
+    "min": 0.0392,
+    "max": 0.0812
    },
    "reversion": {
-    "avg": 0.0596,
-    "min": 0.0372,
-    "max": 0.1045
+    "avg": 0.0605,
+    "min": 0.038,
+    "max": 0.1053
    },
    "montecarlo": {
-    "avg": 0.0563,
-    "min": 0.0395,
-    "max": 0.0819
+    "avg": 0.0571,
+    "min": 0.0399,
+    "max": 0.0827
    },
    "consensus": {
-    "avg": 0.0571,
-    "min": 0.0372,
-    "max": 0.1045
+    "avg": 0.058,
+    "min": 0.038,
+    "max": 0.1053
    }
   },
   {
    "month": "2027-01",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0338,
-    "max": 0.0907
+    "avg": 0.0564,
+    "min": 0.0345,
+    "max": 0.0921
    },
    "reversion": {
-    "avg": 0.0653,
-    "min": 0.0349,
-    "max": 0.1327
+    "avg": 0.0662,
+    "min": 0.0355,
+    "max": 0.1339
    },
    "montecarlo": {
-    "avg": 0.0574,
-    "min": 0.0354,
-    "max": 0.094
+    "avg": 0.0582,
+    "min": 0.0356,
+    "max": 0.0956
    },
    "consensus": {
-    "avg": 0.0594,
-    "min": 0.0338,
-    "max": 0.1327
+    "avg": 0.0603,
+    "min": 0.0345,
+    "max": 0.1339
    }
   },
   {
    "month": "2027-02",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0309,
-    "max": 0.0993
+    "avg": 0.0564,
+    "min": 0.0315,
+    "max": 0.1009
    },
    "reversion": {
-    "avg": 0.0708,
-    "min": 0.0342,
-    "max": 0.1577
+    "avg": 0.0717,
+    "min": 0.0347,
+    "max": 0.1591
    },
    "montecarlo": {
-    "avg": 0.0583,
-    "min": 0.033,
-    "max": 0.1053
+    "avg": 0.0592,
+    "min": 0.0332,
+    "max": 0.1069
    },
    "consensus": {
-    "avg": 0.0615,
-    "min": 0.0309,
-    "max": 0.1577
+    "avg": 0.0624,
+    "min": 0.0315,
+    "max": 0.1591
    }
   },
   {
    "month": "2027-03",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0283,
-    "max": 0.1083
+    "avg": 0.0564,
+    "min": 0.0289,
+    "max": 0.11
    },
    "reversion": {
-    "avg": 0.0765,
-    "min": 0.034,
-    "max": 0.1854
+    "avg": 0.0774,
+    "min": 0.0345,
+    "max": 0.187
    },
    "montecarlo": {
-    "avg": 0.0592,
-    "min": 0.0308,
-    "max": 0.1162
+    "avg": 0.0602,
+    "min": 0.031,
+    "max": 0.1177
    },
    "consensus": {
-    "avg": 0.0637,
-    "min": 0.0283,
-    "max": 0.1854
+    "avg": 0.0647,
+    "min": 0.0289,
+    "max": 0.187
    }
   },
   {
    "month": "2027-04",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0263,
-    "max": 0.1166
+    "avg": 0.0564,
+    "min": 0.0269,
+    "max": 0.1185
    },
    "reversion": {
-    "avg": 0.0825,
-    "min": 0.034,
-    "max": 0.2122
+    "avg": 0.0834,
+    "min": 0.0345,
+    "max": 0.214
    },
    "montecarlo": {
-    "avg": 0.0605,
-    "min": 0.0292,
+    "avg": 0.0615,
+    "min": 0.0293,
     "max": 0.1283
    },
    "consensus": {
-    "avg": 0.0661,
-    "min": 0.0263,
-    "max": 0.2122
+    "avg": 0.0671,
+    "min": 0.0269,
+    "max": 0.214
    }
   },
   {
    "month": "2027-05",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0245,
-    "max": 0.1249
+    "avg": 0.0564,
+    "min": 0.025,
+    "max": 0.127
    },
    "reversion": {
-    "avg": 0.0886,
-    "min": 0.0344,
-    "max": 0.2401
+    "avg": 0.0895,
+    "min": 0.0348,
+    "max": 0.242
    },
    "montecarlo": {
-    "avg": 0.0619,
-    "min": 0.0279,
-    "max": 0.1398
+    "avg": 0.0624,
+    "min": 0.0278,
+    "max": 0.1404
    },
    "consensus": {
-    "avg": 0.0686,
-    "min": 0.0245,
-    "max": 0.2401
+    "avg": 0.0694,
+    "min": 0.025,
+    "max": 0.242
    }
   },
   {
    "month": "2027-06",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0231,
-    "max": 0.1329
+    "avg": 0.0564,
+    "min": 0.0235,
+    "max": 0.1351
    },
    "reversion": {
-    "avg": 0.0947,
-    "min": 0.035,
-    "max": 0.267
+    "avg": 0.0957,
+    "min": 0.0354,
+    "max": 0.269
    },
    "montecarlo": {
-    "avg": 0.0629,
-    "min": 0.0267,
-    "max": 0.1519
+    "avg": 0.0636,
+    "min": 0.0266,
+    "max": 0.1535
    },
    "consensus": {
-    "avg": 0.071,
-    "min": 0.0231,
-    "max": 0.267
+    "avg": 0.0719,
+    "min": 0.0235,
+    "max": 0.269
    }
   },
   {
    "month": "2027-07",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0217,
-    "max": 0.1411
+    "avg": 0.0564,
+    "min": 0.0222,
+    "max": 0.1434
    },
    "reversion": {
-    "avg": 0.101,
-    "min": 0.0358,
-    "max": 0.2949
+    "avg": 0.1019,
+    "min": 0.0362,
+    "max": 0.2969
    },
    "montecarlo": {
-    "avg": 0.0639,
+    "avg": 0.0649,
     "min": 0.0256,
-    "max": 0.1659
+    "max": 0.167
    },
    "consensus": {
-    "avg": 0.0734,
-    "min": 0.0217,
-    "max": 0.2949
+    "avg": 0.0744,
+    "min": 0.0222,
+    "max": 0.2969
    }
   },
   {
    "month": "2027-08",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0205,
-    "max": 0.1492
+    "avg": 0.0564,
+    "min": 0.021,
+    "max": 0.1517
    },
    "reversion": {
-    "avg": 0.1074,
-    "min": 0.0368,
-    "max": 0.3226
+    "avg": 0.1083,
+    "min": 0.0372,
+    "max": 0.3247
    },
    "montecarlo": {
-    "avg": 0.0653,
-    "min": 0.0243,
-    "max": 0.1777
+    "avg": 0.0666,
+    "min": 0.0246,
+    "max": 0.1822
    },
    "consensus": {
-    "avg": 0.076,
-    "min": 0.0205,
-    "max": 0.3226
+    "avg": 0.0771,
+    "min": 0.021,
+    "max": 0.3247
    }
   },
   {
    "month": "2027-09",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0195,
-    "max": 0.1571
+    "avg": 0.0564,
+    "min": 0.0199,
+    "max": 0.1597
    },
    "reversion": {
-    "avg": 0.1138,
-    "min": 0.0379,
-    "max": 0.3493
+    "avg": 0.1147,
+    "min": 0.0383,
+    "max": 0.3514
    },
    "montecarlo": {
-    "avg": 0.0663,
-    "min": 0.0237,
-    "max": 0.1903
+    "avg": 0.0678,
+    "min": 0.0241,
+    "max": 0.1944
    },
    "consensus": {
-    "avg": 0.0785,
-    "min": 0.0195,
-    "max": 0.3493
+    "avg": 0.0796,
+    "min": 0.0199,
+    "max": 0.3514
    }
   },
   {
    "month": "2027-10",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0186,
-    "max": 0.1652
+    "avg": 0.0564,
+    "min": 0.0189,
+    "max": 0.168
    },
    "reversion": {
-    "avg": 0.1202,
-    "min": 0.0391,
-    "max": 0.3766
+    "avg": 0.121,
+    "min": 0.0395,
+    "max": 0.3787
    },
    "montecarlo": {
-    "avg": 0.0677,
-    "min": 0.0231,
-    "max": 0.2031
+    "avg": 0.0692,
+    "min": 0.0232,
+    "max": 0.2083
    },
    "consensus": {
-    "avg": 0.0811,
-    "min": 0.0186,
-    "max": 0.3766
+    "avg": 0.0822,
+    "min": 0.0189,
+    "max": 0.3787
    }
   },
   {
    "month": "2027-11",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0177,
-    "max": 0.1732
+    "avg": 0.0564,
+    "min": 0.0181,
+    "max": 0.1761
    },
    "reversion": {
-    "avg": 0.1266,
-    "min": 0.0404,
-    "max": 0.4029
+    "avg": 0.1275,
+    "min": 0.0408,
+    "max": 0.405
    },
    "montecarlo": {
-    "avg": 0.0695,
-    "min": 0.022,
-    "max": 0.2193
+    "avg": 0.0705,
+    "min": 0.0226,
+    "max": 0.2194
    },
    "consensus": {
-    "avg": 0.0838,
-    "min": 0.0177,
-    "max": 0.4029
+    "avg": 0.0848,
+    "min": 0.0181,
+    "max": 0.405
    }
   },
   {
    "month": "2027-12",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0169,
-    "max": 0.1814
+    "avg": 0.0564,
+    "min": 0.0172,
+    "max": 0.1845
    },
    "reversion": {
-    "avg": 0.1331,
-    "min": 0.0418,
-    "max": 0.4297
+    "avg": 0.1339,
+    "min": 0.0421,
+    "max": 0.4318
    },
    "montecarlo": {
-    "avg": 0.0711,
-    "min": 0.0213,
-    "max": 0.2313
+    "avg": 0.0719,
+    "min": 0.0218,
+    "max": 0.2338
    },
    "consensus": {
-    "avg": 0.0865,
-    "min": 0.0169,
-    "max": 0.4297
+    "avg": 0.0874,
+    "min": 0.0172,
+    "max": 0.4318
    }
   },
   {
    "month": "2028-01",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0162,
-    "max": 0.1897
+    "avg": 0.0564,
+    "min": 0.0165,
+    "max": 0.1929
    },
    "reversion": {
-    "avg": 0.1396,
-    "min": 0.0432,
-    "max": 0.4563
+    "avg": 0.1404,
+    "min": 0.0436,
+    "max": 0.4583
    },
    "montecarlo": {
-    "avg": 0.0721,
-    "min": 0.0208,
-    "max": 0.2474
+    "avg": 0.0729,
+    "min": 0.0212,
+    "max": 0.2547
    },
    "consensus": {
-    "avg": 0.089,
-    "min": 0.0162,
-    "max": 0.4563
+    "avg": 0.0899,
+    "min": 0.0165,
+    "max": 0.4583
    }
   },
   {
    "month": "2028-02",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0155,
-    "max": 0.1975
+    "avg": 0.0564,
+    "min": 0.0158,
+    "max": 0.2009
    },
    "reversion": {
-    "avg": 0.146,
-    "min": 0.0447,
-    "max": 0.4809
+    "avg": 0.1468,
+    "min": 0.0451,
+    "max": 0.4828
    },
    "montecarlo": {
-    "avg": 0.0732,
-    "min": 0.0204,
-    "max": 0.2618
+    "avg": 0.0737,
+    "min": 0.0209,
+    "max": 0.2684
    },
    "consensus": {
-    "avg": 0.0915,
-    "min": 0.0155,
-    "max": 0.4809
+    "avg": 0.0923,
+    "min": 0.0158,
+    "max": 0.4828
    }
   },
   {
    "month": "2028-03",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0149,
-    "max": 0.2059
+    "avg": 0.0564,
+    "min": 0.0152,
+    "max": 0.2095
    },
    "reversion": {
-    "avg": 0.1524,
-    "min": 0.0462,
-    "max": 0.507
+    "avg": 0.1532,
+    "min": 0.0465,
+    "max": 0.5088
    },
    "montecarlo": {
-    "avg": 0.0746,
-    "min": 0.0197,
-    "max": 0.2775
+    "avg": 0.0752,
+    "min": 0.0205,
+    "max": 0.2818
    },
    "consensus": {
-    "avg": 0.0941,
-    "min": 0.0149,
-    "max": 0.507
+    "avg": 0.0949,
+    "min": 0.0152,
+    "max": 0.5088
    }
   },
   {
    "month": "2028-04",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0143,
-    "max": 0.2142
+    "avg": 0.0564,
+    "min": 0.0146,
+    "max": 0.2179
    },
    "reversion": {
-    "avg": 0.1589,
-    "min": 0.0478,
-    "max": 0.5319
+    "avg": 0.1596,
+    "min": 0.0481,
+    "max": 0.5336
    },
    "montecarlo": {
-    "avg": 0.0756,
-    "min": 0.0195,
-    "max": 0.2882
+    "avg": 0.0767,
+    "min": 0.0201,
+    "max": 0.2969
    },
    "consensus": {
-    "avg": 0.0966,
-    "min": 0.0143,
-    "max": 0.5319
+    "avg": 0.0976,
+    "min": 0.0146,
+    "max": 0.5336
    }
   },
   {
    "month": "2028-05",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0138,
-    "max": 0.2228
+    "avg": 0.0564,
+    "min": 0.014,
+    "max": 0.2266
    },
    "reversion": {
-    "avg": 0.1654,
-    "min": 0.0494,
-    "max": 0.5574
+    "avg": 0.1661,
+    "min": 0.0497,
+    "max": 0.559
    },
    "montecarlo": {
-    "avg": 0.0758,
-    "min": 0.019,
-    "max": 0.3105
+    "avg": 0.0781,
+    "min": 0.02,
+    "max": 0.3183
    },
    "consensus": {
-    "avg": 0.0988,
-    "min": 0.0138,
-    "max": 0.5574
+    "avg": 0.1002,
+    "min": 0.014,
+    "max": 0.559
    }
   },
   {
    "month": "2028-06",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0133,
-    "max": 0.2312
+    "avg": 0.0564,
+    "min": 0.0135,
+    "max": 0.2352
    },
    "reversion": {
-    "avg": 0.1718,
-    "min": 0.051,
-    "max": 0.5818
+    "avg": 0.1725,
+    "min": 0.0513,
+    "max": 0.5833
    },
    "montecarlo": {
-    "avg": 0.0776,
-    "min": 0.0188,
-    "max": 0.3287
+    "avg": 0.0792,
+    "min": 0.0198,
+    "max": 0.3322
    },
    "consensus": {
-    "avg": 0.1016,
-    "min": 0.0133,
-    "max": 0.5818
+    "avg": 0.1027,
+    "min": 0.0135,
+    "max": 0.5833
    }
   },
   {
    "month": "2028-07",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0128,
-    "max": 0.2399
+    "avg": 0.0564,
+    "min": 0.013,
+    "max": 0.2441
    },
    "reversion": {
-    "avg": 0.1783,
-    "min": 0.0527,
-    "max": 0.6068
+    "avg": 0.179,
+    "min": 0.0529,
+    "max": 0.6082
    },
    "montecarlo": {
-    "avg": 0.0788,
-    "min": 0.0184,
-    "max": 0.3475
+    "avg": 0.0807,
+    "min": 0.0191,
+    "max": 0.3602
    },
    "consensus": {
-    "avg": 0.1042,
-    "min": 0.0128,
-    "max": 0.6068
+    "avg": 0.1054,
+    "min": 0.013,
+    "max": 0.6082
    }
   },
   {
    "month": "2028-08",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0123,
-    "max": 0.2488
+    "avg": 0.0564,
+    "min": 0.0126,
+    "max": 0.2532
    },
    "reversion": {
-    "avg": 0.1849,
-    "min": 0.0544,
-    "max": 0.6315
+    "avg": 0.1856,
+    "min": 0.0546,
+    "max": 0.6328
    },
    "montecarlo": {
-    "avg": 0.08,
-    "min": 0.018,
-    "max": 0.3695
+    "avg": 0.0821,
+    "min": 0.0188,
+    "max": 0.377
    },
    "consensus": {
-    "avg": 0.1068,
-    "min": 0.0123,
-    "max": 0.6315
+    "avg": 0.108,
+    "min": 0.0126,
+    "max": 0.6328
    }
   },
   {
    "month": "2028-09",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0119,
-    "max": 0.2575
+    "avg": 0.0564,
+    "min": 0.0121,
+    "max": 0.262
    },
    "reversion": {
-    "avg": 0.1914,
-    "min": 0.0561,
-    "max": 0.6553
+    "avg": 0.192,
+    "min": 0.0564,
+    "max": 0.6565
    },
    "montecarlo": {
-    "avg": 0.0812,
-    "min": 0.0178,
-    "max": 0.3927
+    "avg": 0.084,
+    "min": 0.0186,
+    "max": 0.3971
    },
    "consensus": {
-    "avg": 0.1093,
-    "min": 0.0119,
-    "max": 0.6553
+    "avg": 0.1108,
+    "min": 0.0121,
+    "max": 0.6565
    }
   },
   {
    "month": "2028-10",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0115,
-    "max": 0.2667
+    "avg": 0.0564,
+    "min": 0.0117,
+    "max": 0.2713
    },
    "reversion": {
-    "avg": 0.1979,
-    "min": 0.0578,
-    "max": 0.6797
+    "avg": 0.1985,
+    "min": 0.058,
+    "max": 0.6808
    },
    "montecarlo": {
-    "avg": 0.0822,
-    "min": 0.0175,
-    "max": 0.4141
+    "avg": 0.0857,
+    "min": 0.0179,
+    "max": 0.4195
    },
    "consensus": {
-    "avg": 0.1118,
-    "min": 0.0115,
-    "max": 0.6797
+    "avg": 0.1135,
+    "min": 0.0117,
+    "max": 0.6808
    }
   },
   {
    "month": "2028-11",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0111,
-    "max": 0.2756
+    "avg": 0.0564,
+    "min": 0.0113,
+    "max": 0.2804
    },
    "reversion": {
-    "avg": 0.2044,
-    "min": 0.0596,
-    "max": 0.7031
+    "avg": 0.205,
+    "min": 0.0598,
+    "max": 0.7041
    },
    "montecarlo": {
-    "avg": 0.0838,
-    "min": 0.0173,
-    "max": 0.4371
+    "avg": 0.0865,
+    "min": 0.0174,
+    "max": 0.4428
    },
    "consensus": {
-    "avg": 0.1145,
-    "min": 0.0111,
-    "max": 0.7031
+    "avg": 0.1159,
+    "min": 0.0113,
+    "max": 0.7041
    }
   },
   {
    "month": "2028-12",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0108,
-    "max": 0.2849
+    "avg": 0.0564,
+    "min": 0.011,
+    "max": 0.2899
    },
    "reversion": {
-    "avg": 0.2109,
-    "min": 0.0613,
-    "max": 0.7272
+    "avg": 0.2114,
+    "min": 0.0615,
+    "max": 0.7281
    },
    "montecarlo": {
-    "avg": 0.0852,
-    "min": 0.0171,
-    "max": 0.4583
+    "avg": 0.0884,
+    "min": 0.017,
+    "max": 0.4759
    },
    "consensus": {
-    "avg": 0.1171,
-    "min": 0.0108,
-    "max": 0.7272
+    "avg": 0.1187,
+    "min": 0.011,
+    "max": 0.7281
    }
   },
   {
    "month": "2029-01",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0104,
-    "max": 0.2944
+    "avg": 0.0564,
+    "min": 0.0106,
+    "max": 0.2995
    },
    "reversion": {
-    "avg": 0.2175,
-    "min": 0.0631,
-    "max": 0.7512
+    "avg": 0.218,
+    "min": 0.0633,
+    "max": 0.7519
    },
    "montecarlo": {
-    "avg": 0.0859,
-    "min": 0.0172,
-    "max": 0.4782
+    "avg": 0.0905,
+    "min": 0.017,
+    "max": 0.4967
    },
    "consensus": {
-    "avg": 0.1196,
-    "min": 0.0104,
-    "max": 0.7512
+    "avg": 0.1216,
+    "min": 0.0106,
+    "max": 0.7519
    }
   },
   {
    "month": "2029-02",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0101,
-    "max": 0.303
+    "avg": 0.0564,
+    "min": 0.0103,
+    "max": 0.3083
    },
    "reversion": {
-    "avg": 0.2238,
-    "min": 0.0649,
-    "max": 0.7728
+    "avg": 0.2243,
+    "min": 0.0651,
+    "max": 0.7734
    },
    "montecarlo": {
-    "avg": 0.0876,
-    "min": 0.017,
-    "max": 0.5009
+    "avg": 0.0918,
+    "min": 0.0169,
+    "max": 0.5152
    },
    "consensus": {
-    "avg": 0.1223,
-    "min": 0.0101,
-    "max": 0.7728
+    "avg": 0.1242,
+    "min": 0.0103,
+    "max": 0.7734
    }
   },
   {
    "month": "2029-03",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0098,
-    "max": 0.3127
+    "avg": 0.0564,
+    "min": 0.01,
+    "max": 0.3182
    },
    "reversion": {
-    "avg": 0.2301,
-    "min": 0.0666,
-    "max": 0.7966
+    "avg": 0.2306,
+    "min": 0.0668,
+    "max": 0.7971
    },
    "montecarlo": {
-    "avg": 0.0895,
-    "min": 0.0166,
-    "max": 0.5401
+    "avg": 0.0935,
+    "min": 0.0169,
+    "max": 0.5565
    },
    "consensus": {
-    "avg": 0.125,
-    "min": 0.0098,
-    "max": 0.7966
+    "avg": 0.1268,
+    "min": 0.01,
+    "max": 0.7971
    }
   },
   {
    "month": "2029-04",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0095,
-    "max": 0.3222
+    "avg": 0.0564,
+    "min": 0.0097,
+    "max": 0.3279
    },
    "reversion": {
-    "avg": 0.2367,
-    "min": 0.0684,
-    "max": 0.8197
+    "avg": 0.2371,
+    "min": 0.0686,
+    "max": 0.8201
    },
    "montecarlo": {
-    "avg": 0.091,
-    "min": 0.0163,
-    "max": 0.5555
+    "avg": 0.0951,
+    "min": 0.0166,
+    "max": 0.5649
    },
    "consensus": {
-    "avg": 0.1277,
-    "min": 0.0095,
-    "max": 0.8197
+    "avg": 0.1295,
+    "min": 0.0097,
+    "max": 0.8201
    }
   },
   {
    "month": "2029-05",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0092,
-    "max": 0.3322
+    "avg": 0.0564,
+    "min": 0.0094,
+    "max": 0.338
    },
    "reversion": {
-    "avg": 0.2432,
-    "min": 0.0702,
-    "max": 0.8435
+    "avg": 0.2437,
+    "min": 0.0704,
+    "max": 0.8437
    },
    "montecarlo": {
-    "avg": 0.0934,
-    "min": 0.0161,
-    "max": 0.5859
+    "avg": 0.0969,
+    "min": 0.0166,
+    "max": 0.598
    },
    "consensus": {
-    "avg": 0.1307,
-    "min": 0.0092,
-    "max": 0.8435
+    "avg": 0.1323,
+    "min": 0.0094,
+    "max": 0.8437
    }
   },
   {
    "month": "2029-06",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.009,
-    "max": 0.3419
+    "avg": 0.0564,
+    "min": 0.0091,
+    "max": 0.3479
    },
    "reversion": {
-    "avg": 0.2498,
-    "min": 0.0721,
-    "max": 0.8665
+    "avg": 0.2502,
+    "min": 0.0723,
+    "max": 0.8667
    },
    "montecarlo": {
-    "avg": 0.0954,
-    "min": 0.0159,
-    "max": 0.6115
+    "avg": 0.0994,
+    "min": 0.0161,
+    "max": 0.6242
    },
    "consensus": {
-    "avg": 0.1335,
-    "min": 0.009,
-    "max": 0.8665
+    "avg": 0.1354,
+    "min": 0.0091,
+    "max": 0.8667
    }
   },
   {
    "month": "2029-07",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0087,
-    "max": 0.3521
+    "avg": 0.0564,
+    "min": 0.0089,
+    "max": 0.3583
    },
    "reversion": {
-    "avg": 0.2564,
-    "min": 0.0739,
-    "max": 0.8903
+    "avg": 0.2568,
+    "min": 0.0741,
+    "max": 0.8904
    },
    "montecarlo": {
-    "avg": 0.0977,
-    "min": 0.0156,
-    "max": 0.6512
+    "avg": 0.1016,
+    "min": 0.0162,
+    "max": 0.6497
    },
    "consensus": {
-    "avg": 0.1365,
-    "min": 0.0087,
-    "max": 0.8903
+    "avg": 0.1383,
+    "min": 0.0089,
+    "max": 0.8904
    }
   },
   {
    "month": "2029-08",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0085,
-    "max": 0.3625
+    "avg": 0.0564,
+    "min": 0.0086,
+    "max": 0.3689
    },
    "reversion": {
-    "avg": 0.2632,
-    "min": 0.0758,
+    "avg": 0.2636,
+    "min": 0.076,
     "max": 0.9142
    },
    "montecarlo": {
-    "avg": 0.0989,
-    "min": 0.0155,
-    "max": 0.675
+    "avg": 0.1041,
+    "min": 0.0161,
+    "max": 0.6866
    },
    "consensus": {
-    "avg": 0.1391,
-    "min": 0.0085,
+    "avg": 0.1413,
+    "min": 0.0086,
     "max": 0.9142
    }
   },
   {
    "month": "2029-09",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0082,
-    "max": 0.3726
+    "avg": 0.0564,
+    "min": 0.0084,
+    "max": 0.3792
    },
    "reversion": {
-    "avg": 0.2699,
-    "min": 0.0777,
-    "max": 0.9374
+    "avg": 0.2702,
+    "min": 0.0779,
+    "max": 0.9373
    },
    "montecarlo": {
-    "avg": 0.1009,
-    "min": 0.0155,
-    "max": 0.6923
+    "avg": 0.1062,
+    "min": 0.0161,
+    "max": 0.7141
    },
    "consensus": {
-    "avg": 0.1421,
-    "min": 0.0082,
-    "max": 0.9374
+    "avg": 0.1443,
+    "min": 0.0084,
+    "max": 0.9373
    }
   },
   {
    "month": "2029-10",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.008,
-    "max": 0.3833
+    "avg": 0.0564,
+    "min": 0.0082,
+    "max": 0.39
    },
    "reversion": {
-    "avg": 0.2766,
-    "min": 0.0796,
-    "max": 0.9615
+    "avg": 0.2769,
+    "min": 0.0798,
+    "max": 0.9612
    },
    "montecarlo": {
-    "avg": 0.1028,
-    "min": 0.0152,
-    "max": 0.7331
+    "avg": 0.1073,
+    "min": 0.0157,
+    "max": 0.7612
    },
    "consensus": {
-    "avg": 0.1449,
-    "min": 0.008,
-    "max": 0.9615
+    "avg": 0.1469,
+    "min": 0.0082,
+    "max": 0.9612
    }
   },
   {
    "month": "2029-11",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0078,
-    "max": 0.3937
+    "avg": 0.0564,
+    "min": 0.0079,
+    "max": 0.4007
    },
    "reversion": {
-    "avg": 0.2834,
-    "min": 0.0816,
-    "max": 0.9849
+    "avg": 0.2837,
+    "min": 0.0818,
+    "max": 0.9845
    },
    "montecarlo": {
-    "avg": 0.1042,
-    "min": 0.0152,
-    "max": 0.761
+    "avg": 0.1095,
+    "min": 0.0153,
+    "max": 0.7874
    },
    "consensus": {
-    "avg": 0.1477,
-    "min": 0.0078,
-    "max": 0.9849
+    "avg": 0.1499,
+    "min": 0.0079,
+    "max": 0.9845
    }
   },
   {
    "month": "2029-12",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0076,
-    "max": 0.4046
+    "avg": 0.0564,
+    "min": 0.0077,
+    "max": 0.4118
    },
    "reversion": {
-    "avg": 0.2902,
-    "min": 0.0835,
-    "max": 1.0092
+    "avg": 0.2905,
+    "min": 0.0837,
+    "max": 1.0087
    },
    "montecarlo": {
-    "avg": 0.106,
-    "min": 0.0152,
-    "max": 0.7844
+    "avg": 0.1119,
+    "min": 0.0149,
+    "max": 0.8127
    },
    "consensus": {
-    "avg": 0.1506,
-    "min": 0.0076,
-    "max": 1.0092
+    "avg": 0.1529,
+    "min": 0.0077,
+    "max": 1.0087
    }
   },
   {
    "month": "2030-01",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0074,
-    "max": 0.4157
+    "avg": 0.0564,
+    "min": 0.0075,
+    "max": 0.423
    },
    "reversion": {
-    "avg": 0.2972,
-    "min": 0.0855,
-    "max": 1.0337
+    "avg": 0.2975,
+    "min": 0.0857,
+    "max": 1.0331
    },
    "montecarlo": {
-    "avg": 0.1094,
-    "min": 0.0153,
-    "max": 0.8094
+    "avg": 0.1129,
+    "min": 0.0151,
+    "max": 0.8683
    },
    "consensus": {
-    "avg": 0.154,
-    "min": 0.0074,
-    "max": 1.0337
+    "avg": 0.1556,
+    "min": 0.0075,
+    "max": 1.0331
    }
   },
   {
    "month": "2030-02",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0072,
-    "max": 0.4258
+    "avg": 0.0564,
+    "min": 0.0073,
+    "max": 0.4333
    },
    "reversion": {
-    "avg": 0.304,
-    "min": 0.0875,
-    "max": 1.056
+    "avg": 0.3042,
+    "min": 0.0877,
+    "max": 1.0553
    },
    "montecarlo": {
-    "avg": 0.1111,
+    "avg": 0.1156,
     "min": 0.0152,
-    "max": 0.8568
+    "max": 0.9123
    },
    "consensus": {
-    "avg": 0.1568,
-    "min": 0.0072,
-    "max": 1.056
+    "avg": 0.1587,
+    "min": 0.0073,
+    "max": 1.0553
    }
   },
   {
    "month": "2030-03",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.007,
-    "max": 0.4371
+    "avg": 0.0564,
+    "min": 0.0071,
+    "max": 0.4449
    },
    "reversion": {
-    "avg": 0.3107,
-    "min": 0.0893,
-    "max": 1.0808
+    "avg": 0.3109,
+    "min": 0.0895,
+    "max": 1.0801
    },
    "montecarlo": {
-    "avg": 0.1127,
+    "avg": 0.118,
     "min": 0.0149,
-    "max": 0.8657
+    "max": 0.9519
    },
    "consensus": {
-    "avg": 0.1596,
-    "min": 0.007,
-    "max": 1.0808
+    "avg": 0.1618,
+    "min": 0.0071,
+    "max": 1.0801
    }
   },
   {
    "month": "2030-04",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0068,
-    "max": 0.4483
+    "avg": 0.0564,
+    "min": 0.007,
+    "max": 0.4562
    },
    "reversion": {
-    "avg": 0.3178,
-    "min": 0.0914,
-    "max": 1.1051
+    "avg": 0.318,
+    "min": 0.0916,
+    "max": 1.1042
    },
    "montecarlo": {
-    "avg": 0.1147,
-    "min": 0.0149,
-    "max": 0.9045
+    "avg": 0.1189,
+    "min": 0.0147,
+    "max": 0.9878
    },
    "consensus": {
-    "avg": 0.1626,
-    "min": 0.0068,
-    "max": 1.1051
+    "avg": 0.1644,
+    "min": 0.007,
+    "max": 1.1042
    }
   },
   {
    "month": "2030-05",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0067,
-    "max": 0.4599
+    "avg": 0.0564,
+    "min": 0.0068,
+    "max": 0.4681
    },
    "reversion": {
-    "avg": 0.3249,
-    "min": 0.0934,
-    "max": 1.1303
+    "avg": 0.3251,
+    "min": 0.0936,
+    "max": 1.1294
    },
    "montecarlo": {
-    "avg": 0.1186,
-    "min": 0.0147,
-    "max": 0.9475
+    "avg": 0.1216,
+    "min": 0.0149,
+    "max": 1.0417
    },
    "consensus": {
-    "avg": 0.1663,
-    "min": 0.0067,
-    "max": 1.1303
+    "avg": 0.1677,
+    "min": 0.0068,
+    "max": 1.1294
    }
   },
   {
    "month": "2030-06",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0065,
-    "max": 0.4714
+    "avg": 0.0564,
+    "min": 0.0066,
+    "max": 0.4797
    },
    "reversion": {
-    "avg": 0.3321,
-    "min": 0.0955,
-    "max": 1.1551
+    "avg": 0.3323,
+    "min": 0.0957,
+    "max": 1.154
    },
    "montecarlo": {
-    "avg": 0.1215,
-    "min": 0.0147,
-    "max": 0.9792
+    "avg": 0.123,
+    "min": 0.0148,
+    "max": 1.0832
    },
    "consensus": {
-    "avg": 0.1697,
-    "min": 0.0065,
-    "max": 1.1551
+    "avg": 0.1706,
+    "min": 0.0066,
+    "max": 1.154
    }
   },
   {
    "month": "2030-07",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0063,
-    "max": 0.4833
+    "avg": 0.0564,
+    "min": 0.0065,
+    "max": 0.4919
    },
    "reversion": {
-    "avg": 0.3394,
-    "min": 0.0976,
-    "max": 1.1809
+    "avg": 0.3396,
+    "min": 0.0977,
+    "max": 1.1797
    },
    "montecarlo": {
-    "avg": 0.1249,
-    "min": 0.0146,
-    "max": 1.0305
+    "avg": 0.1254,
+    "min": 0.0147,
+    "max": 1.1075
    },
    "consensus": {
-    "avg": 0.1732,
-    "min": 0.0063,
-    "max": 1.1809
+    "avg": 0.1738,
+    "min": 0.0065,
+    "max": 1.1797
    }
   },
   {
    "month": "2030-08",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0062,
-    "max": 0.4955
+    "avg": 0.0564,
+    "min": 0.0063,
+    "max": 0.5043
    },
    "reversion": {
-    "avg": 0.3469,
-    "min": 0.0997,
-    "max": 1.2069
+    "avg": 0.347,
+    "min": 0.0999,
+    "max": 1.2057
    },
    "montecarlo": {
-    "avg": 0.1269,
-    "min": 0.0143,
-    "max": 1.0739
+    "avg": 0.1281,
+    "min": 0.0147,
+    "max": 1.1454
    },
    "consensus": {
-    "avg": 0.1764,
-    "min": 0.0062,
-    "max": 1.2069
+    "avg": 0.1772,
+    "min": 0.0063,
+    "max": 1.2057
    }
   },
   {
    "month": "2030-09",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.006,
-    "max": 0.5074
+    "avg": 0.0564,
+    "min": 0.0062,
+    "max": 0.5164
    },
    "reversion": {
-    "avg": 0.3544,
-    "min": 0.1019,
-    "max": 1.2325
+    "avg": 0.3545,
+    "min": 0.1021,
+    "max": 1.2312
    },
    "montecarlo": {
-    "avg": 0.1305,
-    "min": 0.0142,
-    "max": 1.1066
+    "avg": 0.1306,
+    "min": 0.0144,
+    "max": 1.1855
    },
    "consensus": {
-    "avg": 0.1801,
-    "min": 0.006,
-    "max": 1.2325
+    "avg": 0.1805,
+    "min": 0.0062,
+    "max": 1.2312
    }
   },
   {
    "month": "2030-10",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0059,
-    "max": 0.5198
+    "avg": 0.0564,
+    "min": 0.006,
+    "max": 0.5291
    },
    "reversion": {
-    "avg": 0.3619,
-    "min": 0.104,
-    "max": 1.2592
+    "avg": 0.362,
+    "min": 0.1042,
+    "max": 1.2578
    },
    "montecarlo": {
-    "avg": 0.1338,
-    "min": 0.0143,
-    "max": 1.1506
+    "avg": 0.1334,
+    "min": 0.0139,
+    "max": 1.2364
    },
    "consensus": {
-    "avg": 0.1837,
-    "min": 0.0059,
-    "max": 1.2592
+    "avg": 0.1839,
+    "min": 0.006,
+    "max": 1.2578
    }
   },
   {
    "month": "2030-11",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0058,
-    "max": 0.532
+    "avg": 0.0564,
+    "min": 0.0059,
+    "max": 0.5415
    },
    "reversion": {
-    "avg": 0.3696,
-    "min": 0.1063,
-    "max": 1.2854
+    "avg": 0.3697,
+    "min": 0.1064,
+    "max": 1.2839
    },
    "montecarlo": {
-    "avg": 0.1354,
-    "min": 0.0147,
-    "max": 1.2061
+    "avg": 0.1364,
+    "min": 0.014,
+    "max": 1.2955
    },
    "consensus": {
-    "avg": 0.1868,
-    "min": 0.0058,
-    "max": 1.2854
+    "avg": 0.1875,
+    "min": 0.0059,
+    "max": 1.2955
    }
   },
   {
    "month": "2030-12",
    "arima": {
-    "avg": 0.0554,
-    "min": 0.0056,
-    "max": 0.5448
+    "avg": 0.0564,
+    "min": 0.0057,
+    "max": 0.5545
    },
    "reversion": {
-    "avg": 0.3773,
-    "min": 0.1085,
-    "max": 1.3127
+    "avg": 0.3774,
+    "min": 0.1086,
+    "max": 1.3112
    },
    "montecarlo": {
-    "avg": 0.1365,
-    "min": 0.0145,
-    "max": 1.2558
+    "avg": 0.1393,
+    "min": 0.014,
+    "max": 1.3452
    },
    "consensus": {
-    "avg": 0.1897,
-    "min": 0.0056,
-    "max": 1.3127
+    "avg": 0.191,
+    "min": 0.0057,
+    "max": 1.3452
    }
   }
  ],
@@ -1485,70 +1485,70 @@
   {
    "year": 2031,
    "reversion": 0.4311,
-   "montecarlo": 0.1538,
-   "consensus": 0.2925,
-   "p10": 0.0143,
-   "p90": 1.6843
+   "montecarlo": 0.1561,
+   "consensus": 0.2936,
+   "p10": 0.0141,
+   "p90": 1.7632
   },
   {
    "year": 2032,
-   "reversion": 0.5445,
-   "montecarlo": 0.1941,
-   "consensus": 0.3693,
-   "p10": 0.0136,
-   "p90": 2.7457
+   "reversion": 0.5444,
+   "montecarlo": 0.1935,
+   "consensus": 0.3689,
+   "p10": 0.0143,
+   "p90": 2.7769
   },
   {
    "year": 2033,
-   "reversion": 0.6836,
-   "montecarlo": 0.2447,
-   "consensus": 0.4642,
-   "p10": 0.0138,
-   "p90": 4.3973
+   "reversion": 0.6834,
+   "montecarlo": 0.2412,
+   "consensus": 0.4623,
+   "p10": 0.0143,
+   "p90": 4.3145
   },
   {
    "year": 2034,
-   "reversion": 0.8559,
-   "montecarlo": 0.3051,
-   "consensus": 0.5805,
-   "p10": 0.0139,
-   "p90": 6.921
+   "reversion": 0.8556,
+   "montecarlo": 0.305,
+   "consensus": 0.5803,
+   "p10": 0.0141,
+   "p90": 6.7177
   },
   {
    "year": 2035,
-   "reversion": 1.0707,
-   "montecarlo": 0.3869,
-   "consensus": 0.7288,
-   "p10": 0.014,
-   "p90": 10.322
+   "reversion": 1.0702,
+   "montecarlo": 0.379,
+   "consensus": 0.7246,
+   "p10": 0.0144,
+   "p90": 10.2212
   }
  ],
  "accuracy": {
   "arima": {
-   "mape_1d": 2.02,
-   "mape_7d": 5.18,
-   "mape_30d": 14.62,
+   "mape_1d": 2.37,
+   "mape_7d": 5.31,
+   "mape_30d": 14.38,
    "basis": "walk-forward",
    "samples": 50
   },
   "reversion": {
-   "mape_1d": 2.05,
-   "mape_7d": 5.58,
-   "mape_30d": 17.16,
+   "mape_1d": 2.39,
+   "mape_7d": 5.85,
+   "mape_30d": 16.55,
    "basis": "walk-forward",
    "samples": 50
   },
   "montecarlo": {
-   "mape_1d": 2.03,
-   "mape_7d": 5.28,
-   "mape_30d": 15.3,
+   "mape_1d": 2.37,
+   "mape_7d": 5.45,
+   "mape_30d": 15.02,
    "basis": "walk-forward",
    "samples": 50
   },
   "consensus": {
-   "mape_1d": 2.04,
-   "mape_7d": 5.33,
-   "mape_30d": 15.53,
+   "mape_1d": 2.37,
+   "mape_7d": 5.51,
+   "mape_30d": 15.26,
    "basis": "walk-forward",
    "samples": 50
   }
