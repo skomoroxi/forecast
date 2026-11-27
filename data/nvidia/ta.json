@@ -1,7 +1,7 @@
 {
  "asset": "nvidia",
- "generated_at": "2026-11-26T09:33:21Z",
- "run_date": "2026-11-26",
+ "generated_at": "2026-11-27T09:40:44Z",
+ "run_date": "2026-11-27",
  "ohlc_basis": "actual",
  "timeframes": {
   "daily": {
